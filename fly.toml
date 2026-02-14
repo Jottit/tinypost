@@ -1,0 +1,17 @@
+# fly.toml — https://fly.io/docs/reference/configuration/
+
+app = "jottit"
+primary_region = "ams"
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[processes]
+  app = "gunicorn app:app --bind 0.0.0.0:8080"
