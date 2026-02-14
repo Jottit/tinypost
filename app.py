@@ -6,7 +6,8 @@ app.secret_key = "change-me-later"
 
 def get_db():
     if "db" not in g:
-        g.db = psycopg.connect("dbname=jottit")
+        dbname = app.config.get("DATABASE", "jottit")
+        g.db = psycopg.connect(f"dbname={dbname}")
     return g.db
 
 @app.teardown_appcontext

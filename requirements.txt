@@ -1,3 +1,4 @@
 flask
 gunicorn
 psycopg[binary]
+pytest
