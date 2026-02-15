@@ -479,6 +479,11 @@ nav a:hover {
   border: none;
 }
 
+.pill-input input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--site-bg) inset;
+  -webkit-text-fill-color: var(--site-text-bright);
+}
+
 .pill-input button {
   border-radius: var(--radius-pill);
   padding: var(--space-2) var(--space-4);
@@ -505,14 +510,15 @@ nav a:hover {
   text-align: center;
   font-size: var(--text-2xl);
   font-family: var(--font-mono);
-  border: 1px solid var(--site-divider);
+  background: var(--site-bg);
+  border: 1px solid var(--site-text-muted);
   border-radius: var(--radius-md);
   padding: 0;
 }
 
 .passcode-inputs input:focus {
   outline: none;
-  border-color: var(--site-text-muted);
+  border-color: var(--site-text-bright);
 }
 
 .btn {
