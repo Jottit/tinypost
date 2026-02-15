@@ -21,4 +21,6 @@ def get_site_by_subdomain(subdomain):
 
 
 def get_posts_for_site(site_id):
-    return query("SELECT * FROM posts WHERE site_id = %s ORDER BY created_at DESC", (site_id,))
+    return query(
+        "SELECT * FROM posts WHERE site_id = %s ORDER BY created_at DESC LIMIT 30", (site_id,)
+    )

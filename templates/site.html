@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ site.title }} — Jottit{% endblock %}
+{% block body %}
+  <main>
+    <header>
+      <h1>{{ site.title }}</h1>
+      {% if site.bio %}
+        <p>{{ site.bio }}</p>
+      {% endif %}
+    </header>
+    {% if posts %}
+      {% for post in posts %}
+        <article>
+          <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
+          {% if post.title %}
+            <h2><a href="/{{ post.slug }}">{{ post.title }}</a></h2>
+          {% endif %}
+          <div>{{ post.body | markdown }}</div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <p>No posts yet.</p>
+    {% endif %}
+  </main>
+{% endblock %}
