@@ -17,6 +17,14 @@ app.teardown_appcontext(close_db)
 def markdown_filter(text):
     return Markup(markdown.markdown(text))
 
+
+@app.template_filter("truncatewords")
+def truncatewords_filter(text, n=50):
+    words = text.split()
+    if len(words) <= n:
+        return text
+    return " ".join(words[:n]) + "…"
+
 from routes import *
 
 if __name__ == "__main__":
