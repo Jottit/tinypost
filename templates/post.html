@@ -12,7 +12,7 @@
       {% endif %}
       <div>{{ post.body | markdown }}</div>
       {% if is_owner %}
-        <a href="/edit/{{ post.slug }}">Edit</a>
+        <div style="text-align: center" class="mt-4"><a href="/edit/{{ post.slug }}" class="btn-secondary">Edit</a></div>
       {% endif %}
     </article>
   </main>
