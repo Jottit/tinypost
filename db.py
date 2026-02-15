@@ -12,3 +12,11 @@ def create_user_and_site(email, subdomain):
                       (subdomain, user["id"], subdomain)).fetchone()
     db.commit()
     return user, site
+
+
+def get_site_by_subdomain(subdomain):
+    return query("SELECT * FROM sites WHERE subdomain = %s", (subdomain,), one=True)
+
+
+def get_posts_for_site(site_id):
+    return query("SELECT * FROM posts WHERE site_id = %s ORDER BY created_at DESC", (site_id,))

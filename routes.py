@@ -2,21 +2,33 @@ from app import app
 from flask import render_template, request, redirect, session
 from utils import is_valid_subdomain, site_url
 from auth import generate_passcode, send_passcode
-from db import subdomain_taken, create_user_and_site
+from db import subdomain_taken, create_user_and_site, get_site_by_subdomain, get_posts_for_site
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    if request.method == "POST":
-        subdomain = request.form.get("subdomain", "").lower().strip()
-        if not is_valid_subdomain(subdomain):
-            return render_template("home.html", error="Invalid name")
+    host = request.host.split(":")[0]
+    base = app.config["BASE_DOMAIN"].split(":")[0]
 
-        if subdomain_taken(subdomain):
-            return render_template("home.html", error="Name taken")
 
-        return render_template("signup.html", subdomain=subdomain)
+    if host == base:
+        if request.method == "POST":
+            subdomain = request.form.get("subdomain", "").lower().strip()
+            if not is_valid_subdomain(subdomain):
+                return render_template("home.html", error="Invalid name")
+            if subdomain_taken(subdomain):
+                return render_template("home.html", error="Name taken")
+            return render_template("signup.html", subdomain=subdomain)
+        return render_template("home.html")
 
-    return render_template("home.html")
+    if host.endswith("." + base):
+        subdomain = host.replace("." + base, "")
+        site = get_site_by_subdomain(subdomain)
+        if not site:
+            return "Not found", 404
+        posts = get_posts_for_site(site["id"])
+        return render_template("site.html", site=site, posts=posts)
+
+    return "Not found", 404
 
 @app.route("/signup", methods=["POST"])
 def signup_post():
