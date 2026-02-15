@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title or site.title }} — Jottit{% endblock %}
+{% block body %}
+  <main>
+    <header>
+      <h1><a href="/">{{ site.title }}</a></h1>
+    </header>
+    <article>
+      <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
+      {% if post.title %}
+        <h2>{{ post.title }}</h2>
+      {% endif %}
+      <div>{{ post.body | markdown }}</div>
+    </article>
+  </main>
+{% endblock %}

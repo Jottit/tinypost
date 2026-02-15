@@ -5,6 +5,7 @@ from auth import generate_passcode, send_passcode
 from db import (
     create_post,
     create_user_and_site,
+    get_post_by_slug,
     get_posts_for_site,
     get_site_by_subdomain,
     get_site_by_user,
@@ -119,6 +120,17 @@ def edit():
     slug = slugify(title or body[:50]) or "post"
     create_post(site["id"], slug, title or None, body)
     return redirect(f"/{slug}")
+
+
+@app.route("/<slug>")
+def post(slug):
+    site = get_current_site()
+    if not site:
+        abort(404)
+    post = get_post_by_slug(site["id"], slug)
+    if not post:
+        abort(404)
+    return render_template("post.html", site=site, post=post)
 
 
 @app.route("/signout", methods=["POST"])

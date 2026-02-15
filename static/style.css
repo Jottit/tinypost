@@ -353,6 +353,10 @@ header {
   margin-bottom: var(--space-8);
 }
 
+header h1 a {
+  text-decoration: none;
+}
+
 footer {
   text-align: center;
   padding: var(--space-8) var(--space-4);
