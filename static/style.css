@@ -123,7 +123,7 @@ table {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #111;
+    --bg: #333840;
     --text: #ccc;
     --text-muted: #777;
     --text-bright: #eee;
