@@ -132,6 +132,11 @@ table {
   }
 }
 
+/* Breakpoints (used in media queries) */
+/* --bp-sm: 640px */
+/* --bp-md: 864px */
+/* --bp-lg: 1152px */
+
 /* ── Base ─────────────────────────────── */
 body {
   font-family: var(--site-font);
@@ -410,4 +415,78 @@ nav a {
 
 nav a:hover {
   color: var(--site-text-bright);
+}
+
+/* ── Home page ────────────────────────── */
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-4);
+}
+
+.header-home {
+    margin-bottom: var(--space-4);
+}
+
+.logo {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0;
+  background: linear-gradient(90deg, #117a65, #28b463, #82e0aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.slug-form {
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: var(--space-4);
+}
+
+.slug-input {
+  display: flex;
+  align-items: center;
+  background: var(--site-bg);
+  border: 1px solid var(--site-divider);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+}
+
+.slug-suffix {
+  font-size: var(--text-base);
+  color: var(--site-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: var(--space-4);
+}
+
+.slug-input input {
+  border: none;
+  padding: var(--space-2);
+  font-size: var(--text-base);
+  flex: 1;
+  min-width: 0;
+}
+
+.slug-input input:focus {
+  outline: none;
+  border: none;
+}
+
+.slug-input button {
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tagline {
+  color: var(--site-text-muted);
 }

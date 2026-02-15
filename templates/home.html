@@ -7,11 +7,18 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Jottit</h1>
-      <p><small>self-owned publishing on the web</small></p>
+  <main class="home">
+    <header class="header-home">
+      <h1 class="logo"><span>Jottit</span></h1>
     </header>
+    <form action="/" method="post" class="slug-form">
+        <div class="slug-input">
+            <input type="text" name="subdomain" placeholder="yourname" required autofocus>
+            <span class="slug-suffix">.jottit.pub</span>
+            <button type="submit">Go</button>
+        </div>
+    </form>
+    <p class="tagline">self-owned publishing on the web</p>
   </main>
 </body>
 </html>
