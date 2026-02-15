@@ -1,8 +1,10 @@
+from flask import redirect, render_template, request, session
+
 from app import app
-from flask import render_template, request, redirect, session
-from utils import is_valid_subdomain, site_url
 from auth import generate_passcode, send_passcode
-from db import subdomain_taken, create_user_and_site, get_site_by_subdomain, get_posts_for_site
+from db import create_user_and_site, get_posts_for_site, get_site_by_subdomain, subdomain_taken
+from utils import is_valid_subdomain, site_url
+
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -29,6 +31,7 @@ def home():
 
     return "Not found", 404
 
+
 @app.route("/signup", methods=["POST"])
 def signup_post():
     subdomain = request.form["subdomain"]
@@ -37,6 +40,7 @@ def signup_post():
     session["signup"] = {"subdomain": subdomain, "email": email, "passcode": passcode}
     send_passcode(email, passcode)
     return render_template("signup_verify.html", email=email)
+
 
 @app.route("/verify", methods=["POST"])
 def signup_verify():
@@ -50,4 +54,3 @@ def signup_verify():
     session.pop("signup")
     session["user_id"] = user["id"]
     return redirect(site_url(signup["subdomain"]))
-

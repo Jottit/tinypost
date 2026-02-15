@@ -3,7 +3,7 @@ import string
 
 
 def generate_passcode():
-    return ''.join(random.choices(string.digits, k=6))
+    return "".join(random.choices(string.digits, k=6))
 
 
 def send_passcode(email, passcode):

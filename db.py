@@ -1,4 +1,4 @@
-from models import query, get_db
+from models import get_db, query
 
 
 def subdomain_taken(subdomain):
@@ -7,9 +7,7 @@ def subdomain_taken(subdomain):
 
 def create_user_and_site(email, subdomain):
     db = get_db()
-    user = db.execute(
-        "INSERT INTO users (email) VALUES (%s) RETURNING id", (email,)
-    ).fetchone()
+    user = db.execute("INSERT INTO users (email) VALUES (%s) RETURNING id", (email,)).fetchone()
     site = db.execute(
         "INSERT INTO sites (subdomain, user_id, title) VALUES (%s, %s, %s) RETURNING id",
         (subdomain, user["id"], subdomain),

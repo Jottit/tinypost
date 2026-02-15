@@ -1,7 +1,8 @@
 import os
+
 import psycopg
-from psycopg.rows import dict_row
 from flask import g
+from psycopg.rows import dict_row
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
 

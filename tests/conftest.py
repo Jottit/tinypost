@@ -1,8 +1,10 @@
-import pytest
 import psycopg
+import pytest
+
 from app import app
 
 TEST_DB = "jottit_test"
+
 
 @pytest.fixture(scope="session", autouse=True)
 def create_test_db():
@@ -23,6 +25,7 @@ def create_test_db():
     conn.execute(f"DROP DATABASE IF EXISTS {TEST_DB}")
     conn.close()
 
+
 @pytest.fixture(autouse=True)
 def clean_tables():
     conn = psycopg.connect(f"dbname={TEST_DB}")
@@ -31,6 +34,7 @@ def clean_tables():
     conn.execute("DELETE FROM users")
     conn.commit()
     conn.close()
+
 
 @pytest.fixture
 def client():

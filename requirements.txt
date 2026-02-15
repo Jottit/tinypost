@@ -2,3 +2,5 @@ flask
 gunicorn
 psycopg[binary]
 pytest
+ruff
+black
