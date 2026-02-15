@@ -433,8 +433,6 @@ nav a:hover {
 }
 
 .form-narrow {
-  width: 100%;
-  max-width: 340px;
   margin-bottom: var(--space-4);
 }
 
@@ -462,9 +460,9 @@ nav a:hover {
   border-radius: 0;
   padding: var(--space-2);
   font-size: var(--text-base);
-  flex: 1;
   min-width: 0;
   width: auto;
+  text-align: right;
 }
 
 .pill-input input:focus {

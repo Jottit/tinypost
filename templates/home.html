@@ -17,4 +17,12 @@
     </form>
     <p class="text-muted">self-owned publishing on the web</p>
   </main>
+  <script>
+    var input = document.querySelector('.pill-input input');
+    function resize() {
+      input.size = Math.min(20, Math.max(8, input.value.length || 8));
+    }
+    resize();
+    input.addEventListener('input', resize);
+  </script>
 {% endblock %}
