@@ -2,7 +2,14 @@ from flask import redirect, render_template, request, session
 
 from app import app
 from auth import generate_passcode, send_passcode
-from db import create_user_and_site, get_posts_for_site, get_site_by_subdomain, subdomain_taken
+from db import (
+    create_user_and_site,
+    get_posts_for_site,
+    get_site_by_subdomain,
+    get_site_by_user,
+    get_user_by_email,
+    subdomain_taken,
+)
 from utils import is_valid_subdomain, site_url
 
 
@@ -54,3 +61,34 @@ def signup_verify():
     session.pop("signup")
     session["user_id"] = user["id"]
     return redirect(site_url(signup["subdomain"]))
+
+
+@app.route("/signin")
+def signin():
+    return render_template("signin.html")
+
+
+@app.route("/signin", methods=["POST"])
+def signin_post():
+    email = request.form["email"].strip().lower()
+    user = get_user_by_email(email)
+    if not user:
+        return render_template("signin.html", error="No account with that email.")
+    passcode = generate_passcode()
+    session["signin"] = {"email": email, "user_id": user["id"], "passcode": passcode}
+    send_passcode(email, passcode)
+    return render_template("signin_verify.html", email=email)
+
+
+@app.route("/signin/verify", methods=["POST"])
+def signin_verify():
+    signin = session.get("signin")
+    if not signin:
+        return redirect("/signin")
+    code = request.form["passcode"]
+    if code != signin["passcode"]:
+        return render_template("signin_verify.html", email=signin["email"], error="Wrong passcode.")
+    session.pop("signin")
+    session["user_id"] = signin["user_id"]
+    site = get_site_by_user(signin["user_id"])
+    return redirect(site_url(site["subdomain"]))

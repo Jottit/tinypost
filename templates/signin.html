@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Sign in — Jottit{% endblock %}
+{% block body %}
+  <main class="home">
+    <p>Enter your email to sign in</p>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="/signin" method="post" class="slug-form">
+      <div class="slug-input">
+        <input type="email" name="email" placeholder="you@example.com" required autofocus>
+        <button type="submit">Go</button>
+      </div>
+    </form>
+  </main>
+{% endblock %}
