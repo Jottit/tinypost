@@ -546,6 +546,11 @@ nav a:hover {
 }
 
 /* ── Editor ──────────────────────────── */
+.editor-page {
+  background: #fff;
+  color: #444;
+}
+
 .editor {
   min-height: 100vh;
   display: flex;
@@ -563,26 +568,30 @@ nav a:hover {
   margin-bottom: var(--space-4);
 }
 
-.editor-title {
+.editor .editor-title {
   border: none;
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
-  color: var(--site-text-bright);
+  color: #111;
+  background: #fff;
   padding: 0;
   margin-bottom: var(--space-4);
 }
 
-.editor-body {
+.editor .editor-body {
   border: none;
   flex: 1;
   min-height: 60vh;
   font-size: var(--text-lg);
   line-height: var(--leading-loose);
+  color: #444;
+  background: #fff;
   padding: 0;
   resize: none;
 }
 
 .editor button {
-  align-self: flex-start;
-  margin-top: var(--space-6);
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
 }

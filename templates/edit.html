@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Write — {{ site.title }}{% endblock %}
+{% block body_attrs %} class="editor-page"{% endblock %}
 {% block body %}
   <main class="editor">
     {% if error %}
@@ -18,5 +19,8 @@
       ta.style.height = ta.scrollHeight + 'px';
     }
     ta.addEventListener('input', autoExpand);
+    document.querySelector('.editor-title').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); ta.focus(); }
+    });
   </script>
 {% endblock %}
