@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Settings — {{ site.title }}{% endblock %}
+{% block body %}
+  <main>
+    <h1>Settings</h1>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="/settings" class="settings-form">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="{{ site.title or '' }}" autofocus>
+      <label for="bio" class="mt-6">Bio</label>
+      <textarea id="bio" name="bio" rows="3">{{ site.bio or '' }}</textarea>
+      <button type="submit" class="btn mt-6">Save</button>
+    </form>
+  </main>
+{% endblock %}

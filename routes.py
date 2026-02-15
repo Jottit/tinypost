@@ -13,6 +13,7 @@ from db import (
     get_user_by_email,
     subdomain_taken,
     update_post,
+    update_site,
 )
 from utils import is_valid_subdomain, site_url, slugify
 
@@ -158,6 +159,25 @@ def delete_post_route(slug):
     if not post:
         abort(404)
     delete_post(post["id"])
+    return redirect("/")
+
+
+@app.route("/settings", methods=["GET", "POST"])
+def settings():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    if session.get("user_id") != site["user_id"]:
+        return redirect("/signin")
+
+    if request.method == "GET":
+        return render_template("settings.html", site=site)
+
+    title = request.form.get("title", "").strip()
+    bio = request.form.get("bio", "").strip()
+    if not title:
+        return render_template("settings.html", site=site, error="Title is required.")
+    update_site(site["id"], title, bio or None)
     return redirect("/")
 
 

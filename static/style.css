@@ -131,6 +131,7 @@ table {
     --text-bright: #eee;
     --divider: #222;
     --code-bg: #1a1a1a;
+    --input-bg: #2a2e34;
   }
 }
 
@@ -161,7 +162,7 @@ h1 {
 }
 
 h2 {
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   margin-bottom: var(--space-4);
 }
 
@@ -335,10 +336,28 @@ main {
 header {
   text-align: center;
   margin-bottom: var(--space-8);
+  padding-bottom: var(--space-8);
+}
+
+header::after {
+  content: "";
+  display: block;
+  width: 160px;
+  height: 1px;
+  background: var(--site-text-muted);
+  margin: var(--space-8) auto 0;
+}
+
+header h1 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+
+  color: var(--site-text);
 }
 
 header h1 a {
   text-decoration: none;
+  color: inherit;
 }
 
 footer {
@@ -351,11 +370,9 @@ footer {
 article {
   margin-bottom: var(--space-8);
   padding-bottom: var(--space-8);
-  border-bottom: 1px solid var(--site-divider);
 }
 
 article:last-child {
-  border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
 }
@@ -364,11 +381,12 @@ article time {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
   display: block;
-  margin-bottom: var(--space-2);
+  text-align: center;
 }
 
 article h2 {
   margin-bottom: var(--space-3);
+  text-align: center;
 }
 
 article h2 a {
@@ -554,6 +572,10 @@ nav a:hover {
 .btn-secondary:hover {
   color: var(--site-text-bright);
   border-color: var(--site-text-muted);
+}
+
+.settings-form input[type="text"] {
+  border-radius: var(--radius-md);
 }
 
 .error {
