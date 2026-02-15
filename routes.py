@@ -5,6 +5,7 @@ from auth import generate_passcode, send_passcode
 from db import (
     create_post,
     create_user_and_site,
+    delete_post,
     get_post_by_slug,
     get_posts_for_site,
     get_site_by_subdomain,
@@ -144,6 +145,20 @@ def edit_post(slug):
     new_slug = slugify(title or body[:50]) or "post"
     update_post(post["id"], new_slug, title or None, body)
     return redirect(f"/{new_slug}")
+
+
+@app.route("/delete/<slug>", methods=["POST"])
+def delete_post_route(slug):
+    site = get_current_site()
+    if not site:
+        abort(404)
+    if session.get("user_id") != site["user_id"]:
+        return redirect("/signin")
+    post = get_post_by_slug(site["id"], slug)
+    if not post:
+        abort(404)
+    delete_post(post["id"])
+    return redirect("/")
 
 
 @app.route("/<slug>")

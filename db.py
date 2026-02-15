@@ -63,3 +63,9 @@ def update_post(post_id, slug, title, body):
     ).fetchone()
     db.commit()
     return post
+
+
+def delete_post(post_id):
+    db = get_db()
+    db.execute("DELETE FROM posts WHERE id = %s", (post_id,))
+    db.commit()

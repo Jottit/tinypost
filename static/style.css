@@ -620,6 +620,20 @@ nav a:hover {
   margin-top: var(--space-4);
 }
 
+.mt-6 {
+  margin-top: var(--space-6);
+}
+
 .text-muted {
   color: var(--site-text-muted);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
 }

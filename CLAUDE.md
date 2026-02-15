@@ -36,7 +36,7 @@ static/             — CSS, JS islands
 
 - Python: simple, readable, no clever abstractions
 - HTML: semantic, minimal classes
-- CSS: reuse existing classes and variables before adding new ones. Check what's already defined in stylesheets first.
+- CSS: reuse existing classes and variables before adding new ones. Check what's already defined in stylesheets first. Never use inline styles — always use classes.
 - JS: vanilla only, no build step, no frameworks
 - Keep files small and focused
 - Prefer explicit over clever
