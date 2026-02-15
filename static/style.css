@@ -2,7 +2,7 @@
    style.css — Jottit design system
    ======================================== */
 
-/* ── Reset ────────────────────────────── */
+/* ── 1. Reset ────────────────────────── */
 *,
 *::before,
 *::after {
@@ -51,7 +51,7 @@ table {
   width: 100%;
 }
 
-/* ── Variables ────────────────────────── */
+/* ── 2. Tokens ───────────────────────── */
 :root {
   /* Colors – light */
   --bg: #fff;
@@ -60,6 +60,7 @@ table {
   --text-bright: #111;
   --divider: #eee;
   --code-bg: #f5f5f5;
+  --input-bg: #f5f5f5;
 
   /* Font families */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
@@ -102,6 +103,7 @@ table {
   /* Border radius */
   --radius-sm: 3px;
   --radius-md: 6px;
+  --radius-pill: 999px;
   --radius-full: 50%;
 
   /* Transitions */
@@ -137,7 +139,7 @@ table {
 /* --bp-md: 864px */
 /* --bp-lg: 1152px */
 
-/* ── Base ─────────────────────────────── */
+/* ── 3. Classless ────────────────────── */
 body {
   font-family: var(--site-font);
   font-size: var(--site-font-size);
@@ -147,7 +149,6 @@ body {
   background: var(--site-bg);
 }
 
-/* ── Typography ───────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   color: var(--site-text-bright);
   font-weight: var(--weight-bold);
@@ -196,7 +197,6 @@ small {
   color: var(--site-text-muted);
 }
 
-/* ── Links ────────────────────────────── */
 a {
   color: var(--site-text-bright);
   text-decoration: underline;
@@ -208,7 +208,6 @@ a:hover {
   color: var(--site-text-muted);
 }
 
-/* ── Lists ────────────────────────────── */
 ul, ol {
   margin-bottom: var(--space-4);
   padding-left: var(--space-5);
@@ -222,7 +221,6 @@ li:last-child {
   margin-bottom: 0;
 }
 
-/* ── Blockquote ───────────────────────── */
 blockquote {
   border-left: 2px solid var(--site-divider);
   padding-left: var(--space-4);
@@ -230,7 +228,6 @@ blockquote {
   margin-bottom: var(--space-4);
 }
 
-/* ── Code ─────────────────────────────── */
 code {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
@@ -254,14 +251,12 @@ pre code {
   line-height: var(--leading-loose);
 }
 
-/* ── Horizontal rule ──────────────────── */
 hr {
   border: none;
   border-top: 1px solid var(--site-divider);
   margin: var(--space-8) 0;
 }
 
-/* ── Images ───────────────────────────── */
 img {
   border-radius: var(--radius-md);
   margin-bottom: var(--space-4);
@@ -277,7 +272,6 @@ figcaption {
   margin-top: var(--space-2);
 }
 
-/* ── Tables ───────────────────────────── */
 th, td {
   padding: var(--space-2) var(--space-3);
   text-align: left;
@@ -289,7 +283,6 @@ th {
   color: var(--site-text-bright);
 }
 
-/* ── Forms ────────────────────────────── */
 label {
   display: block;
   font-size: var(--text-sm);
@@ -306,14 +299,18 @@ input[type="number"],
 textarea {
   display: block;
   width: 100%;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-5);
   font-size: var(--site-font-size);
   line-height: var(--site-leading);
   color: var(--site-text-bright);
-  background: var(--site-bg);
+  background: var(--input-bg);
   border: 1px solid var(--site-divider);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   transition: border-color var(--speed-fast);
+}
+
+textarea {
+  border-radius: var(--radius-md);
 }
 
 input:focus,
@@ -324,24 +321,11 @@ textarea:focus {
 
 button,
 input[type="submit"] {
-  display: inline-block;
-  padding: var(--space-3) var(--space-5);
-  font-size: var(--site-font-size);
-  font-weight: var(--weight-medium);
-  color: var(--site-bg);
-  background: var(--site-text-bright);
   border: none;
-  border-radius: var(--radius-md);
+  background: none;
   cursor: pointer;
-  transition: opacity var(--speed-fast);
 }
 
-button:hover,
-input[type="submit"]:hover {
-  opacity: 0.8;
-}
-
-/* ── Layout ───────────────────────────── */
 main {
   max-width: var(--site-measure);
   margin: 0 auto;
@@ -364,7 +348,6 @@ footer {
   color: var(--site-text-muted);
 }
 
-/* ── Article (post in feed) ───────────── */
 article {
   margin-bottom: var(--space-8);
   padding-bottom: var(--space-8);
@@ -397,7 +380,6 @@ article h2 a:hover {
   color: var(--site-text-muted);
 }
 
-/* ── Avatar ───────────────────────────── */
 img[alt="avatar"] {
   width: 72px;
   height: 72px;
@@ -406,7 +388,6 @@ img[alt="avatar"] {
   margin: 0 auto var(--space-4);
 }
 
-/* ── Nav ──────────────────────────────── */
 nav {
   font-size: var(--text-sm);
 }
@@ -421,15 +402,14 @@ nav a:hover {
   color: var(--site-text-bright);
 }
 
-/* ── Top nav ──────────────────────────── */
+/* ── 4. Components ───────────────────── */
 .top-nav {
   position: fixed;
   top: var(--space-4);
   right: var(--space-4);
 }
 
-/* ── Home page ────────────────────────── */
-.home {
+.page-centered {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -437,10 +417,6 @@ nav a:hover {
   min-height: 100vh;
   padding: var(--space-4);
   text-align: center;
-}
-
-.header-home {
-    margin-bottom: var(--space-4);
 }
 
 .logo {
@@ -456,23 +432,23 @@ nav a:hover {
   display: inline-block;
 }
 
-.slug-form {
+.form-narrow {
   width: 100%;
   max-width: 340px;
   margin-bottom: var(--space-4);
 }
 
-.slug-input {
+.pill-input {
   display: flex;
   align-items: center;
   background: var(--site-bg);
   border: 1px solid var(--site-divider);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   font-family: var(--font-mono);
 }
 
-.slug-suffix {
+.pill-input-suffix {
   font-size: var(--text-base);
   color: var(--site-text-muted);
   white-space: nowrap;
@@ -480,30 +456,36 @@ nav a:hover {
   margin-right: var(--space-4);
 }
 
-.slug-input input {
+.pill-input input {
   border: none;
+  background: transparent;
+  border-radius: 0;
   padding: var(--space-2);
   font-size: var(--text-base);
   flex: 1;
   min-width: 0;
+  width: auto;
 }
 
-.slug-input input:focus {
+.pill-input input:focus {
   outline: none;
   border: none;
 }
 
-.slug-input button {
-  border-radius: 999px;
+.pill-input button {
+  border-radius: var(--radius-pill);
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--site-bg);
+  background: var(--site-text-bright);
+  transition: opacity var(--speed-fast);
 }
 
-.tagline {
-  color: var(--site-text-muted);
+.pill-input button:hover {
+  opacity: 0.8;
 }
 
-/* ── Passcode inputs ─────────────────── */
 .passcode-inputs {
   display: flex;
   gap: var(--space-3);
@@ -526,26 +508,46 @@ nav a:hover {
   border-color: var(--site-text-muted);
 }
 
-/* ── Write button ────────────────────── */
-.btn-write {
+.btn {
   display: inline-block;
-  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--site-bg);
+  background: var(--site-text-bright);
+  border: none;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--speed-fast);
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+.btn-secondary {
+  display: inline-block;
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--site-text-muted);
   border: 1px solid var(--site-divider);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   text-decoration: none;
   transition: color var(--speed-fast), border-color var(--speed-fast);
 }
 
-.btn-write:hover {
+.btn-secondary:hover {
   color: var(--site-text-bright);
   border-color: var(--site-text-muted);
 }
 
-/* ── Editor ──────────────────────────── */
+.error {
+  color: #c0392b;
+  font-size: var(--text-sm);
+}
+
 .editor-page {
   background: #fff;
   color: #444;
@@ -594,4 +596,17 @@ nav a:hover {
   position: fixed;
   top: var(--space-4);
   right: var(--space-4);
+}
+
+/* ── 5. Utilities ────────────────────── */
+.mb-4 {
+  margin-bottom: var(--space-4);
+}
+
+.mt-4 {
+  margin-top: var(--space-4);
+}
+
+.text-muted {
+  color: var(--site-text-muted);
 }

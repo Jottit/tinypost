@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Verify — Jottit{% endblock %}
 {% block body %}
-  <main class="home">
+  <main class="page-centered">
     <p>We sent a 6-digit code to <strong>{{ email }}</strong>.<br>Enter it below to verify your account.</p>
     {% if error %}
       <p class="error">{{ error }}</p>

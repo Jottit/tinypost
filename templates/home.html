@@ -4,17 +4,17 @@
   <nav class="top-nav">
     <a href="/signin">Sign in</a>
   </nav>
-  <main class="home">
-    <header class="header-home">
+  <main class="page-centered">
+    <header class="mb-4">
       <h1 class="logo"><span>Jottit</span></h1>
     </header>
-    <form action="/" method="post" class="slug-form">
-      <div class="slug-input">
+    <form action="/" method="post" class="form-narrow">
+      <div class="pill-input">
         <input type="text" name="subdomain" placeholder="yourname" required autofocus>
-        <span class="slug-suffix">.jottit.pub</span>
+        <span class="pill-input-suffix">.jottit.pub</span>
         <button type="submit">Go</button>
       </div>
     </form>
-    <p class="tagline">self-owned publishing on the web</p>
+    <p class="text-muted">self-owned publishing on the web</p>
   </main>
 {% endblock %}
