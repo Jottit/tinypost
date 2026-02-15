@@ -11,6 +11,7 @@ from db import (
     get_site_by_user,
     get_user_by_email,
     subdomain_taken,
+    update_post,
 )
 from utils import is_valid_subdomain, site_url, slugify
 
@@ -122,6 +123,29 @@ def edit():
     return redirect(f"/{slug}")
 
 
+@app.route("/edit/<slug>", methods=["GET", "POST"])
+def edit_post(slug):
+    site = get_current_site()
+    if not site:
+        abort(404)
+    if session.get("user_id") != site["user_id"]:
+        return redirect("/signin")
+    post = get_post_by_slug(site["id"], slug)
+    if not post:
+        abort(404)
+
+    if request.method == "GET":
+        return render_template("edit.html", site=site, post=post)
+
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    if not body:
+        return render_template("edit.html", site=site, post=post, error="Post body is required.")
+    new_slug = slugify(title or body[:50]) or "post"
+    update_post(post["id"], new_slug, title or None, body)
+    return redirect(f"/{new_slug}")
+
+
 @app.route("/<slug>")
 def post(slug):
     site = get_current_site()
@@ -130,7 +154,8 @@ def post(slug):
     post = get_post_by_slug(site["id"], slug)
     if not post:
         abort(404)
-    return render_template("post.html", site=site, post=post)
+    is_owner = session.get("user_id") == site["user_id"]
+    return render_template("post.html", site=site, post=post, is_owner=is_owner)
 
 
 @app.route("/signout", methods=["POST"])

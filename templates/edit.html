@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Write — {{ site.title }}{% endblock %}
+{% block title %}{% if post %}Edit — {{ site.title }}{% else %}Write — {{ site.title }}{% endif %}{% endblock %}
 {% block body_attrs %} class="editor-page"{% endblock %}
 {% block body %}
   <main class="editor">
     {% if error %}
       <p class="editor-error">{{ error }}</p>
     {% endif %}
-    <form method="POST" action="/edit">
-      <input type="text" name="title" placeholder="Title" class="editor-title" autofocus>
-      <textarea name="body" placeholder="Write here..." class="editor-body"></textarea>
-      <button type="submit" class="btn">Publish</button>
+    <form method="POST" action="{% if post %}/edit/{{ post.slug }}{% else %}/edit{% endif %}">
+      <input type="text" name="title" placeholder="Title" class="editor-title" value="{{ post.title or '' if post else '' }}" {% if not post %}autofocus{% endif %}>
+      <textarea name="body" placeholder="Write here..." class="editor-body" {% if post %}autofocus{% endif %}>{{ post.body if post else '' }}</textarea>
+      <button type="submit" class="btn">Save and publish</button>
     </form>
   </main>
   <script>
@@ -19,13 +19,19 @@
       ta.style.height = ta.scrollHeight + 'px';
     }
     ta.addEventListener('input', autoExpand);
+    autoExpand();
     document.querySelector('.editor-title').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') { e.preventDefault(); ta.focus(); }
     });
+    var origTitle = document.querySelector('.editor-title').value;
+    var origBody = ta.value;
+    var submitting = false;
+    document.querySelector('form').addEventListener('submit', function() { submitting = true; });
     window.addEventListener('beforeunload', function(e) {
+      if (submitting) return;
       var title = document.querySelector('.editor-title').value;
       var body = ta.value;
-      if (title || body) { e.preventDefault(); }
+      if (title !== origTitle || body !== origBody) { e.preventDefault(); }
     });
   </script>
 {% endblock %}

@@ -53,3 +53,13 @@ def create_post(site_id, slug, title, body):
     ).fetchone()
     db.commit()
     return post
+
+
+def update_post(post_id, slug, title, body):
+    db = get_db()
+    post = db.execute(
+        "UPDATE posts SET slug = %s, title = %s, body = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (slug, title, body, post_id),
+    ).fetchone()
+    db.commit()
+    return post

@@ -11,6 +11,9 @@
         <h2>{{ post.title }}</h2>
       {% endif %}
       <div>{{ post.body | markdown }}</div>
+      {% if is_owner %}
+        <a href="/edit/{{ post.slug }}">Edit</a>
+      {% endif %}
     </article>
   </main>
 {% endblock %}
