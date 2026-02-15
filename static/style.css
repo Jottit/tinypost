@@ -39,7 +39,7 @@ select {
 }
 
 textarea {
-  resize: vertical;
+  resize: none;
 }
 
 a {
@@ -578,8 +578,20 @@ nav a:hover {
   border-color: var(--site-text-muted);
 }
 
+.settings-page {
+  max-width: 400px;
+}
+
+.settings-form label {
+  padding-left: var(--space-5);
+}
+
 .settings-form input[type="text"] {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
+}
+
+.settings-form textarea {
+  border-radius: 16px;
 }
 
 .error {
