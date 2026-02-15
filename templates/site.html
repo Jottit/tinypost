@@ -7,6 +7,9 @@
       {% if site.bio %}
         <p>{{ site.bio }}</p>
       {% endif %}
+      {% if is_owner %}
+        <a href="/edit" class="btn-write">+ Write</a>
+      {% endif %}
     </header>
     {% if posts %}
       {% for post in posts %}

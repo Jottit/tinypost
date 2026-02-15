@@ -9,6 +9,7 @@ from models import close_db
 app = Flask(__name__)
 app.secret_key = "change-me-later"
 app.config["BASE_DOMAIN"] = os.environ.get("BASE_DOMAIN", "jottit.localhost:8000")
+app.config["SESSION_COOKIE_DOMAIN"] = app.config["BASE_DOMAIN"].split(":")[0]
 app.teardown_appcontext(close_db)
 
 

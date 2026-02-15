@@ -34,7 +34,8 @@ def home():
         if not site:
             return "Not found", 404
         posts = get_posts_for_site(site["id"])
-        return render_template("site.html", site=site, posts=posts)
+        is_owner = session.get("user_id") == site["user_id"]
+        return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
 
     return "Not found", 404
 
