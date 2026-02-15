@@ -7,7 +7,12 @@ def subdomain_taken(subdomain):
 
 def create_user_and_site(email, subdomain):
     db = get_db()
-    user = db.execute("INSERT INTO users (email) VALUES (%s) RETURNING id", (email,)).fetchone()
+    user = db.execute(
+        "INSERT INTO users (email) VALUES (%s) ON CONFLICT (email) DO NOTHING RETURNING id",
+        (email,),
+    ).fetchone()
+    if not user:
+        user = db.execute("SELECT id FROM users WHERE email = %s", (email,)).fetchone()
     site = db.execute(
         "INSERT INTO sites (subdomain, user_id, title) VALUES (%s, %s, %s) RETURNING id",
         (subdomain, user["id"], subdomain),
