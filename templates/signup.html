@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Sign up — Jottit{% endblock %}
+{% block body %}
+  <main class="home">
+    <p>Enter your email to claim <strong>{{ subdomain }}.jottit.pub</strong></p>
+    <form action="/signup" method="post" class="slug-form">
+      <input type="hidden" name="subdomain" value="{{ subdomain }}">
+      <div class="slug-input">
+        <input type="email" name="email" placeholder="you@example.com" required autofocus>
+        <button type="submit">Go</button>
+      </div>
+    </form>
+  </main>
+{% endblock %}
