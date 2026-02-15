@@ -9,7 +9,6 @@ def home():
     host = request.host.split(":")[0]
     base = app.config["BASE_DOMAIN"].split(":")[0]
 
-
     if host == base:
         if request.method == "POST":
             subdomain = request.form.get("subdomain", "").lower().strip()
@@ -52,17 +51,3 @@ def signup_verify():
     session["user_id"] = user["id"]
     return redirect(site_url(signup["subdomain"]))
 
-@app.route("/signin")
-def signin():
-    # TODO
-    return None
-
-@app.route("/signin", methods=["POST"])
-def signin_post():
-    # TODO
-    return None
-
-@app.route("/signout", methods=["POST"])
-def signout():
-    # TODO
-    return None
