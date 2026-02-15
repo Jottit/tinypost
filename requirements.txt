@@ -1,5 +1,6 @@
 flask
 gunicorn
+markdown
 psycopg[binary]
 pytest
 ruff
