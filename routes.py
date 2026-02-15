@@ -92,3 +92,9 @@ def signin_verify():
     session["user_id"] = signin["user_id"]
     site = get_site_by_user(signin["user_id"])
     return redirect(site_url(site["subdomain"]))
+
+
+@app.route("/signout", methods=["POST"])
+def signout():
+    session.clear()
+    return redirect("/")
