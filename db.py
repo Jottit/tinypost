@@ -32,3 +32,13 @@ def get_user_by_email(email):
 
 def get_site_by_user(user_id):
     return query("SELECT * FROM sites WHERE user_id = %s", (user_id,), one=True)
+
+
+def create_post(site_id, slug, title, body):
+    db = get_db()
+    post = db.execute(
+        "INSERT INTO posts (site_id, slug, title, body) VALUES (%s, %s, %s, %s) RETURNING *",
+        (site_id, slug, title, body),
+    ).fetchone()
+    db.commit()
+    return post

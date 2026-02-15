@@ -540,3 +540,45 @@ nav a:hover {
   color: var(--site-text-bright);
   border-color: var(--site-text-muted);
 }
+
+/* ── Editor ──────────────────────────── */
+.editor {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.editor-error {
+  color: #c0392b;
+  margin-bottom: var(--space-4);
+}
+
+.editor-title {
+  border: none;
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  color: var(--site-text-bright);
+  padding: 0;
+  margin-bottom: var(--space-4);
+}
+
+.editor-body {
+  border: none;
+  flex: 1;
+  min-height: 60vh;
+  font-size: var(--text-lg);
+  line-height: var(--leading-loose);
+  padding: 0;
+  resize: none;
+}
+
+.editor button {
+  align-self: flex-start;
+  margin-top: var(--space-6);
+}

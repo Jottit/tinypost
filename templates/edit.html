@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Write — {{ site.title }}{% endblock %}
+{% block body %}
+  <main class="editor">
+    {% if error %}
+      <p class="editor-error">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="/edit">
+      <input type="text" name="title" placeholder="Title" class="editor-title" autofocus>
+      <textarea name="body" placeholder="Write here..." class="editor-body"></textarea>
+      <button type="submit">Publish</button>
+    </form>
+  </main>
+  <script>
+    const ta = document.querySelector('.editor-body');
+    function autoExpand() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+    ta.addEventListener('input', autoExpand);
+  </script>
+{% endblock %}

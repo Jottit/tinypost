@@ -1,8 +1,9 @@
-from flask import redirect, render_template, request, session
+from flask import abort, redirect, render_template, request, session
 
 from app import app
 from auth import generate_passcode, send_passcode
 from db import (
+    create_post,
     create_user_and_site,
     get_posts_for_site,
     get_site_by_subdomain,
@@ -10,7 +11,16 @@ from db import (
     get_user_by_email,
     subdomain_taken,
 )
-from utils import is_valid_subdomain, site_url
+from utils import is_valid_subdomain, site_url, slugify
+
+
+def get_current_site():
+    host = request.host.split(":")[0]
+    base = app.config["BASE_DOMAIN"].split(":")[0]
+    if not host.endswith("." + base):
+        return None
+    subdomain = host.replace("." + base, "")
+    return get_site_by_subdomain(subdomain)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -28,16 +38,12 @@ def home():
             return render_template("signup.html", subdomain=subdomain)
         return render_template("home.html")
 
-    if host.endswith("." + base):
-        subdomain = host.replace("." + base, "")
-        site = get_site_by_subdomain(subdomain)
-        if not site:
-            return "Not found", 404
-        posts = get_posts_for_site(site["id"])
-        is_owner = session.get("user_id") == site["user_id"]
-        return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
-
-    return "Not found", 404
+    site = get_current_site()
+    if not site:
+        abort(404)
+    posts = get_posts_for_site(site["id"])
+    is_owner = session.get("user_id") == site["user_id"]
+    return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
 
 
 @app.route("/signup", methods=["POST"])
@@ -93,6 +99,26 @@ def signin_verify():
     session["user_id"] = signin["user_id"]
     site = get_site_by_user(signin["user_id"])
     return redirect(site_url(site["subdomain"]))
+
+
+@app.route("/edit", methods=["GET", "POST"])
+def edit():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    if session.get("user_id") != site["user_id"]:
+        return redirect("/signin")
+
+    if request.method == "GET":
+        return render_template("edit.html", site=site)
+
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    if not body:
+        return render_template("edit.html", site=site, error="Post body is required.")
+    slug = slugify(title or body[:50]) or "post"
+    create_post(site["id"], slug, title or None, body)
+    return redirect(f"/{slug}")
 
 
 @app.route("/signout", methods=["POST"])
