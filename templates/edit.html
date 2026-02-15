@@ -22,5 +22,10 @@
     document.querySelector('.editor-title').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') { e.preventDefault(); ta.focus(); }
     });
+    window.addEventListener('beforeunload', function(e) {
+      var title = document.querySelector('.editor-title').value;
+      var body = ta.value;
+      if (title || body) { e.preventDefault(); }
+    });
   </script>
 {% endblock %}
