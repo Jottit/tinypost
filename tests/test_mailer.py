@@ -1,13 +1,14 @@
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from mailer import send_email
 
 
 def test_send_email_with_api_key():
     mock_response = MagicMock()
-    with patch.dict("os.environ", {"RESEND_API_KEY": "re_test_123"}), \
-         patch("mailer.urllib.request.urlopen", return_value=mock_response) as mock_urlopen:
+    with patch.dict("os.environ", {"RESEND_API_KEY": "re_test_123"}), patch(
+        "mailer.urllib.request.urlopen", return_value=mock_response
+    ) as mock_urlopen:
         send_email("user@example.com", "Test Subject", "Test body")
 
     req = mock_urlopen.call_args[0][0]

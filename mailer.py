@@ -9,12 +9,14 @@ def send_email(to, subject, text):
         print(f"[DEV] To: {to} | Subject: {subject}\n{text}")
         return
 
-    data = json.dumps({
-        "from": "Jottit <noreply@jottit.dev>",
-        "to": [to],
-        "subject": subject,
-        "text": text,
-    }).encode()
+    data = json.dumps(
+        {
+            "from": "Jottit <noreply@jottit.dev>",
+            "to": [to],
+            "subject": subject,
+            "text": text,
+        }
+    ).encode()
 
     req = urllib.request.Request(
         "https://api.resend.com/emails",

@@ -25,6 +25,7 @@ def truncatewords_filter(text, n=50):
         return text
     return " ".join(words[:n]) + "…"
 
+
 from routes import *
 
 if __name__ == "__main__":

@@ -40,9 +40,7 @@ def get_site_by_user(user_id):
 
 
 def get_post_by_slug(site_id, slug):
-    return query(
-        "SELECT * FROM posts WHERE site_id = %s AND slug = %s", (site_id, slug), one=True
-    )
+    return query("SELECT * FROM posts WHERE site_id = %s AND slug = %s", (site_id, slug), one=True)
 
 
 def create_post(site_id, slug, title, body):
@@ -58,7 +56,8 @@ def create_post(site_id, slug, title, body):
 def update_post(post_id, slug, title, body):
     db = get_db()
     post = db.execute(
-        "UPDATE posts SET slug = %s, title = %s, body = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        "UPDATE posts SET slug = %s, title = %s, body = %s, updated_at = NOW()"
+        " WHERE id = %s RETURNING *",
         (slug, title, body, post_id),
     ).fetchone()
     db.commit()
