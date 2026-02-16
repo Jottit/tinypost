@@ -21,7 +21,7 @@
           {% if post.title %}
             <h2><a href="/{{ post.slug }}">{{ post.title }}</a></h2>
           {% endif %}
-          <div>{{ post.body | truncatewords | markdown }}</div>
+          <div class="post-body">{{ post.body | truncatewords | markdown }}</div>
           {% if post.body.split()|length > 50 %}
             <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn-secondary">Read more</a></div>
           {% endif %}

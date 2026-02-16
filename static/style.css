@@ -402,6 +402,11 @@ article h2 a:hover {
   color: var(--site-text-muted);
 }
 
+.post-body {
+  width: fit-content;
+  margin: 0 auto;
+}
+
 img[alt="avatar"] {
   width: 72px;
   height: 72px;
