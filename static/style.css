@@ -714,10 +714,6 @@ nav a:hover {
   padding-top: var(--space-8);
 }
 
-.domain-section h3 {
-  margin-bottom: var(--space-2);
-}
-
 .domain-verified {
   color: var(--success);
   font-weight: var(--weight-medium);

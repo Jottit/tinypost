@@ -78,11 +78,17 @@ def render_settings(site, **kwargs):
     )
 
 
-def get_current_site():
+def host_and_base():
     host = request.host.split(":")[0]
     base = app.config["BASE_DOMAIN"].split(":")[0]
-    if host.endswith("." + base):
-        subdomain = host.replace("." + base, "")
+    return host, base
+
+
+def get_current_site():
+    host, base = host_and_base()
+    suffix = "." + base
+    if host.endswith(suffix):
+        subdomain = host.removesuffix(suffix)
         return get_site_by_subdomain(subdomain)
     if host != base:
         return get_site_by_custom_domain(host)
@@ -100,8 +106,7 @@ def require_owner():
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    host = request.host.split(":")[0]
-    base = app.config["BASE_DOMAIN"].split(":")[0]
+    host, base = host_and_base()
 
     if host == base:
         if request.method == "POST":
@@ -406,9 +411,9 @@ def tls_ask():
         return "", 403
 
     base = app.config["BASE_DOMAIN"].split(":")[0]
-    if domain.endswith("." + base):
-        subdomain = domain.replace("." + base, "")
-        site = get_site_by_subdomain(subdomain)
+    suffix = "." + base
+    if domain.endswith(suffix):
+        site = get_site_by_subdomain(domain.removesuffix(suffix))
     else:
         site = get_site_by_custom_domain(domain)
 

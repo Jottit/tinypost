@@ -49,7 +49,7 @@ def test_add_domain_shown_in_settings(client):
 
 
 def test_add_domain_invalid_format(client):
-    user, site = _setup_site()
+    user, _ = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
@@ -61,7 +61,7 @@ def test_add_domain_invalid_format(client):
 
 
 def test_add_domain_rejects_protocol_prefix(client):
-    user, site = _setup_site()
+    user, _ = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
@@ -73,7 +73,7 @@ def test_add_domain_rejects_protocol_prefix(client):
 
 
 def test_add_domain_already_claimed(client):
-    user, site = _setup_site()
+    user, _ = _setup_site()
     with app.app_context():
         create_user_and_site("other@example.com", "other")
         other = get_site_by_subdomain("other")
@@ -141,18 +141,17 @@ def test_remove_domain(client):
 
 
 def test_tls_ask_returns_200_for_verified_domain(client):
-    user, site = _setup_site()
+    _, site = _setup_site()
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
         verify_custom_domain(site["id"])
-    app.config["CADDY_ASK_TOKEN_OVERRIDE"] = "secret"
     with patch("routes.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=example.com")
     assert response.status_code == 200
 
 
 def test_tls_ask_returns_403_for_unverified_domain(client):
-    user, site = _setup_site()
+    _, site = _setup_site()
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
     with patch("routes.CADDY_ASK_TOKEN", "secret"):
@@ -175,7 +174,7 @@ def test_tls_ask_returns_403_for_unknown_subdomain(client):
 
 
 def test_tls_ask_returns_403_for_wrong_token(client):
-    user, site = _setup_site()
+    _, site = _setup_site()
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
         verify_custom_domain(site["id"])
@@ -185,7 +184,7 @@ def test_tls_ask_returns_403_for_wrong_token(client):
 
 
 def test_custom_domain_routes_to_correct_site(client):
-    user, site = _setup_site()
+    _, site = _setup_site()
     with app.app_context():
         create_post(site["id"], "hello", "Hello World", "Body text")
         set_custom_domain(site["id"], "example.com", "tok")
@@ -196,7 +195,7 @@ def test_custom_domain_routes_to_correct_site(client):
 
 
 def test_subdomain_redirects_unauthenticated_to_custom_domain(client):
-    user, site = _setup_site()
+    _, site = _setup_site()
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
         verify_custom_domain(site["id"])
@@ -217,7 +216,7 @@ def test_subdomain_no_redirect_for_authenticated_owner(client):
 
 
 def test_drafts_hidden_on_custom_domain(client):
-    user, site = _setup_site()
+    _, site = _setup_site()
     with app.app_context():
         create_post(site["id"], "my-draft", "My Draft", "Secret", is_draft=True)
         create_post(site["id"], "published", "Published", "Public")
