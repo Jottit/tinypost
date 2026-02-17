@@ -1,6 +1,9 @@
 import json
+import logging
 import os
 import urllib.request
+
+logger = logging.getLogger(__name__)
 
 
 def send_email(to, subject, text):
@@ -24,6 +27,11 @@ def send_email(to, subject, text):
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "User-Agent": "Jottit/1.0",
         },
+        method="POST",
     )
-    urllib.request.urlopen(req)
+    try:
+        urllib.request.urlopen(req)
+    except urllib.error.HTTPError as e:
+        logger.error("Resend API error %s: %s", e.code, e.read().decode())

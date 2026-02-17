@@ -15,6 +15,7 @@ def test_send_email_with_api_key():
     assert req.full_url == "https://api.resend.com/emails"
     assert req.get_header("Authorization") == "Bearer re_test_123"
     assert req.get_header("Content-type") == "application/json"
+    assert req.get_header("User-agent") == "Jottit/1.0"
 
     body = json.loads(req.data)
     assert body["from"] == "Jottit <noreply@jottit.dev>"
