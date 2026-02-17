@@ -113,6 +113,7 @@ table {
   /* Border radius */
   --radius-sm: 3px;
   --radius-md: 6px;
+  --radius-lg: 24px;
   --radius-pill: 999px;
   --radius-full: 50%;
 
@@ -128,6 +129,8 @@ table {
   --site-divider: var(--divider);
   --site-code-bg: var(--code-bg);
   --site-font: var(--font-sans);
+  --site-font-header: var(--font-sans);
+  --site-accent: var(--text-bright);
   --site-font-size: var(--text-base);
   --site-leading: var(--leading-normal);
   --site-measure: var(--measure);
@@ -164,6 +167,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--site-text-bright);
+  font-family: var(--site-font-header);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
 }
@@ -211,7 +215,7 @@ small {
 }
 
 a {
-  color: var(--site-text-bright);
+  color: var(--text-bright);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color var(--speed-fast);
@@ -406,7 +410,7 @@ article h2 {
 }
 
 article h2 a {
-  color: var(--site-text-bright);
+  color: var(--text-bright);
   text-decoration: none;
 }
 
@@ -417,6 +421,10 @@ article h2 a:hover {
 .post-body {
   width: fit-content;
   margin: 0 auto;
+}
+
+.post-body a {
+  color: var(--site-accent);
 }
 
 .site-header img[alt="avatar"] {
@@ -611,8 +619,8 @@ nav a:hover {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--site-bg);
-  background: var(--site-text-bright);
+  color: var(--bg);
+  background: var(--text-bright);
   transition: opacity var(--speed-fast);
 }
 
@@ -646,6 +654,7 @@ nav a:hover {
 .btn {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--site-bg);
@@ -664,6 +673,7 @@ nav a:hover {
 .btn-secondary {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--site-text-muted);
@@ -682,9 +692,9 @@ nav a:hover {
   max-width: 540px;
 }
 
-.settings-card {
+.panel {
   background: var(--card-bg);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-6);
 }
 
@@ -693,7 +703,7 @@ nav a:hover {
     padding: var(--space-6);
   }
 
-  .settings-card {
+  .panel {
     background: none;
     border-radius: 0;
     padding: 0;

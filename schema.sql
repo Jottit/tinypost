@@ -18,6 +18,7 @@ CREATE TABLE sites (
     custom_domain TEXT UNIQUE,
     domain_verified_at TIMESTAMPTZ,
     domain_verification_token TEXT,
+    design JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

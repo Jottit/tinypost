@@ -25,9 +25,12 @@ from auth import generate_passcode, send_passcode
 from config import (
     ALLOWED_IMAGE_TYPES,
     CADDY_ASK_TOKEN,
+    COLOR_RE,
     CUSTOM_DOMAIN_IPV4,
     CUSTOM_DOMAIN_IPV6,
+    FONT_OPTIONS,
     MAX_IMAGE_SIZE,
+    VALID_FONT_VALUES,
 )
 from db import (
     create_post,
@@ -49,6 +52,7 @@ from db import (
     update_post,
     update_site,
     update_site_avatar,
+    update_site_design,
     verify_custom_domain,
 )
 from storage import (
@@ -60,7 +64,7 @@ from storage import (
     list_images,
     upload_image,
 )
-from utils import is_valid_subdomain, mask_email, site_url, slugify, subdomain_url
+from utils import auto_text_color, is_valid_subdomain, mask_email, site_url, slugify, subdomain_url
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 SOURCE_NS = "http://source.scripting.com/"
@@ -384,6 +388,57 @@ def settings_domain_remove():
     site = require_owner()
     remove_custom_domain(site["id"])
     return redirect("/settings")
+
+
+@app.route("/design", methods=["GET", "POST"])
+def design():
+    site = require_owner()
+    d = site["design"] or {}
+
+    if request.method == "GET":
+        return render_template(
+            "design.html",
+            site=site,
+            design=d,
+            font_options=FONT_OPTIONS,
+        )
+
+    font_header = request.form.get("font_header", "").strip()
+    font_body = request.form.get("font_body", "").strip()
+    color_accent = request.form.get("color_accent", "").strip()
+    color_bg = request.form.get("color_bg", "").strip()
+    color_text = request.form.get("color_text", "").strip()
+
+    if font_header not in VALID_FONT_VALUES:
+        font_header = ""
+    if font_body not in VALID_FONT_VALUES:
+        font_body = ""
+
+    for c in (color_accent, color_bg, color_text):
+        if c and not COLOR_RE.match(c):
+            return render_template(
+                "design.html",
+                site=site,
+                design=d,
+                font_options=FONT_OPTIONS,
+                error="Invalid color value.",
+            )
+
+    if color_bg and not color_text:
+        color_text = auto_text_color(color_bg)
+    if not color_bg:
+        color_text = ""
+
+    fields = {
+        "font_header": font_header,
+        "font_body": font_body,
+        "color_accent": color_accent,
+        "color_bg": color_bg,
+        "color_text": color_text,
+    }
+    design_data = {k: v for k, v in fields.items() if v}
+    update_site_design(site["id"], design_data or None)
+    return redirect("/")
 
 
 @app.route("/settings/delete-account", methods=["GET", "POST"])

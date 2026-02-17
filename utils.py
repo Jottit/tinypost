@@ -15,6 +15,12 @@ def mask_email(email):
     return local[:2] + "****@" + domain
 
 
+def auto_text_color(bg_hex):
+    r, g, b = int(bg_hex[1:3], 16), int(bg_hex[3:5], 16), int(bg_hex[5:7], 16)
+    luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    return "#444444" if luminance > 0.5 else "#cccccc"
+
+
 def site_url(site):
     if site.get("custom_domain") and site.get("domain_verified_at"):
         return f"https://{site['custom_domain']}"

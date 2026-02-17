@@ -1,0 +1,26 @@
+{% set d = site.design or {} %}
+{% if site.design %}
+<style>
+  :root {
+    {%- if d.font_header %}
+    --site-font-header: {{ d.font_header | safe }};
+    {%- endif %}
+    {%- if d.font_body %}
+    --site-font: {{ d.font_body | safe }};
+    {%- endif %}
+    {%- if d.color_accent %}
+    --site-accent: {{ d.color_accent }};
+    {%- endif %}
+    {%- if d.color_bg %}
+    --site-bg: {{ d.color_bg }};
+    --site-text: {{ d.color_text }};
+    --site-text-bright: {{ d.color_text }};
+    --site-text-muted: color-mix(in srgb, {{ d.color_text }} 50%, {{ d.color_bg }});
+    --site-divider: color-mix(in srgb, {{ d.color_text }} 15%, {{ d.color_bg }});
+    --site-code-bg: color-mix(in srgb, {{ d.color_text }} 8%, {{ d.color_bg }});
+    --input-bg: color-mix(in srgb, {{ d.color_text }} 8%, {{ d.color_bg }});
+    --card-bg: color-mix(in srgb, {{ d.color_text }} 10%, {{ d.color_bg }});
+    {%- endif %}
+  }
+</style>
+{%- endif %}

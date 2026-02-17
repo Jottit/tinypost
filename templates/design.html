@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Design — {{ site.title }}{% endblock %}
+{% block head_extra %}
+<style>
+  .design-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-8);
+    background: var(--site-bg);
+    min-height: 100vh;
+  }
+
+  @media (max-width: 864px) {
+    .design-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .design-controls {
+    align-self: start;
+  }
+
+  .design-controls h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-6);
+    text-align: left;
+  }
+
+  .design-controls label {
+    margin-bottom: var(--space-2);
+  }
+
+  .design-controls select {
+    display: block;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--site-text-bright);
+    background: var(--input-bg);
+    border: 1px solid var(--site-divider);
+    border-radius: var(--radius-pill);
+    margin-bottom: var(--space-5);
+    appearance: auto;
+  }
+
+  .color-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+
+  .color-field input[type="color"] {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--site-divider);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    cursor: pointer;
+    background: none;
+    flex-shrink: 0;
+  }
+
+  .color-field input[type="text"] {
+    width: 120px;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-family: var(--font-mono);
+    border-radius: var(--radius-pill);
+  }
+
+  .design-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  #design-preview {
+    max-width: var(--site-measure);
+    margin: 0 auto;
+    padding: var(--space-6);
+    min-height: 400px;
+    font-family: var(--site-font);
+    background: var(--site-bg);
+    color: var(--site-text);
+    overflow: hidden;
+  }
+
+  #design-preview header.site-header {
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-5);
+  }
+
+  #design-preview .post-body p:last-child {
+    margin-bottom: 0;
+  }
+</style>
+{% endblock %}
+{% block body %}
+  <div class="design-layout">
+    <div class="design-controls panel">
+      <h2>Design</h2>
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <form method="POST" action="/design" id="design-form">
+        <label for="font_header">Heading font</label>
+        <select id="font_header" name="font_header">
+          {% for name, value in font_options %}
+            <option value="{{ value }}" {% if design.get('font_header', '') == value %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="font_body">Body font</label>
+        <select id="font_body" name="font_body">
+          {% for name, value in font_options %}
+            <option value="{{ value }}" {% if design.get('font_body', '') == value %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="color_accent_picker">Accent color</label>
+        <div class="color-field">
+          <input type="color" id="color_accent_picker" data-default="--text-bright" value="{{ design.get('color_accent', '#000000') }}">
+          <input type="text" id="color_accent" name="color_accent" value="{{ design.get('color_accent', '') }}">
+        </div>
+
+        <label for="color_bg_picker">Background color</label>
+        <div class="color-field">
+          <input type="color" id="color_bg_picker" data-default="--bg" value="{{ design.get('color_bg', '#000000') }}">
+          <input type="text" id="color_bg" name="color_bg" value="{{ design.get('color_bg', '') }}">
+        </div>
+
+        <div id="text-color-field" style="display: none">
+          <label for="color_text_picker">Text color</label>
+          <div class="color-field">
+            <input type="color" id="color_text_picker" value="{{ design.get('color_text', '#000000') }}">
+            <input type="text" id="color_text" name="color_text" value="{{ design.get('color_text', '') }}">
+          </div>
+        </div>
+
+        <div class="design-actions">
+          <button type="submit" class="btn">Save</button>
+          <a href="/" class="btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <div id="design-preview">
+      <header class="site-header">
+        {% if site.avatar %}
+          <img src="{{ site.avatar }}" alt="avatar">
+        {% endif %}
+        <h1>{{ site.title }}</h1>
+        {% if site.bio %}
+          <p>{{ site.bio }}</p>
+        {% endif %}
+      </header>
+      <article>
+        <time>February 17, 2026</time>
+        <h2>Welcome to My Blog</h2>
+        <div class="post-body">
+          <p>This is a preview of how your blog will look with the current design settings. The <a href="#">quick brown fox</a> jumps over the lazy dog.</p>
+          <p>You can change the fonts and colors using the controls on the left. The preview updates in real time.</p>
+          <blockquote><p>This is a blockquote to show how quotes will look.</p></blockquote>
+          <p>Here is some <code>inline code</code> to preview as well.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+  <script src="/static/design.js"></script>
+{% endblock %}

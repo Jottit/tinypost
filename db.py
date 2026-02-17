@@ -1,3 +1,5 @@
+from psycopg.types.json import Json
+
 from models import get_db, query
 
 
@@ -90,6 +92,16 @@ def update_site_avatar(site_id, avatar_url):
     site = db.execute(
         "UPDATE sites SET avatar = %s, updated_at = NOW() WHERE id = %s RETURNING *",
         (avatar_url, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def update_site_design(site_id, design):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET design = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (Json(design), site_id),
     ).fetchone()
     db.commit()
     return site
