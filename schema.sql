@@ -15,6 +15,9 @@ CREATE TABLE sites (
     title TEXT NOT NULL,
     bio TEXT,
     avatar TEXT,
+    custom_domain TEXT UNIQUE,
+    domain_verified_at TIMESTAMPTZ,
+    domain_verification_token TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

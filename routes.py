@@ -1,11 +1,13 @@
 import io
 import os
+import secrets
 import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 from datetime import timezone
 from email.utils import format_datetime
 
+import dns.resolver
 import markdown as md
 from flask import (
     Response,
@@ -20,7 +22,7 @@ from flask import (
 
 from app import app
 from auth import generate_passcode, send_passcode
-from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
+from config import ALLOWED_IMAGE_TYPES, CADDY_ASK_TOKEN, CUSTOM_DOMAIN_IPV4, CUSTOM_DOMAIN_IPV6, MAX_IMAGE_SIZE
 from db import (
     create_post,
     create_user_and_site,
@@ -29,14 +31,19 @@ from db import (
     get_all_posts_for_site,
     get_post_by_slug,
     get_posts_for_site,
+    get_site_by_custom_domain,
     get_site_by_subdomain,
     get_site_by_user,
     get_user_by_email,
     get_user_by_id,
+    is_domain_taken,
+    remove_custom_domain,
+    set_custom_domain,
     subdomain_taken,
     update_post,
     update_site,
     update_site_avatar,
+    verify_custom_domain,
 )
 from storage import crop_square, delete_all_images, delete_image, download_image, file_size, list_images, upload_image
 from utils import is_valid_subdomain, mask_email, site_url, slugify
@@ -47,13 +54,25 @@ ET.register_namespace("content", CONTENT_NS)
 ET.register_namespace("source", SOURCE_NS)
 
 
+def render_settings(site, **kwargs):
+    return render_template(
+        "settings.html",
+        site=site,
+        custom_domain_ipv4=CUSTOM_DOMAIN_IPV4,
+        custom_domain_ipv6=CUSTOM_DOMAIN_IPV6,
+        **kwargs,
+    )
+
+
 def get_current_site():
     host = request.host.split(":")[0]
     base = app.config["BASE_DOMAIN"].split(":")[0]
-    if not host.endswith("." + base):
-        return None
-    subdomain = host.replace("." + base, "")
-    return get_site_by_subdomain(subdomain)
+    if host.endswith("." + base):
+        subdomain = host.replace("." + base, "")
+        return get_site_by_subdomain(subdomain)
+    if host != base:
+        return get_site_by_custom_domain(host)
+    return None
 
 
 def require_owner():
@@ -96,6 +115,16 @@ def home():
     if not site:
         abort(404)
     is_owner = session.get("user_id") == site["user_id"]
+
+    # Redirect unauthenticated subdomain visitors to custom domain
+    if (
+        not is_owner
+        and site.get("custom_domain")
+        and site.get("domain_verified_at")
+        and host.endswith("." + base)
+    ):
+        return redirect(f"https://{site['custom_domain']}", code=308)
+
     posts = get_posts_for_site(site["id"], include_drafts=is_owner)
     return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
 
@@ -217,12 +246,12 @@ def settings():
     site = require_owner()
 
     if request.method == "GET":
-        return render_template("settings.html", site=site)
+        return render_settings(site)
 
     title = request.form.get("title", "").strip()
     bio = request.form.get("bio", "").strip()
     if not title:
-        return render_template("settings.html", site=site, error="Title is required.")
+        return render_settings(site, error="Title is required.")
     update_site(site["id"], title, bio or None)
     return redirect("/")
 
@@ -236,10 +265,10 @@ def settings_avatar():
         return redirect("/settings")
 
     if file.content_type not in ALLOWED_IMAGE_TYPES:
-        return render_template("settings.html", site=site, error="File type not allowed.")
+        return render_settings(site, error="File type not allowed.")
 
     if file_size(file) > MAX_IMAGE_SIZE:
-        return render_template("settings.html", site=site, error="File too large (max 5MB).")
+        return render_settings(site, error="File too large (max 5MB).")
 
     ext = ALLOWED_IMAGE_TYPES[file.content_type]
     fmt = file.content_type.split("/")[-1].upper()
@@ -290,6 +319,52 @@ def settings_export():
     )
 
 
+@app.route("/settings/domain", methods=["POST"])
+def settings_domain():
+    site = require_owner()
+    domain = request.form.get("domain", "").strip().lower()
+
+    if not domain or "." not in domain or " " in domain or "://" in domain:
+        return render_settings(site, domain_error="Enter a valid domain name.")
+
+    if is_domain_taken(domain, exclude_site_id=site["id"]):
+        return render_settings(site, domain_error="That domain is already in use.")
+
+    token = secrets.token_urlsafe(24)
+    set_custom_domain(site["id"], domain, token)
+    return redirect("/settings")
+
+
+@app.route("/settings/domain/verify", methods=["POST"])
+def settings_domain_verify():
+    site = require_owner()
+
+    if not site.get("custom_domain") or not site.get("domain_verification_token"):
+        return redirect("/settings")
+
+    domain = site["custom_domain"]
+    token = site["domain_verification_token"]
+
+    try:
+        answers = dns.resolver.resolve(f"_jottit.{domain}", "TXT")
+        found = any(f"jottit-site-verification={token}" in str(r) for r in answers)
+    except Exception:
+        found = False
+
+    if not found:
+        return render_settings(site, domain_error="TXT record not found. It may take a few minutes to propagate.")
+
+    verify_custom_domain(site["id"])
+    return redirect("/settings")
+
+
+@app.route("/settings/domain/remove", methods=["POST"])
+def settings_domain_remove():
+    site = require_owner()
+    remove_custom_domain(site["id"])
+    return redirect("/settings")
+
+
 @app.route("/settings/delete-account", methods=["GET", "POST"])
 def settings_delete_account():
     site = require_owner()
@@ -304,6 +379,21 @@ def settings_delete_account():
     delete_account(session["user_id"])
     session.clear()
     return redirect(f"http://{app.config['BASE_DOMAIN']}")
+
+
+@app.route("/_tls/ask")
+def tls_ask():
+    token = request.args.get("token", "")
+    domain = request.args.get("domain", "")
+
+    if not CADDY_ASK_TOKEN or token != CADDY_ASK_TOKEN:
+        return "", 403
+
+    site = get_site_by_custom_domain(domain)
+    if not site:
+        return "", 403
+
+    return "", 200
 
 
 @app.route("/feed.xml")

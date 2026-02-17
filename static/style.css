@@ -704,6 +704,52 @@ nav a:hover {
   border-radius: 16px;
 }
 
+.panel-divider {
+  border-top: 1px solid color-mix(in srgb, var(--site-divider), transparent 50%);
+  margin-top: var(--space-8);
+  padding-top: var(--space-8);
+}
+
+.domain-section h3 {
+  margin-bottom: var(--space-2);
+}
+
+.domain-verified {
+  color: var(--brand-1);
+  font-weight: var(--weight-medium);
+}
+
+.domain-verified::before {
+  content: "\2713 ";
+}
+
+.domain-status {
+  font-size: var(--text-sm);
+}
+
+.domain-instructions {
+  margin: var(--space-4) 0;
+  font-size: var(--text-sm);
+}
+
+.domain-instructions pre {
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-3);
+}
+
+.domain-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.domain-remove {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: #c0392b;
+}
+
 .export-zone {
   margin-top: var(--space-8);
   border: 1px solid var(--site-divider);

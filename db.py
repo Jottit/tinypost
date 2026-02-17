@@ -101,6 +101,57 @@ def delete_post(post_id):
     db.commit()
 
 
+def get_site_by_custom_domain(domain):
+    return query(
+        "SELECT * FROM sites WHERE custom_domain = %s AND domain_verified_at IS NOT NULL",
+        (domain,),
+        one=True,
+    )
+
+
+def set_custom_domain(site_id, domain, token):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET custom_domain = %s, domain_verification_token = %s,"
+        " domain_verified_at = NULL, updated_at = NOW() WHERE id = %s RETURNING *",
+        (domain, token, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def verify_custom_domain(site_id):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET domain_verified_at = NOW(), updated_at = NOW()"
+        " WHERE id = %s RETURNING *",
+        (site_id,),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def remove_custom_domain(site_id):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET custom_domain = NULL, domain_verified_at = NULL,"
+        " domain_verification_token = NULL, updated_at = NOW() WHERE id = %s RETURNING *",
+        (site_id,),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def is_domain_taken(domain, exclude_site_id=None):
+    if exclude_site_id is not None:
+        return query(
+            "SELECT id FROM sites WHERE custom_domain = %s AND id != %s",
+            (domain, exclude_site_id),
+            one=True,
+        )
+    return query("SELECT id FROM sites WHERE custom_domain = %s", (domain,), one=True)
+
+
 def delete_account(user_id):
     db = get_db()
     site = get_site_by_user(user_id)
