@@ -2,7 +2,15 @@
 {% block title %}Jottit — self-owned publishing on the web{% endblock %}
 {% block body %}
   <nav class="top-nav">
-    <a href="/signin">Sign in</a>
+    {% if user_email %}
+      <a href="{{ user_site_url }}">{{ user_email }}</a>
+      &middot;
+      <form action="/signout" method="post" class="inline">
+        <button type="submit" class="link-button">sign out</button>
+      </form>
+    {% else %}
+      <a href="/signin">sign in</a>
+    {% endif %}
   </nav>
   <main class="page-centered">
     <header class="mb-4">
@@ -10,19 +18,12 @@
     </header>
     <form action="/" method="post" class="mb-4">
       <div class="pill-input pill-input-right">
-        <input type="text" name="subdomain" placeholder="yourname" required autofocus>
+        <input type="text" name="subdomain" placeholder="yourname" value="{{ subdomain or '' }}" required>
         <span class="pill-input-suffix">.jottit.pub</span>
         <button type="submit">Go</button>
       </div>
     </form>
-    <p class="text-muted">self-owned publishing on the web</p>
+    <p class="{% if error %}error{% else %}text-muted{% endif %}">{{ error or "self-owned publishing on the web" }}</p>
   </main>
-  <script>
-    var input = document.querySelector('.pill-input input');
-    function resize() {
-      input.size = Math.min(20, Math.max(8, input.value.length || 8));
-    }
-    resize();
-    input.addEventListener('input', resize);
-  </script>
+  <script src="/static/home.js"></script>
 {% endblock %}

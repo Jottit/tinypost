@@ -43,3 +43,12 @@ def client():
     app.config["SERVER_NAME"] = app.config["BASE_DOMAIN"]
     with app.test_client() as client:
         yield client
+
+
+@pytest.fixture
+def taken_subdomain(client):
+    from db import create_user_and_site
+
+    with app.app_context():
+        create_user_and_site("taken@example.com", "taken")
+    return "taken"

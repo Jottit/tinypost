@@ -497,6 +497,28 @@ nav a:hover {
   position: fixed;
   top: var(--space-4);
   right: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+}
+
+.top-nav a,
+.top-nav .link-button {
+  color: #bbb;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.inline {
+  display: inline;
 }
 
 .page-centered {
@@ -676,9 +698,22 @@ nav a:hover {
   border-radius: 16px;
 }
 
-.error {
-  color: #c0392b;
+.error,
+.success {
   font-size: var(--text-sm);
+  display: inline-block;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-pill);
+}
+
+.error {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.12);
+}
+
+.success {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.12);
 }
 
 .editor-page {
@@ -753,6 +788,7 @@ nav a:hover {
 
 .text-muted {
   color: var(--site-text-muted);
+  font-size: var(--text-sm);
 }
 
 .pl-5 {

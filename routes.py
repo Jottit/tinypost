@@ -28,13 +28,14 @@ from db import (
     get_site_by_subdomain,
     get_site_by_user,
     get_user_by_email,
+    get_user_by_id,
     subdomain_taken,
     update_post,
     update_site,
     update_site_avatar,
 )
 from storage import crop_square, delete_image, file_size, upload_image
-from utils import is_valid_subdomain, site_url, slugify
+from utils import is_valid_subdomain, mask_email, site_url, slugify
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 SOURCE_NS = "http://source.scripting.com/"
@@ -69,11 +70,23 @@ def home():
         if request.method == "POST":
             subdomain = request.form.get("subdomain", "").lower().strip()
             if not is_valid_subdomain(subdomain):
-                return render_template("home.html", error="Invalid name")
+                return render_template("home.html", error="Invalid name", subdomain=subdomain)
             if subdomain_taken(subdomain):
-                return render_template("home.html", error="Name taken")
+                return render_template(
+                    "home.html",
+                    error=f"{subdomain}.jottit.pub is not available",
+                    subdomain=subdomain,
+                )
             return render_template("signup.html", subdomain=subdomain)
-        return render_template("home.html")
+
+        user_id = session.get("user_id")
+        user = get_user_by_id(user_id) if user_id else None
+        site = get_site_by_user(user_id) if user else None
+        return render_template(
+            "home.html",
+            user_email=mask_email(user["email"]) if user and site else None,
+            user_site_url=site_url(site) if user and site else None,
+        )
 
     site = get_current_site()
     if not site:
@@ -81,6 +94,16 @@ def home():
     posts = get_posts_for_site(site["id"])
     is_owner = session.get("user_id") == site["user_id"]
     return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
+
+
+@app.route("/check-subdomain")
+def check_subdomain():
+    name = request.args.get("name", "").lower().strip()
+    if not is_valid_subdomain(name):
+        return jsonify({"error": "Invalid name"})
+    if subdomain_taken(name):
+        return jsonify({"available": False})
+    return jsonify({"available": True})
 
 
 @app.route("/signup", methods=["POST"])

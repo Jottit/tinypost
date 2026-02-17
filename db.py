@@ -31,6 +31,10 @@ def get_posts_for_site(site_id):
     )
 
 
+def get_user_by_id(user_id):
+    return query("SELECT * FROM users WHERE id = %s", (user_id,), one=True)
+
+
 def get_user_by_email(email):
     return query("SELECT * FROM users WHERE email = %s", (email,), one=True)
 

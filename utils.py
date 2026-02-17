@@ -10,6 +10,11 @@ def slugify(text):
     return slug or None
 
 
+def mask_email(email):
+    local, domain = email.split("@")
+    return local[:2] + "****@" + domain
+
+
 def site_url(site):
     from app import app
 
