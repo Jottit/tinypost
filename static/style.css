@@ -53,6 +53,11 @@ table {
 
 /* ── 2. Tokens ───────────────────────── */
 :root {
+  /* Brand */
+  --brand-1: #117a65;
+  --brand-2: #28b463;
+  --brand-3: #82e0aa;
+
   /* Colors – light */
   --bg: #fff;
   --text: #444;
@@ -122,6 +127,7 @@ table {
   --site-font-size: var(--text-base);
   --site-leading: var(--leading-normal);
   --site-measure: var(--measure);
+  --editor-measure: 700px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -537,7 +543,7 @@ nav a:hover {
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 0;
-  background: linear-gradient(90deg, #117a65, #28b463, #82e0aa);
+  background: linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -722,15 +728,17 @@ nav a:hover {
 }
 
 .editor {
+  max-width: 1000px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .editor form {
+  max-width: var(--editor-measure);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  min-height: 100vh;
 }
 
 .editor-error {
@@ -767,10 +775,46 @@ nav a:hover {
   padding: var(--space-4);
 }
 
-.editor button {
+.editor-actions {
   position: fixed;
-  top: var(--space-4);
-  right: var(--space-4);
+  bottom: var(--space-8);
+  right: max(var(--space-4), calc((100vw - 1000px) / 2 + var(--space-4)));
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.editor-draft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+.editor-actions .btn {
+  background: color-mix(in srgb, var(--brand-1), white 20%);
+  color: #fff;
+}
+
+.editor-draft input[type="checkbox"] {
+  width: auto;
+}
+
+.draft-label {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: var(--weight-medium);
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+  border: 1px solid color-mix(in srgb, var(--site-text-muted), transparent 60%);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  margin-left: var(--space-3);
+  background: #eee;
 }
 
 /* ── 5. Utilities ────────────────────── */

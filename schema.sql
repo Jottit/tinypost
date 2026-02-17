@@ -1,11 +1,14 @@
-CREATE TABLE IF NOT EXISTS users (
+-- Reference only. Migrations are the source of truth.
+-- Update this file when writing new migrations.
+
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS sites (
+CREATE TABLE sites (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     subdomain TEXT UNIQUE NOT NULL,
@@ -16,12 +19,13 @@ CREATE TABLE IF NOT EXISTS sites (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
     site_id INTEGER NOT NULL REFERENCES sites(id),
     slug TEXT NOT NULL,
     title TEXT,
     body TEXT NOT NULL,
+    is_draft BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(site_id, slug)

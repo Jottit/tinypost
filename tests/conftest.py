@@ -1,5 +1,9 @@
+import os
+
 import psycopg
 import pytest
+from alembic import command
+from alembic.config import Config
 
 from app import app
 
@@ -13,11 +17,9 @@ def create_test_db():
     conn.execute(f"CREATE DATABASE {TEST_DB}")
     conn.close()
 
-    conn = psycopg.connect(f"dbname={TEST_DB}")
-    with open("schema.sql") as f:
-        conn.execute(f.read())
-    conn.commit()
-    conn.close()
+    os.environ["DATABASE_URL"] = f"postgresql://localhost/{TEST_DB}"
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
 
     yield
 

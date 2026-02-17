@@ -91,8 +91,8 @@ def home():
     site = get_current_site()
     if not site:
         abort(404)
-    posts = get_posts_for_site(site["id"])
     is_owner = session.get("user_id") == site["user_id"]
+    posts = get_posts_for_site(site["id"], include_drafts=is_owner)
     return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
 
 
@@ -173,7 +173,8 @@ def edit():
     if not body:
         return render_template("edit.html", site=site, error="Post body is required.")
     slug = slugify(title or body[:50]) or "post"
-    create_post(site["id"], slug, title or None, body)
+    is_draft = request.form.get("is_draft") == "on"
+    create_post(site["id"], slug, title or None, body, is_draft=is_draft)
     return redirect(f"/{slug}")
 
 
@@ -192,7 +193,8 @@ def edit_post(slug):
     if not body:
         return render_template("edit.html", site=site, post=post, error="Post body is required.")
     new_slug = slugify(title or body[:50]) or "post"
-    update_post(post["id"], new_slug, title or None, body)
+    is_draft = request.form.get("is_draft") == "on"
+    update_post(post["id"], new_slug, title or None, body, is_draft=is_draft)
     return redirect(f"/{new_slug}")
 
 
@@ -345,6 +347,8 @@ def post(slug):
     if not post:
         abort(404)
     is_owner = session.get("user_id") == site["user_id"]
+    if post["is_draft"] and not is_owner:
+        abort(404)
     return render_template("post.html", site=site, post=post, is_owner=is_owner)
 
 

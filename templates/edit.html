@@ -9,7 +9,13 @@
     <form method="POST" action="{% if post %}/edit/{{ post.slug }}{% else %}/edit{% endif %}">
       <input type="text" name="title" placeholder="Title" class="editor-title" value="{{ post.title or '' if post else '' }}" {% if not post %}autofocus{% endif %}>
       <textarea name="body" placeholder="Write here..." class="editor-body" {% if post %}autofocus{% endif %}>{{ post.body if post else '' }}</textarea>
-      <button type="submit" class="btn">Save and publish</button>
+      <div class="editor-actions">
+        <label class="editor-draft">
+          <input type="checkbox" name="is_draft" {% if post and post.is_draft %}checked{% endif %}>
+          Don't publish yet
+        </label>
+        <button type="submit" class="btn">Save</button>
+      </div>
     </form>
   </main>
   <script src="{{ url_for('static', filename='editor.js') }}"></script>

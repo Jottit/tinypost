@@ -25,10 +25,12 @@ def get_site_by_subdomain(subdomain):
     return query("SELECT * FROM sites WHERE subdomain = %s", (subdomain,), one=True)
 
 
-def get_posts_for_site(site_id):
-    return query(
-        "SELECT * FROM posts WHERE site_id = %s ORDER BY created_at DESC LIMIT 30", (site_id,)
-    )
+def get_posts_for_site(site_id, include_drafts=False):
+    sql = "SELECT * FROM posts WHERE site_id = %s"
+    if not include_drafts:
+        sql += " AND is_draft = FALSE"
+    sql += " ORDER BY created_at DESC LIMIT 30"
+    return query(sql, (site_id,))
 
 
 def get_user_by_id(user_id):
@@ -47,22 +49,23 @@ def get_post_by_slug(site_id, slug):
     return query("SELECT * FROM posts WHERE site_id = %s AND slug = %s", (site_id, slug), one=True)
 
 
-def create_post(site_id, slug, title, body):
+def create_post(site_id, slug, title, body, is_draft=False):
     db = get_db()
     post = db.execute(
-        "INSERT INTO posts (site_id, slug, title, body) VALUES (%s, %s, %s, %s) RETURNING *",
-        (site_id, slug, title, body),
+        "INSERT INTO posts (site_id, slug, title, body, is_draft)"
+        " VALUES (%s, %s, %s, %s, %s) RETURNING *",
+        (site_id, slug, title, body, is_draft),
     ).fetchone()
     db.commit()
     return post
 
 
-def update_post(post_id, slug, title, body):
+def update_post(post_id, slug, title, body, is_draft=False):
     db = get_db()
     post = db.execute(
-        "UPDATE posts SET slug = %s, title = %s, body = %s, updated_at = NOW()"
+        "UPDATE posts SET slug = %s, title = %s, body = %s, is_draft = %s, updated_at = NOW()"
         " WHERE id = %s RETURNING *",
-        (slug, title, body, post_id),
+        (slug, title, body, is_draft, post_id),
     ).fetchone()
     db.commit()
     return post
