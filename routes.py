@@ -22,6 +22,7 @@ from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
 from db import (
     create_post,
     create_user_and_site,
+    delete_account,
     delete_post,
     get_post_by_slug,
     get_posts_for_site,
@@ -34,7 +35,7 @@ from db import (
     update_site,
     update_site_avatar,
 )
-from storage import crop_square, delete_image, file_size, upload_image
+from storage import crop_square, delete_all_images, delete_image, file_size, upload_image
 from utils import is_valid_subdomain, mask_email, site_url, slugify
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
@@ -260,6 +261,22 @@ def settings_avatar_delete():
             delete_image(key)
         update_site_avatar(site["id"], None)
     return redirect("/settings")
+
+
+@app.route("/settings/delete-account", methods=["GET", "POST"])
+def settings_delete_account():
+    site = require_owner()
+
+    if request.method == "GET":
+        return render_template("delete_account.html", site=site)
+
+    if request.form.get("confirmation") != "delete":
+        return render_template("delete_account.html", site=site, error="Type 'delete' to confirm.")
+
+    delete_all_images(site["subdomain"])
+    delete_account(session["user_id"])
+    session.clear()
+    return redirect(f"http://{app.config['BASE_DOMAIN']}")
 
 
 @app.route("/feed.xml")

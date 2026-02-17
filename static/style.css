@@ -704,6 +704,47 @@ nav a:hover {
   border-radius: 16px;
 }
 
+.danger-zone {
+  margin-top: var(--space-8);
+  border: 1px solid #c0392b;
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+
+.danger-zone h3 {
+  color: #c0392b;
+  margin-bottom: var(--space-2);
+}
+
+.danger-zone p {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-5);
+}
+
+.btn-danger {
+  display: inline-block;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: #fff;
+  background: #c0392b;
+  border: none;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--speed-fast);
+}
+
+.btn-danger:hover {
+  opacity: 0.8;
+  color: #fff;
+}
+
+.btn-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .error,
 .success {
   font-size: var(--text-sm);

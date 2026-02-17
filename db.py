@@ -95,3 +95,13 @@ def delete_post(post_id):
     db = get_db()
     db.execute("DELETE FROM posts WHERE id = %s", (post_id,))
     db.commit()
+
+
+def delete_account(user_id):
+    db = get_db()
+    site = get_site_by_user(user_id)
+    if site:
+        db.execute("DELETE FROM posts WHERE site_id = %s", (site["id"],))
+        db.execute("DELETE FROM sites WHERE id = %s", (site["id"],))
+    db.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    db.commit()

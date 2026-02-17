@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Delete account — {{ site.title }}{% endblock %}
+{% block body %}
+  <main class="settings-page">
+    <div class="settings-card">
+      <h2>Delete account</h2>
+      <p>This will permanently delete your account, your site, all your posts, and all your images. This cannot be undone.</p>
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <form method="POST" action="/settings/delete-account" class="settings-form">
+        <label for="confirmation">Type <strong class="error">delete</strong> to confirm</label>
+        <input type="text" id="confirmation" name="confirmation" autocomplete="off">
+        <div class="actions mt-6">
+          <button type="submit" class="btn-danger" id="confirm-btn" disabled>Delete account</button>
+          <a href="/settings" class="btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <script>
+    var input = document.getElementById('confirmation');
+    var btn = document.getElementById('confirm-btn');
+    input.addEventListener('input', function() {
+      btn.disabled = input.value !== 'delete';
+    });
+  </script>
+{% endblock %}

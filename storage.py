@@ -1,4 +1,5 @@
 import os
+import shutil
 from io import BytesIO
 from pathlib import Path
 
@@ -46,6 +47,20 @@ def delete_image(key):
     dest = Path(current_app.instance_path) / "uploads" / key
     if dest.exists():
         dest.unlink()
+
+
+def delete_all_images(subdomain):
+    bucket = os.environ.get("BUCKET_NAME")
+    if bucket:
+        client = _s3_client()
+        response = client.list_objects_v2(Bucket=bucket, Prefix=f"{subdomain}/")
+        for obj in response.get("Contents", []):
+            client.delete_object(Bucket=bucket, Key=obj["Key"])
+        return
+
+    uploads_dir = Path(current_app.instance_path) / "uploads" / subdomain
+    if uploads_dir.exists():
+        shutil.rmtree(uploads_dir)
 
 
 def _s3_client():
