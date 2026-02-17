@@ -160,6 +160,20 @@ def test_tls_ask_returns_403_for_unverified_domain(client):
     assert response.status_code == 403
 
 
+def test_tls_ask_returns_200_for_valid_subdomain(client):
+    _setup_site()
+    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+        response = client.get("/_tls/ask?token=secret&domain=myblog.jottit.localhost")
+    assert response.status_code == 200
+
+
+def test_tls_ask_returns_403_for_unknown_subdomain(client):
+    _setup_site()
+    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+        response = client.get("/_tls/ask?token=secret&domain=nonexistent.jottit.localhost")
+    assert response.status_code == 403
+
+
 def test_tls_ask_returns_403_for_wrong_token(client):
     user, site = _setup_site()
     with app.app_context():

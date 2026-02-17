@@ -1,15 +1,6 @@
 {
 	on_demand_tls {
-		ask https://{$BACKEND}/_tls/ask?token={$CADDY_ASK_TOKEN}
-	}
-}
-
-{$CADDY_HOST} {
-	reverse_proxy https://{$BACKEND} {
-		header_up Host {$BACKEND}
-		transport http {
-			tls_server_name {$BACKEND}
-		}
+		ask "https://{$BACKEND}/_tls/ask?token={$CADDY_ASK_TOKEN}"
 	}
 }
 

@@ -389,7 +389,13 @@ def tls_ask():
     if not CADDY_ASK_TOKEN or token != CADDY_ASK_TOKEN:
         return "", 403
 
-    site = get_site_by_custom_domain(domain)
+    base = app.config["BASE_DOMAIN"].split(":")[0]
+    if domain.endswith("." + base):
+        subdomain = domain.replace("." + base, "")
+        site = get_site_by_subdomain(subdomain)
+    else:
+        site = get_site_by_custom_domain(domain)
+
     if not site:
         return "", 403
 
