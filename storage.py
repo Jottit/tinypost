@@ -2,7 +2,9 @@ import os
 from io import BytesIO
 from pathlib import Path
 
+import boto3
 from flask import current_app
+from PIL import Image
 
 
 def file_size(file):
@@ -13,8 +15,6 @@ def file_size(file):
 
 
 def crop_square(file, format):
-    from PIL import Image
-
     img = Image.open(file)
     w, h = img.size
     side = min(w, h)
@@ -48,17 +48,17 @@ def delete_image(key):
         dest.unlink()
 
 
-def _upload_to_s3(bucket, key, file, content_type):
-    import boto3
-
-    endpoint = os.environ.get("AWS_ENDPOINT_URL_S3")
-    client = boto3.client(
+def _s3_client():
+    return boto3.client(
         "s3",
-        endpoint_url=endpoint,
+        endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"),
         aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
     )
-    client.upload_fileobj(
+
+
+def _upload_to_s3(bucket, key, file, content_type):
+    _s3_client().upload_fileobj(
         file,
         bucket,
         key,
@@ -69,13 +69,4 @@ def _upload_to_s3(bucket, key, file, content_type):
 
 
 def _delete_from_s3(bucket, key):
-    import boto3
-
-    endpoint = os.environ.get("AWS_ENDPOINT_URL_S3")
-    client = boto3.client(
-        "s3",
-        endpoint_url=endpoint,
-        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-    )
-    client.delete_object(Bucket=bucket, Key=key)
+    _s3_client().delete_object(Bucket=bucket, Key=key)

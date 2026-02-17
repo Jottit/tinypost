@@ -18,7 +18,7 @@ from flask import (
 
 from app import app
 from auth import generate_passcode, send_passcode
-from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE, PILLOW_FORMATS
+from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
 from db import (
     create_post,
     create_user_and_site,
@@ -213,7 +213,7 @@ def settings_avatar():
         return render_template("settings.html", site=site, error="File too large (max 5MB).")
 
     ext = ALLOWED_IMAGE_TYPES[file.content_type]
-    fmt = PILLOW_FORMATS[file.content_type]
+    fmt = file.content_type.split("/")[-1].upper()
     cropped = crop_square(file, fmt)
     key = f"{site['subdomain']}/avatar.{ext}"
     url = upload_image(key, cropped, file.content_type)
@@ -228,9 +228,9 @@ def settings_avatar_delete():
     if site["avatar"]:
         url = site["avatar"]
         if url.startswith("/uploads/"):
-            key = url[len("/uploads/") :]
+            key = url.removeprefix("/uploads/")
         else:
-            key = url.split("/", 3)[-1] if url.count("/") >= 3 else ""
+            key = "/".join(url.split("/")[3:])
         if key:
             delete_image(key)
         update_site_avatar(site["id"], None)
