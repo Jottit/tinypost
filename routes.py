@@ -1,4 +1,9 @@
-from flask import abort, redirect, render_template, request, session
+import xml.etree.ElementTree as ET
+from datetime import timezone
+from email.utils import format_datetime
+
+import markdown as md
+from flask import Response, abort, jsonify, redirect, render_template, request, session
 
 from app import app
 from auth import generate_passcode, send_passcode
@@ -16,6 +21,11 @@ from db import (
     update_site,
 )
 from utils import is_valid_subdomain, site_url, slugify
+
+CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
+SOURCE_NS = "http://source.scripting.com/"
+ET.register_namespace("content", CONTENT_NS)
+ET.register_namespace("source", SOURCE_NS)
 
 
 def get_current_site():
@@ -71,7 +81,7 @@ def signup_verify():
     user, site = create_user_and_site(signup["email"], signup["subdomain"])
     session.pop("signup")
     session["user_id"] = user["id"]
-    return redirect(site_url(signup["subdomain"]))
+    return redirect(site_url(site))
 
 
 @app.route("/signin")
@@ -102,7 +112,7 @@ def signin_verify():
     session.pop("signin")
     session["user_id"] = signin["user_id"]
     site = get_site_by_user(signin["user_id"])
-    return redirect(site_url(site["subdomain"]))
+    return redirect(site_url(site))
 
 
 @app.route("/edit", methods=["GET", "POST"])
@@ -179,6 +189,75 @@ def settings():
         return render_template("settings.html", site=site, error="Title is required.")
     update_site(site["id"], title, bio or None)
     return redirect("/")
+
+
+@app.route("/feed.xml")
+def feed():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    posts = get_posts_for_site(site["id"])[:20]
+    base_url = site_url(site)
+
+    rss = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(rss, "channel")
+    ET.SubElement(channel, "title").text = site["title"]
+    ET.SubElement(channel, "link").text = base_url
+    ET.SubElement(channel, "description").text = site["bio"] or site["title"]
+    if posts:
+        last_build = posts[0]["created_at"].replace(tzinfo=timezone.utc)
+        ET.SubElement(channel, "lastBuildDate").text = format_datetime(last_build)
+
+    for p in posts:
+        item = ET.SubElement(channel, "item")
+        permalink = f"{base_url}/{p['slug']}"
+        ET.SubElement(item, "title").text = p["title"] or ""
+        ET.SubElement(item, "link").text = permalink
+        ET.SubElement(item, "guid").text = permalink
+        pub_date = p["created_at"].replace(tzinfo=timezone.utc)
+        ET.SubElement(item, "pubDate").text = format_datetime(pub_date)
+        html = md.markdown(p["body"])
+        ET.SubElement(item, "description").text = html
+        ET.SubElement(item, f"{{{CONTENT_NS}}}encoded").text = html
+        ET.SubElement(item, f"{{{SOURCE_NS}}}markdown").text = p["body"]
+
+    xml_str = ET.tostring(rss, encoding="unicode", xml_declaration=False)
+    xml_out = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_str
+    return Response(xml_out, content_type="application/rss+xml; charset=utf-8")
+
+
+@app.route("/feed.json")
+def feed_json():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    posts = get_posts_for_site(site["id"])[:20]
+    base_url = site_url(site)
+
+    items = []
+    for p in posts:
+        permalink = f"{base_url}/{p['slug']}"
+        items.append(
+            {
+                "id": permalink,
+                "url": permalink,
+                "title": p["title"] or "",
+                "content_html": md.markdown(p["body"]),
+                "content_text": p["body"],
+                "date_published": p["created_at"].replace(tzinfo=timezone.utc).isoformat(),
+            }
+        )
+
+    data = {
+        "version": "https://jsonfeed.org/version/1.1",
+        "title": site["title"],
+        "home_page_url": base_url,
+        "feed_url": f"{base_url}/feed.json",
+        "items": items,
+    }
+    response = jsonify(data)
+    response.content_type = "application/feed+json; charset=utf-8"
+    return response
 
 
 @app.route("/<slug>")

@@ -10,7 +10,7 @@ def slugify(text):
     return slug or None
 
 
-def site_url(subdomain):
+def site_url(site):
     from app import app
 
-    return f"http://{subdomain}.{app.config['BASE_DOMAIN']}"
+    return f"http://{site['subdomain']}.{app.config['BASE_DOMAIN']}"

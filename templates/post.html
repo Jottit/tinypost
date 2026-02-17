@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ post.title or site.title }} — Jottit{% endblock %}
+{% block head_extra %}
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="/feed.xml">
+  <link rel="alternate" type="application/feed+json" title="{{ site.title }}" href="/feed.json">
+{% endblock %}
 {% block body %}
   <main>
     <header>

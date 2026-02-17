@@ -14,7 +14,7 @@ def create_user_and_site(email, subdomain):
     if not user:
         user = db.execute("SELECT id FROM users WHERE email = %s", (email,)).fetchone()
     site = db.execute(
-        "INSERT INTO sites (subdomain, user_id, title) VALUES (%s, %s, %s) RETURNING id",
+        "INSERT INTO sites (subdomain, user_id, title) VALUES (%s, %s, %s) RETURNING *",
         (subdomain, user["id"], subdomain),
     ).fetchone()
     db.commit()
