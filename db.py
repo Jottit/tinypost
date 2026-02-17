@@ -74,6 +74,16 @@ def update_site(site_id, title, bio):
     return site
 
 
+def update_site_avatar(site_id, avatar_url):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET avatar = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (avatar_url, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
 def delete_post(post_id):
     db = get_db()
     db.execute("DELETE FROM posts WHERE id = %s", (post_id,))

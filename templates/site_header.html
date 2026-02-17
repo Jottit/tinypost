@@ -1,0 +1,15 @@
+<header class="site-header">
+  {% if site.avatar %}
+    <a href="/"><img src="{{ site.avatar }}" alt="avatar"></a>
+  {% endif %}
+  <h1><a href="/">{{ site.title }}</a></h1>
+  {% if site.bio %}
+    <p>{{ site.bio }}</p>
+  {% endif %}
+  {% if is_owner and show_owner_actions %}
+    <div class="actions mt-4">
+      <a href="/edit" class="btn">+ Write</a>
+      <a href="/settings" class="btn-secondary">Settings</a>
+    </div>
+  {% endif %}
+</header>

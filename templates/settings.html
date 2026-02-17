@@ -2,16 +2,50 @@
 {% block title %}Settings — {{ site.title }}{% endblock %}
 {% block body %}
   <main class="settings-page">
-    <h2>Settings</h2>
-    {% if error %}
-      <p class="error">{{ error }}</p>
-    {% endif %}
-    <form method="POST" action="/settings" class="settings-form">
-      <label for="title">Title</label>
-      <input type="text" id="title" name="title" value="{{ site.title or '' }}" autofocus>
-      <label for="bio" class="mt-6">Bio</label>
-      <textarea id="bio" name="bio" rows="4">{{ site.bio or '' }}</textarea>
-      <button type="submit" class="btn mt-6">Save</button>
-    </form>
+    <div class="settings-card">
+      <h2>Settings</h2>
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <div class="avatar-section">
+        <label>Avatar</label>
+        <div class="avatar-row">
+          {% if site.avatar %}
+            <img src="{{ site.avatar }}" alt="avatar" class="avatar-preview">
+          {% else %}
+            <div class="avatar-placeholder">
+              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="30" r="14" fill="currentColor"/>
+                <ellipse cx="40" cy="68" rx="24" ry="20" fill="currentColor"/>
+              </svg>
+            </div>
+          {% endif %}
+          <div class="avatar-detail">
+            <div class="avatar-actions">
+              <a href="#" onclick="document.getElementById('avatar-input').click(); return false;">{{ "Update" if site.avatar else "Upload" }}</a>
+              {% if site.avatar %}
+                <form method="POST" action="/settings/avatar/delete">
+                  <button type="submit" class="avatar-remove">Remove</button>
+                </form>
+              {% endif %}
+            </div>
+            <p class="text-muted">Recommended: Square JPG, PNG, or GIF</p>
+          </div>
+        </div>
+        <form id="avatar-form" method="POST" action="/settings/avatar" enctype="multipart/form-data">
+          <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" hidden onchange="this.form.submit()">
+        </form>
+      </div>
+      <form method="POST" action="/settings" class="settings-form">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" value="{{ site.title or '' }}" autofocus>
+        <label for="bio" class="mt-6">Bio</label>
+        <textarea id="bio" name="bio" rows="4">{{ site.bio or '' }}</textarea>
+        <div class="actions mt-6">
+          <button type="submit" class="btn">Save</button>
+          <a href="/" class="btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
   </main>
 {% endblock %}

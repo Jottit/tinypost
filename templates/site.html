@@ -6,18 +6,8 @@
 {% endblock %}
 {% block body %}
   <main>
-    <header class="site-header">
-      <h1><a href="/">{{ site.title }}</a></h1>
-      {% if site.bio %}
-        <p>{{ site.bio }}</p>
-      {% endif %}
-      {% if is_owner %}
-        <div class="actions mt-4">
-          <a href="/edit" class="btn">+ Write</a>
-          <a href="/settings" class="btn-secondary">Settings</a>
-        </div>
-      {% endif %}
-    </header>
+    {% set show_owner_actions = true %}
+    {% include "site_header.html" %}
     {% if posts %}
       {% for post in posts %}
         <article>
@@ -35,5 +25,5 @@
       <p class="text-center">No posts yet.</p>
     {% endif %}
   </main>
-  <footer>Powered by <a href="http://{{ config.BASE_DOMAIN }}">Jottit</a></footer>
+  {% include "site_footer.html" %}
 {% endblock %}

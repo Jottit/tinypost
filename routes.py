@@ -18,7 +18,7 @@ from flask import (
 
 from app import app
 from auth import generate_passcode, send_passcode
-from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
+from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE, PILLOW_FORMATS
 from db import (
     create_post,
     create_user_and_site,
@@ -31,8 +31,9 @@ from db import (
     subdomain_taken,
     update_post,
     update_site,
+    update_site_avatar,
 )
-from storage import file_size, upload_image
+from storage import crop_square, delete_image, file_size, upload_image
 from utils import is_valid_subdomain, site_url, slugify
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
@@ -48,6 +49,15 @@ def get_current_site():
         return None
     subdomain = host.replace("." + base, "")
     return get_site_by_subdomain(subdomain)
+
+
+def require_owner():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    if session.get("user_id") != site["user_id"]:
+        abort(redirect("/signin"))
+    return site
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -130,11 +140,7 @@ def signin_verify():
 
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
-    site = get_current_site()
-    if not site:
-        abort(404)
-    if session.get("user_id") != site["user_id"]:
-        return redirect("/signin")
+    site = require_owner()
 
     if request.method == "GET":
         return render_template("edit.html", site=site)
@@ -150,11 +156,7 @@ def edit():
 
 @app.route("/edit/<slug>", methods=["GET", "POST"])
 def edit_post(slug):
-    site = get_current_site()
-    if not site:
-        abort(404)
-    if session.get("user_id") != site["user_id"]:
-        return redirect("/signin")
+    site = require_owner()
     post = get_post_by_slug(site["id"], slug)
     if not post:
         abort(404)
@@ -173,11 +175,7 @@ def edit_post(slug):
 
 @app.route("/delete/<slug>", methods=["POST"])
 def delete_post_route(slug):
-    site = get_current_site()
-    if not site:
-        abort(404)
-    if session.get("user_id") != site["user_id"]:
-        return redirect("/signin")
+    site = require_owner()
     post = get_post_by_slug(site["id"], slug)
     if not post:
         abort(404)
@@ -187,11 +185,7 @@ def delete_post_route(slug):
 
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
-    site = get_current_site()
-    if not site:
-        abort(404)
-    if session.get("user_id") != site["user_id"]:
-        return redirect("/signin")
+    site = require_owner()
 
     if request.method == "GET":
         return render_template("settings.html", site=site)
@@ -202,6 +196,45 @@ def settings():
         return render_template("settings.html", site=site, error="Title is required.")
     update_site(site["id"], title, bio or None)
     return redirect("/")
+
+
+@app.route("/settings/avatar", methods=["POST"])
+def settings_avatar():
+    site = require_owner()
+
+    file = request.files.get("avatar")
+    if not file:
+        return redirect("/settings")
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        return render_template("settings.html", site=site, error="File type not allowed.")
+
+    if file_size(file) > MAX_IMAGE_SIZE:
+        return render_template("settings.html", site=site, error="File too large (max 5MB).")
+
+    ext = ALLOWED_IMAGE_TYPES[file.content_type]
+    fmt = PILLOW_FORMATS[file.content_type]
+    cropped = crop_square(file, fmt)
+    key = f"{site['subdomain']}/avatar.{ext}"
+    url = upload_image(key, cropped, file.content_type)
+    update_site_avatar(site["id"], url)
+    return redirect("/settings")
+
+
+@app.route("/settings/avatar/delete", methods=["POST"])
+def settings_avatar_delete():
+    site = require_owner()
+
+    if site["avatar"]:
+        url = site["avatar"]
+        if url.startswith("/uploads/"):
+            key = url[len("/uploads/") :]
+        else:
+            key = url.split("/", 3)[-1] if url.count("/") >= 3 else ""
+        if key:
+            delete_image(key)
+        update_site_avatar(site["id"], None)
+    return redirect("/settings")
 
 
 @app.route("/feed.xml")
@@ -217,6 +250,11 @@ def feed():
     ET.SubElement(channel, "title").text = site["title"]
     ET.SubElement(channel, "link").text = base_url
     ET.SubElement(channel, "description").text = site["bio"] or site["title"]
+    if site["avatar"]:
+        image = ET.SubElement(channel, "image")
+        ET.SubElement(image, "url").text = site["avatar"]
+        ET.SubElement(image, "title").text = site["title"]
+        ET.SubElement(image, "link").text = base_url
     if posts:
         last_build = posts[0]["created_at"].replace(tzinfo=timezone.utc)
         ET.SubElement(channel, "lastBuildDate").text = format_datetime(last_build)
@@ -268,6 +306,8 @@ def feed_json():
         "feed_url": f"{base_url}/feed.json",
         "items": items,
     }
+    if site["avatar"]:
+        data["icon"] = site["avatar"]
     response = jsonify(data)
     response.content_type = "application/feed+json; charset=utf-8"
     return response

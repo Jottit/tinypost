@@ -6,9 +6,7 @@
 {% endblock %}
 {% block body %}
   <main>
-    <header>
-      <h1><a href="/">{{ site.title }}</a></h1>
-    </header>
+    {% include "site_header.html" %}
     <article>
       <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
       {% if post.title %}
@@ -25,5 +23,5 @@
       {% endif %}
     </article>
   </main>
-  <footer>Powered by <a href="http://{{ config.BASE_DOMAIN }}">Jottit</a></footer>
+  {% include "site_footer.html" %}
 {% endblock %}

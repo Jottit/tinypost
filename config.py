@@ -6,3 +6,10 @@ ALLOWED_IMAGE_TYPES = {
     "image/gif": "gif",
     "image/webp": "webp",
 }
+
+PILLOW_FORMATS = {
+    "image/jpeg": "JPEG",
+    "image/png": "PNG",
+    "image/gif": "GIF",
+    "image/webp": "WEBP",
+}
