@@ -3,6 +3,9 @@
 app = "jottit"
 primary_region = "ams"
 
+[deploy]
+  release_command = "alembic upgrade head"
+
 [build]
 
 [http_service]

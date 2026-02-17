@@ -19,37 +19,40 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.create_table(
-        "users",
-        sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("email", sa.Text(), nullable=False, unique=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()")),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()")),
-    )
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    """)
 
-    op.create_table(
-        "sites",
-        sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id")),
-        sa.Column("subdomain", sa.Text(), nullable=False, unique=True),
-        sa.Column("title", sa.Text(), nullable=False),
-        sa.Column("bio", sa.Text()),
-        sa.Column("avatar", sa.Text()),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()")),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()")),
-    )
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS sites (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            subdomain TEXT UNIQUE NOT NULL,
+            title TEXT NOT NULL,
+            bio TEXT,
+            avatar TEXT,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    """)
 
-    op.create_table(
-        "posts",
-        sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("site_id", sa.Integer(), sa.ForeignKey("sites.id"), nullable=False),
-        sa.Column("slug", sa.Text(), nullable=False),
-        sa.Column("title", sa.Text()),
-        sa.Column("body", sa.Text(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()")),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("NOW()")),
-        sa.UniqueConstraint("site_id", "slug"),
-    )
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            id SERIAL PRIMARY KEY,
+            site_id INTEGER NOT NULL REFERENCES sites(id),
+            slug TEXT NOT NULL,
+            title TEXT,
+            body TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW(),
+            UNIQUE(site_id, slug)
+        )
+    """)
 
 
 def downgrade() -> None:
