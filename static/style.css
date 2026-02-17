@@ -58,6 +58,10 @@ table {
   --brand-2: #28b463;
   --brand-3: #82e0aa;
 
+  /* Status */
+  --success: #2ecc71;
+  --error: #e74c3c;
+
   /* Colors – light */
   --bg: #fff;
   --text: #444;
@@ -715,7 +719,7 @@ nav a:hover {
 }
 
 .domain-verified {
-  color: var(--brand-1);
+  color: var(--success);
   font-weight: var(--weight-medium);
 }
 
@@ -816,13 +820,13 @@ nav a:hover {
 }
 
 .error {
-  color: #e74c3c;
-  background: rgba(231, 76, 60, 0.12);
+  color: var(--error);
+  background: color-mix(in srgb, var(--error), transparent 88%);
 }
 
 .success {
-  color: #2ecc71;
-  background: rgba(46, 204, 113, 0.12);
+  color: var(--success);
+  background: color-mix(in srgb, var(--success), transparent 88%);
 }
 
 .editor-page {
