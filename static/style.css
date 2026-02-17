@@ -628,6 +628,7 @@ nav a:hover {
 
 .editor .editor-title {
   border: none;
+  border-radius: 0;
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
   color: #111;
@@ -646,6 +647,12 @@ nav a:hover {
   background: #fff;
   padding: 0;
   resize: none;
+}
+
+.editor .editor-body.drag-over {
+  border: 1px dashed #ddd;
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
 }
 
 .editor button {

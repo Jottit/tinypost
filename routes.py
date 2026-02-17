@@ -1,12 +1,24 @@
+import os
+import uuid
 import xml.etree.ElementTree as ET
 from datetime import timezone
 from email.utils import format_datetime
 
 import markdown as md
-from flask import Response, abort, jsonify, redirect, render_template, request, session
+from flask import (
+    Response,
+    abort,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    session,
+)
 
 from app import app
 from auth import generate_passcode, send_passcode
+from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
 from db import (
     create_post,
     create_user_and_site,
@@ -20,6 +32,7 @@ from db import (
     update_post,
     update_site,
 )
+from storage import file_size, upload_image
 from utils import is_valid_subdomain, site_url, slugify
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
@@ -270,6 +283,36 @@ def post(slug):
         abort(404)
     is_owner = session.get("user_id") == site["user_id"]
     return render_template("post.html", site=site, post=post, is_owner=is_owner)
+
+
+@app.route("/upload", methods=["POST"])
+def upload():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    if session.get("user_id") != site["user_id"]:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        return jsonify({"error": "File type not allowed"}), 400
+
+    if file_size(file) > MAX_IMAGE_SIZE:
+        return jsonify({"error": "File too large (max 5MB)"}), 400
+
+    ext = ALLOWED_IMAGE_TYPES[file.content_type]
+    key = f"{site['subdomain']}/{uuid.uuid4()}.{ext}"
+
+    url = upload_image(key, file, file.content_type)
+    return jsonify({"url": url})
+
+
+@app.route("/uploads/<path:filename>")
+def uploaded_file(filename):
+    return send_from_directory(os.path.join(app.instance_path, "uploads"), filename)
 
 
 @app.route("/signout", methods=["POST"])

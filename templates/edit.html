@@ -12,26 +12,5 @@
       <button type="submit" class="btn">Save and publish</button>
     </form>
   </main>
-  <script>
-    const ta = document.querySelector('.editor-body');
-    function autoExpand() {
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
-    }
-    ta.addEventListener('input', autoExpand);
-    autoExpand();
-    document.querySelector('.editor-title').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); ta.focus(); }
-    });
-    var origTitle = document.querySelector('.editor-title').value;
-    var origBody = ta.value;
-    var submitting = false;
-    document.querySelector('form').addEventListener('submit', function() { submitting = true; });
-    window.addEventListener('beforeunload', function(e) {
-      if (submitting) return;
-      var title = document.querySelector('.editor-title').value;
-      var body = ta.value;
-      if (title !== origTitle || body !== origBody) { e.preventDefault(); }
-    });
-  </script>
+  <script src="{{ url_for('static', filename='editor.js') }}"></script>
 {% endblock %}
