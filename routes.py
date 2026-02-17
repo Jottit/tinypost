@@ -22,7 +22,13 @@ from flask import (
 
 from app import app
 from auth import generate_passcode, send_passcode
-from config import ALLOWED_IMAGE_TYPES, CADDY_ASK_TOKEN, CUSTOM_DOMAIN_IPV4, CUSTOM_DOMAIN_IPV6, MAX_IMAGE_SIZE
+from config import (
+    ALLOWED_IMAGE_TYPES,
+    CADDY_ASK_TOKEN,
+    CUSTOM_DOMAIN_IPV4,
+    CUSTOM_DOMAIN_IPV6,
+    MAX_IMAGE_SIZE,
+)
 from db import (
     create_post,
     create_user_and_site,
@@ -45,8 +51,16 @@ from db import (
     update_site_avatar,
     verify_custom_domain,
 )
-from storage import crop_square, delete_all_images, delete_image, download_image, file_size, list_images, upload_image
-from utils import is_valid_subdomain, mask_email, site_url, slugify
+from storage import (
+    crop_square,
+    delete_all_images,
+    delete_image,
+    download_image,
+    file_size,
+    list_images,
+    upload_image,
+)
+from utils import is_valid_subdomain, mask_email, site_url, slugify, subdomain_url
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 SOURCE_NS = "http://source.scripting.com/"
@@ -108,7 +122,7 @@ def home():
         return render_template(
             "home.html",
             user_email=mask_email(user["email"]) if user and site else None,
-            user_site_url=site_url(site) if user and site else None,
+            user_site_url=subdomain_url(site) if user and site else None,
         )
 
     site = get_current_site()
@@ -160,7 +174,7 @@ def signup_verify():
     user, site = create_user_and_site(signup["email"], signup["subdomain"])
     session.pop("signup")
     session["user_id"] = user["id"]
-    return redirect(site_url(site))
+    return redirect(subdomain_url(site))
 
 
 @app.route("/signin")
@@ -191,7 +205,7 @@ def signin_verify():
     session.pop("signin")
     session["user_id"] = signin["user_id"]
     site = get_site_by_user(signin["user_id"])
-    return redirect(site_url(site))
+    return redirect(subdomain_url(site))
 
 
 @app.route("/edit", methods=["GET", "POST"])
@@ -352,7 +366,9 @@ def settings_domain_verify():
         found = False
 
     if not found:
-        return render_settings(site, domain_error="TXT record not found. It may take a few minutes to propagate.")
+        return render_settings(
+            site, domain_error="TXT record not found. It may take a few minutes to propagate."
+        )
 
     verify_custom_domain(site["id"])
     return redirect("/settings")

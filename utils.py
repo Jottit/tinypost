@@ -16,8 +16,12 @@ def mask_email(email):
 
 
 def site_url(site):
-    from app import app
-
     if site.get("custom_domain") and site.get("domain_verified_at"):
         return f"https://{site['custom_domain']}"
+    return subdomain_url(site)
+
+
+def subdomain_url(site):
+    from app import app
+
     return f"http://{site['subdomain']}.{app.config['BASE_DOMAIN']}"

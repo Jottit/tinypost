@@ -91,7 +91,7 @@ def test_add_domain_already_claimed(client):
 def test_verify_with_correct_txt_record(client):
     user, site = _setup_site()
     with app.app_context():
-        updated = set_custom_domain(site["id"], "example.com", "mytoken123")
+        set_custom_domain(site["id"], "example.com", "mytoken123")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
 
