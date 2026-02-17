@@ -1,0 +1,30 @@
+{
+	on_demand_tls {
+		ask https://{$BACKEND}/_tls/ask?token={$CADDY_ASK_TOKEN}
+	}
+}
+
+{$CADDY_HOST} {
+	reverse_proxy https://{$BACKEND} {
+		header_up Host {$BACKEND}
+		transport http {
+			tls_server_name {$BACKEND}
+		}
+	}
+}
+
+:80 {
+	redir https://{host}{uri} permanent
+}
+
+:443 {
+	tls {
+		on_demand
+	}
+	reverse_proxy https://{$BACKEND} {
+		header_up Host {host}
+		transport http {
+			tls_server_name {$BACKEND}
+		}
+	}
+}

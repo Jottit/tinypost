@@ -1,0 +1,33 @@
+app = "jottit-caddy"
+primary_region = "ams"
+
+[build]
+
+[mounts]
+  source = "caddy_data"
+  destination = "/data"
+
+[[services]]
+  internal_port = 80
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 80
+
+[[services]]
+  internal_port = 443
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 443
+
+[deploy]
+  strategy = "immediate"
+
+[env]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = 256
+  auto_stop_machines = "off"
+  min_machines_running = 1
