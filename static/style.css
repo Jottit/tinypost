@@ -704,6 +704,22 @@ nav a:hover {
   border-radius: 16px;
 }
 
+.export-zone {
+  margin-top: var(--space-8);
+  border: 1px solid var(--site-divider);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+
+.export-zone h3 {
+  margin-bottom: var(--space-2);
+}
+
+.export-zone p {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-5);
+}
+
 .danger-zone {
   margin-top: var(--space-8);
   border: 1px solid #c0392b;

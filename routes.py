@@ -1,6 +1,8 @@
+import io
 import os
 import uuid
 import xml.etree.ElementTree as ET
+import zipfile
 from datetime import timezone
 from email.utils import format_datetime
 
@@ -24,6 +26,7 @@ from db import (
     create_user_and_site,
     delete_account,
     delete_post,
+    get_all_posts_for_site,
     get_post_by_slug,
     get_posts_for_site,
     get_site_by_subdomain,
@@ -35,7 +38,7 @@ from db import (
     update_site,
     update_site_avatar,
 )
-from storage import crop_square, delete_all_images, delete_image, file_size, upload_image
+from storage import crop_square, delete_all_images, delete_image, download_image, file_size, list_images, upload_image
 from utils import is_valid_subdomain, mask_email, site_url, slugify
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
@@ -261,6 +264,30 @@ def settings_avatar_delete():
             delete_image(key)
         update_site_avatar(site["id"], None)
     return redirect("/settings")
+
+
+@app.route("/settings/export")
+def settings_export():
+    site = require_owner()
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for p in get_all_posts_for_site(site["id"]):
+            content = f"# {p['title']}\n\n{p['body']}" if p["title"] else p["body"]
+            folder = "drafts/" if p["is_draft"] else ""
+            zf.writestr(f"{folder}{p['slug']}.md", content)
+
+        for key in list_images(site["subdomain"]):
+            data = download_image(key)
+            if data:
+                filename = key.split("/", 1)[1]
+                zf.writestr(f"images/{filename}", data)
+
+    return Response(
+        buf.getvalue(),
+        mimetype="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{site["subdomain"]}-export.zip"'},
+    )
 
 
 @app.route("/settings/delete-account", methods=["GET", "POST"])

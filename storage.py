@@ -85,3 +85,40 @@ def _upload_to_s3(bucket, key, file, content_type):
 
 def _delete_from_s3(bucket, key):
     _s3_client().delete_object(Bucket=bucket, Key=key)
+
+
+def list_images(subdomain):
+    bucket = os.environ.get("BUCKET_NAME")
+    if bucket:
+        return _list_from_s3(bucket, subdomain)
+
+    upload_dir = Path(current_app.instance_path) / "uploads" / subdomain
+    if not upload_dir.exists():
+        return []
+    return [f"{subdomain}/{f.name}" for f in upload_dir.iterdir() if f.is_file()]
+
+
+def download_image(key):
+    bucket = os.environ.get("BUCKET_NAME")
+    if bucket:
+        return _download_from_s3(bucket, key)
+
+    path = Path(current_app.instance_path) / "uploads" / key
+    if not path.exists():
+        return None
+    return path.read_bytes()
+
+
+def _list_from_s3(bucket, subdomain):
+    paginator = _s3_client().get_paginator("list_objects_v2")
+    return [
+        obj["Key"]
+        for page in paginator.paginate(Bucket=bucket, Prefix=f"{subdomain}/")
+        for obj in page.get("Contents", [])
+    ]
+
+
+def _download_from_s3(bucket, key):
+    buf = BytesIO()
+    _s3_client().download_fileobj(bucket, key, buf)
+    return buf.getvalue()

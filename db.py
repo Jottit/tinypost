@@ -33,6 +33,10 @@ def get_posts_for_site(site_id, include_drafts=False):
     return query(sql, (site_id,))
 
 
+def get_all_posts_for_site(site_id):
+    return query("SELECT * FROM posts WHERE site_id = %s ORDER BY created_at DESC", (site_id,))
+
+
 def get_user_by_id(user_id):
     return query("SELECT * FROM users WHERE id = %s", (user_id,), one=True)
 
