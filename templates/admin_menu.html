@@ -6,12 +6,11 @@
   {% if site.avatar %}
     <label for="admin-toggle" class="admin-avatar">
       <img src="{{ site.avatar }}" alt="Menu">
-
     </label>
   {% else %}
+    {% set words = site.title.split() %}
     <label for="admin-toggle" class="admin-initials">
-      {{ site.title.split()[0][0] | upper }}{% if site.title.split() | length > 1 %}{{ site.title.split()[1][0] | upper }}{% endif %}
-
+      {{ words[0][0] | upper }}{% if words | length > 1 %}{{ words[1][0] | upper }}{% endif %}
     </label>
   {% endif %}
   <div class="admin-dropdown">

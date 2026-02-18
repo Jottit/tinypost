@@ -84,6 +84,10 @@ def render_settings(site, **kwargs):
     )
 
 
+def render_account(site, user, **kwargs):
+    return render_template("account.html", site=site, user=user, is_owner=True, **kwargs)
+
+
 def host_and_base():
     host = request.host.split(":")[0]
     base = app.config["BASE_DOMAIN"].split(":")[0]
@@ -399,18 +403,14 @@ def account():
     user = get_user_by_id(session["user_id"])
 
     if request.method == "GET":
-        return render_template("account.html", site=site, user=user, is_owner=True)
+        return render_account(site, user)
 
     email = request.form.get("email", "").strip().lower()
     if not email:
-        return render_template(
-            "account.html", site=site, user=user, is_owner=True, error="Email is required."
-        )
+        return render_account(site, user, error="Email is required.")
     update_user_email(user["id"], email)
     user = get_user_by_id(user["id"])
-    return render_template(
-        "account.html", site=site, user=user, is_owner=True, success="Email updated."
-    )
+    return render_account(site, user, success="Email updated.")
 
 
 @app.route("/design", methods=["GET", "POST"])
