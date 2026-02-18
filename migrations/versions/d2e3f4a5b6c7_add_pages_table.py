@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.execute("""
-        CREATE TABLE pages (
+        CREATE TABLE IF NOT EXISTS pages (
             id SERIAL PRIMARY KEY,
             site_id INTEGER NOT NULL REFERENCES sites(id),
             slug TEXT NOT NULL,
