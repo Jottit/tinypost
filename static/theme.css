@@ -284,3 +284,30 @@ nav a {
 nav a:hover {
   color: var(--site-text-bright);
 }
+
+/* ── Page nav ────────────────────────── */
+.page-nav {
+  display: inline-block;
+  position: relative;
+  margin-top: var(--space-4);
+  font-size: var(--text-base);
+}
+
+.page-nav a {
+  color: var(--site-accent);
+  text-decoration: none;
+  margin: 0;
+}
+
+.page-nav a:hover {
+  color: var(--site-text-bright);
+}
+
+.page-nav-sep {
+  color: var(--site-text-muted);
+  margin: 0 var(--space-2);
+}
+
+.page-nav-draft {
+  opacity: 0.5;
+}
