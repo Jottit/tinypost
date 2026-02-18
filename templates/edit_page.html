@@ -6,7 +6,7 @@
     {% if error %}
       <p class="editor-error">{{ error }}</p>
     {% endif %}
-    <form method="POST" action="/edit-page/{{ page.slug }}">
+    <form method="POST" action="{{ '/new-page' if new else '/edit-page/' ~ page.slug }}">
       <input type="text" name="title" placeholder="Title" class="editor-title" value="{{ page.title }}" autofocus>
       <textarea name="body" placeholder="Write here..." class="editor-body">{{ page.body }}</textarea>
       <div class="editor-actions">
@@ -14,7 +14,7 @@
           <input type="checkbox" name="is_draft" {% if page.is_draft %}checked{% endif %}>
           Don't publish yet
         </label>
-        <button type="submit" class="btn">Save</button>
+        <button type="submit" class="btn btn--primary">Save</button>
       </div>
     </form>
   </main>

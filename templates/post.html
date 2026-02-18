@@ -19,9 +19,9 @@
       <div class="post-body">{{ post.body | markdown }}</div>
       {% if is_owner %}
         <div class="actions mt-6">
-          <a href="/edit/{{ post.slug }}" class="btn-secondary">Edit</a>
+          <a href="/edit/{{ post.slug }}" class="btn--secondary">Edit</a>
           <form method="POST" action="/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
-            <button type="submit" class="btn-secondary">Delete</button>
+            <button type="submit" class="btn--secondary">Delete</button>
           </form>
         </div>
       {% endif %}

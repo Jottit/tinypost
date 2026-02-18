@@ -378,6 +378,11 @@ header.site-header {
   margin-bottom: var(--space-5);
 }
 
+.site-header p {
+  font-size: var(--text-base);
+  color: var(--site-text-muted);
+}
+
 header.site-header::after {
   content: "";
   display: block;
@@ -388,9 +393,11 @@ header.site-header::after {
 }
 
 header h1 {
-  font-size: var(--text-lg);
+  font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--site-text);
 }
 
@@ -705,7 +712,12 @@ nav a:hover {
   font-size: var(--text-xs);
 }
 
-.btn-secondary {
+.btn--primary {
+  background: color-mix(in srgb, var(--brand-1), var(--brand-2) 40%);
+  color: #fff;
+}
+
+.btn--secondary {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-sans);
@@ -718,7 +730,7 @@ nav a:hover {
   transition: color var(--speed-fast), border-color var(--speed-fast);
 }
 
-.btn-secondary:hover {
+.btn--secondary:hover {
   color: var(--site-text-bright);
   border-color: var(--site-text-muted);
 }
@@ -829,7 +841,7 @@ nav a:hover {
   margin-bottom: var(--space-5);
 }
 
-.btn-danger {
+.btn--danger {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
@@ -843,12 +855,12 @@ nav a:hover {
   transition: opacity var(--speed-fast);
 }
 
-.btn-danger:hover {
+.btn--danger:hover {
   opacity: 0.8;
   color: #fff;
 }
 
-.btn-danger:disabled {
+.btn--danger:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
@@ -877,13 +889,12 @@ nav a:hover {
 }
 
 .editor {
-  max-width: 1000px;
+  max-width: var(--editor-measure);
   min-height: 100vh;
   position: relative;
 }
 
 .editor form {
-  max-width: var(--editor-measure);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -927,7 +938,7 @@ nav a:hover {
 .editor-actions {
   position: fixed;
   bottom: var(--space-8);
-  right: max(var(--space-4), calc((100vw - 1000px) / 2 + var(--space-4)));
+  right: max(var(--space-4), calc((100vw - var(--editor-measure)) / 2 + var(--space-4)));
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -940,11 +951,6 @@ nav a:hover {
   font-size: var(--text-sm);
   color: var(--text-muted);
   margin-bottom: 0;
-}
-
-.editor-actions .btn {
-  background: color-mix(in srgb, var(--brand-1), white 20%);
-  color: #fff;
 }
 
 .editor-draft input[type="checkbox"] {
@@ -1071,8 +1077,10 @@ nav a:hover {
 
 /* ── Page nav ────────────────────────── */
 .page-nav {
+  display: inline-block;
+  position: relative;
   margin-top: var(--space-4);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
 }
 
 .page-nav a {
@@ -1104,29 +1112,12 @@ nav a:hover {
   opacity: 0.4;
 }
 
-.page-nav-delete {
-  display: none;
-  font-size: var(--text-xs);
-  color: var(--site-text-muted);
-  margin-left: var(--space-1);
-  vertical-align: middle;
-  line-height: 1;
-}
-
-.page-nav-item:hover .page-nav-delete {
-  display: inline;
-}
-
-.page-nav-delete:hover {
-  color: #c0392b;
-}
-
 .page-nav-add {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-full);
   border: 1px solid var(--site-text-muted);
   font-size: var(--text-sm);
@@ -1141,17 +1132,31 @@ nav a:hover {
   border-color: var(--site-text-bright);
 }
 
-.page-nav-add-input {
-  display: inline;
-  width: 120px;
+.page-nav-item ~ .page-nav-add-wrap {
+  position: absolute;
+  left: calc(100% + var(--space-5));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+input.page-nav-add-input {
+  position: absolute;
+  right: calc(100% + 2px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+  width: 200px;
   padding: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
   border-radius: var(--radius-pill);
-  vertical-align: middle;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--speed-normal), transform var(--speed-normal);
 }
 
-.page-nav-add-input[hidden] {
-  display: none;
+input.page-nav-add-input.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
 }
 
 /* ── 5. Utilities ────────────────────── */

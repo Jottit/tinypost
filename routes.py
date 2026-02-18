@@ -487,22 +487,27 @@ def design():
 @app.route("/settings/navigation/add", methods=["POST"])
 def settings_navigation_add():
     site = require_owner()
-    is_json = request.is_json
-    if is_json:
+    if request.is_json:
         title = (request.get_json().get("title") or "").strip()
     else:
         title = request.form.get("title", "").strip()
     slug = slugify(title) if title else None
+
+    error = None
+    error_status = 400
     if not slug:
-        if is_json:
-            return jsonify({"error": "Title is required."}), 400
-        return render_settings(site, nav_error="Title is required.")
-    if get_post_by_slug(site["id"], slug) or get_page_by_slug(site["id"], slug):
-        if is_json:
-            return jsonify({"error": "That URL slug is already taken."}), 409
-        return render_settings(site, nav_error="That URL slug is already taken.")
+        error = "Title is required."
+    elif get_post_by_slug(site["id"], slug) or get_page_by_slug(site["id"], slug):
+        error = "That URL slug is already taken."
+        error_status = 409
+
+    if error:
+        if request.is_json:
+            return jsonify({"error": error}), error_status
+        return render_settings(site, nav_error=error)
+
     create_page(site["id"], slug, title)
-    if is_json:
+    if request.is_json:
         return jsonify({"slug": slug})
     return redirect(f"/edit-page/{slug}")
 
@@ -527,6 +532,37 @@ def settings_navigation_reorder():
         return jsonify({"error": "Missing order"}), 400
     reorder_pages(site["id"], data["order"])
     return jsonify({"ok": True})
+
+
+@app.route("/new-page", methods=["GET", "POST"])
+def new_page():
+    site = require_owner()
+
+    if request.method == "GET":
+        title = request.args.get("title", "").strip()
+        page = {"title": title, "body": "", "is_draft": False}
+        return render_template("edit_page.html", site=site, page=page, new=True)
+
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    slug = slugify(title) if title else None
+    page = {"title": title, "body": body, "is_draft": False}
+
+    if not slug:
+        return render_template(
+            "edit_page.html", site=site, page=page, new=True, error="Title is required."
+        )
+    if get_post_by_slug(site["id"], slug) or get_page_by_slug(site["id"], slug):
+        return render_template(
+            "edit_page.html",
+            site=site,
+            page=page,
+            new=True,
+            error="That URL slug is already taken.",
+        )
+    is_draft = request.form.get("is_draft") == "on"
+    create_page(site["id"], slug, title, body=body, is_draft=is_draft)
+    return redirect(f"/{slug}")
 
 
 @app.route("/edit-page/<slug>", methods=["GET", "POST"])

@@ -20,7 +20,7 @@
           {% endif %}
           <div class="post-body">{{ post.body | truncatewords | markdown }}</div>
           {% if post.body.split()|length > 50 %}
-            <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn-secondary">Read more</a></div>
+            <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn--secondary">Read more</a></div>
           {% endif %}
         </article>
       {% endfor %}

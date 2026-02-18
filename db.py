@@ -191,16 +191,16 @@ def get_page_by_id(page_id):
     return query("SELECT * FROM pages WHERE id = %s", (page_id,), one=True)
 
 
-def create_page(site_id, slug, title):
+def create_page(site_id, slug, title, body="", is_draft=False):
     db = get_db()
     max_order = db.execute(
         "SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM pages WHERE site_id = %s",
         (site_id,),
     ).fetchone()["max_order"]
     page = db.execute(
-        "INSERT INTO pages (site_id, slug, title, sort_order)"
-        " VALUES (%s, %s, %s, %s) RETURNING *",
-        (site_id, slug, title, max_order + 1),
+        "INSERT INTO pages (site_id, slug, title, body, is_draft, sort_order)"
+        " VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
+        (site_id, slug, title, body, is_draft, max_order + 1),
     ).fetchone()
     db.commit()
     return page
