@@ -20,7 +20,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.add_column("sites", sa.Column("custom_domain", sa.Text(), nullable=True))
-    op.add_column("sites", sa.Column("domain_verified_at", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "sites", sa.Column("domain_verified_at", sa.DateTime(timezone=True), nullable=True)
+    )
     op.add_column("sites", sa.Column("domain_verification_token", sa.Text(), nullable=True))
     op.create_unique_constraint("uq_sites_custom_domain", "sites", ["custom_domain"])
 
