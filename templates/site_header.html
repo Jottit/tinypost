@@ -7,12 +7,25 @@
     <p>{{ site.bio }}</p>
   {% endif %}
   {% set visible_pages = pages if is_owner else pages | rejectattr('is_draft') | list %}
-  {% if visible_pages %}
-    <nav class="page-nav">
+  {% if visible_pages or is_owner %}
+    <nav class="page-nav"{% if is_owner %} data-owner="true"{% endif %}>
       {% for p in visible_pages %}
-        {% if not loop.first %}<span class="page-nav-sep">&middot;</span>{% endif %}
-        <a href="/{{ p.slug }}"{% if p.is_draft %} class="page-nav-draft"{% endif %}>{{ p.title }}</a>
+        <span class="page-nav-item" data-id="{{ p.id }}"{% if is_owner %} draggable="true"{% endif %}>
+          {% if not loop.first %}<span class="page-nav-sep">&middot;</span>{% endif %}
+          <a href="/{{ p.slug }}"{% if p.is_draft %} class="page-nav-draft"{% endif %}>{{ p.title }}</a>
+          {% if is_owner %}<button class="page-nav-delete">&times;</button>{% endif %}
+        </span>
       {% endfor %}
+      {% if is_owner %}
+        <span class="page-nav-add-wrap">
+          {% if visible_pages %}<span class="page-nav-sep">&middot;</span>{% endif %}
+          <button class="page-nav-add">+</button>
+          <input type="text" class="page-nav-add-input" placeholder="Page title" hidden>
+        </span>
+      {% endif %}
     </nav>
+  {% endif %}
+  {% if is_owner %}
+    <script src="{{ url_for('static', filename='navigation.js') }}"></script>
   {% endif %}
 </header>

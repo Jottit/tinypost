@@ -21,14 +21,17 @@ def _setup(client):
     return user, site
 
 
-def test_add_page_from_settings(client):
+def test_add_page_json(client):
     user, site = _setup(client)
     response = client.post(
         "/settings/navigation/add",
-        data={"title": "About"},
+        data=json.dumps({"title": "About"}),
+        content_type="application/json",
         headers={"Host": SITE_HOST},
     )
-    assert response.status_code == 302
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["slug"] == "about"
     with app.app_context():
         page = get_page_by_slug(site["id"], "about")
     assert page is not None
@@ -36,28 +39,43 @@ def test_add_page_from_settings(client):
     assert page["is_draft"] is True
 
 
-def test_add_page_empty_title(client):
+def test_add_page_empty_title_json(client):
     _setup(client)
     response = client.post(
         "/settings/navigation/add",
-        data={"title": ""},
+        data=json.dumps({"title": ""}),
+        content_type="application/json",
         headers={"Host": SITE_HOST},
     )
-    assert response.status_code == 200
-    assert b"Title is required" in response.data
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "Title is required" in data["error"]
 
 
-def test_add_page_slug_conflict_with_post(client):
+def test_add_page_slug_conflict_with_post_json(client):
     user, site = _setup(client)
     with app.app_context():
         create_post(site["id"], "about", "About", "About me")
     response = client.post(
         "/settings/navigation/add",
+        data=json.dumps({"title": "About"}),
+        content_type="application/json",
+        headers={"Host": SITE_HOST},
+    )
+    assert response.status_code == 409
+    data = response.get_json()
+    assert "already taken" in data["error"]
+
+
+def test_add_page_form_redirects_to_edit(client):
+    user, site = _setup(client)
+    response = client.post(
+        "/settings/navigation/add",
         data={"title": "About"},
         headers={"Host": SITE_HOST},
     )
-    assert response.status_code == 200
-    assert b"already taken" in response.data
+    assert response.status_code == 302
+    assert "/edit-page/about" in response.headers["Location"]
 
 
 def test_create_post_slug_conflict_with_page(client):
@@ -151,16 +169,18 @@ def test_edit_page_body_and_publish(client):
     assert page["is_draft"] is False
 
 
-def test_delete_page(client):
+def test_delete_page_json(client):
     user, site = _setup(client)
     with app.app_context():
         page = create_page(site["id"], "about", "About")
     response = client.post(
         f"/settings/navigation/delete/{page['id']}",
+        content_type="application/json",
         headers={"Host": SITE_HOST},
     )
-    assert response.status_code == 302
-    assert response.headers["Location"] == "/"
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["ok"] is True
     with app.app_context():
         assert get_page_by_id(page["id"]) is None
 
@@ -208,11 +228,32 @@ def test_pages_not_in_rss_feed(client):
     assert b"Hello" in response.data
 
 
-def test_settings_shows_navigation_section(client):
+def test_owner_sees_add_button_in_nav(client):
     _setup(client)
-    response = client.get("/settings", headers={"Host": SITE_HOST})
-    assert response.status_code == 200
-    assert b"Navigation" in response.data
+    response = client.get("/", headers={"Host": SITE_HOST})
+    assert b"page-nav-add" in response.data
+
+
+def test_public_does_not_see_add_button(client):
+    _setup(client)
+    with client.session_transaction() as sess:
+        sess.clear()
+    response = client.get("/", headers={"Host": SITE_HOST})
+    assert b"page-nav-add" not in response.data
+
+
+def test_owner_sees_delete_button_in_nav(client):
+    user, site = _setup(client)
+    with app.app_context():
+        create_page(site["id"], "about", "About")
+    response = client.get("/", headers={"Host": SITE_HOST})
+    assert b"page-nav-delete" in response.data
+
+
+def test_nav_renders_for_owner_with_no_pages(client):
+    _setup(client)
+    response = client.get("/", headers={"Host": SITE_HOST})
+    assert b"page-nav" in response.data
 
 
 def test_edit_page_title_required(client):

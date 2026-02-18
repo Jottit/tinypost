@@ -1094,63 +1094,64 @@ nav a:hover {
   opacity: 0.5;
 }
 
-/* ── Navigation settings ─────────────── */
-.nav-add-form {
-  margin-bottom: var(--space-4);
+/* ── Inline nav management ───────────── */
+.page-nav-item {
+  display: inline;
+  position: relative;
 }
 
-.nav-items {
-  list-style: none;
-  padding: 0;
-  margin: var(--space-4) 0 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--site-divider);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-2);
-  background: var(--site-bg);
-}
-
-.nav-item.dragging {
+.page-nav-item.dragging {
   opacity: 0.4;
 }
 
-.nav-item.drag-over {
-  border-color: var(--site-text-muted);
-}
-
-.nav-item-handle {
-  cursor: grab;
-  color: var(--site-text-muted);
-  font-size: var(--text-lg);
-  user-select: none;
-}
-
-.nav-item-title {
-  flex: 1;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--site-text-bright);
-}
-
-.nav-item-published {
+.page-nav-delete {
+  display: none;
   font-size: var(--text-xs);
-  color: var(--success);
+  color: var(--site-text-muted);
+  margin-left: var(--space-1);
+  vertical-align: middle;
+  line-height: 1;
 }
 
-.nav-item-edit {
-  font-size: var(--text-sm);
+.page-nav-item:hover .page-nav-delete {
+  display: inline;
 }
 
-.nav-item-delete {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
+.page-nav-delete:hover {
   color: #c0392b;
+}
+
+.page-nav-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--site-text-muted);
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  vertical-align: middle;
+  line-height: 1;
+  transition: color var(--speed-fast), border-color var(--speed-fast);
+}
+
+.page-nav-add:hover {
+  color: var(--site-text-bright);
+  border-color: var(--site-text-bright);
+}
+
+.page-nav-add-input {
+  display: inline;
+  width: 120px;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-pill);
+  vertical-align: middle;
+}
+
+.page-nav-add-input[hidden] {
+  display: none;
 }
 
 /* ── 5. Utilities ────────────────────── */

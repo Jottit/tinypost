@@ -81,12 +81,10 @@ ET.register_namespace("source", SOURCE_NS)
 
 
 def render_settings(site, **kwargs):
-    pages = get_pages_for_site(site["id"], include_drafts=True)
     return render_template(
         "settings.html",
         site=site,
         is_owner=True,
-        pages=pages,
         custom_domain_ipv4=CUSTOM_DOMAIN_IPV4,
         custom_domain_ipv6=CUSTOM_DOMAIN_IPV6,
         **kwargs,
@@ -489,14 +487,24 @@ def design():
 @app.route("/settings/navigation/add", methods=["POST"])
 def settings_navigation_add():
     site = require_owner()
-    title = request.form.get("title", "").strip()
+    is_json = request.is_json
+    if is_json:
+        title = (request.get_json().get("title") or "").strip()
+    else:
+        title = request.form.get("title", "").strip()
     slug = slugify(title) if title else None
     if not slug:
+        if is_json:
+            return jsonify({"error": "Title is required."}), 400
         return render_settings(site, nav_error="Title is required.")
     if get_post_by_slug(site["id"], slug) or get_page_by_slug(site["id"], slug):
+        if is_json:
+            return jsonify({"error": "That URL slug is already taken."}), 409
         return render_settings(site, nav_error="That URL slug is already taken.")
     create_page(site["id"], slug, title)
-    return redirect("/settings")
+    if is_json:
+        return jsonify({"slug": slug})
+    return redirect(f"/edit-page/{slug}")
 
 
 @app.route("/settings/navigation/delete/<int:page_id>", methods=["POST"])
@@ -506,6 +514,8 @@ def settings_navigation_delete(page_id):
     if not page or page["site_id"] != site["id"]:
         abort(404)
     delete_page(page_id)
+    if request.is_json:
+        return jsonify({"ok": True})
     return redirect("/")
 
 
