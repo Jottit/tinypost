@@ -1,0 +1,33 @@
+{% if is_owner %}
+<div class="admin-menu">
+  {% if show_back_link %}<a href="/" class="back-link btn btn--sm">&larr;</a>{% endif %}
+  <a href="/edit" class="btn btn--sm"><svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" opacity="0.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 1.5l3 3-9 9H2.5v-3z"/><path d="M10 3l3 3"/></svg> Write</a>
+  <input type="checkbox" id="admin-toggle" hidden>
+  {% if site.avatar %}
+    <label for="admin-toggle" class="admin-avatar">
+      <img src="{{ site.avatar }}" alt="Menu">
+
+    </label>
+  {% else %}
+    <label for="admin-toggle" class="admin-initials">
+      {{ site.title.split()[0][0] | upper }}{% if site.title.split() | length > 1 %}{{ site.title.split()[1][0] | upper }}{% endif %}
+
+    </label>
+  {% endif %}
+  <div class="admin-dropdown">
+    <a href="/settings">Settings</a>
+    <a href="/design">Design</a>
+    <a href="/account">Account</a>
+    <hr class="admin-dropdown-divider">
+    <form method="POST" action="/signout">
+      <button type="submit">Sign out</button>
+    </form>
+  </div>
+</div>
+<script>
+  document.addEventListener('click', function(e) {
+    var toggle = document.getElementById('admin-toggle');
+    if (toggle.checked && !e.target.closest('.admin-menu')) toggle.checked = false;
+  });
+</script>
+{% endif %}

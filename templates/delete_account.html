@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Delete account — {{ site.title }}{% endblock %}
 {% block body %}
+  {% include "admin_menu.html" %}
   <main class="settings-page">
     <div class="settings-card">
       <h2>Delete account</h2>
@@ -13,7 +14,7 @@
         <input type="text" id="confirmation" name="confirmation" autocomplete="off">
         <div class="actions mt-6">
           <button type="submit" class="btn-danger" id="confirm-btn" disabled>Delete account</button>
-          <a href="/settings" class="btn-secondary">Cancel</a>
+          <a href="/account" class="btn-secondary">Cancel</a>
         </div>
       </form>
     </div>

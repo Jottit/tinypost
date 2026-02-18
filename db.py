@@ -165,6 +165,16 @@ def is_domain_taken(domain, exclude_site_id=None):
     return query("SELECT id FROM sites WHERE custom_domain = %s", (domain,), one=True)
 
 
+def update_user_email(user_id, email):
+    db = get_db()
+    user = db.execute(
+        "UPDATE users SET email = %s WHERE id = %s RETURNING *",
+        (email, user_id),
+    ).fetchone()
+    db.commit()
+    return user
+
+
 def delete_account(user_id):
     db = get_db()
     site = get_site_by_user(user_id)

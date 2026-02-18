@@ -6,14 +6,17 @@
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: var(--space-8);
-    padding: var(--space-8) var(--space-8);
+    padding: var(--space-10) 0;
     background: var(--site-bg);
     min-height: 100vh;
+    max-width: var(--content-width);
+    margin: 0 auto;
   }
 
   @media (max-width: 864px) {
     .design-layout {
       grid-template-columns: 1fr;
+      padding-inline: var(--space-4);
     }
   }
 
@@ -99,6 +102,8 @@
 </style>
 {% endblock %}
 {% block body %}
+  {% set show_back_link = true %}
+  {% include "admin_menu.html" %}
   <div class="design-layout">
     <div class="design-controls panel">
       <h2>Design</h2>

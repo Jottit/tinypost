@@ -1,11 +1,4 @@
 <header class="site-header">
-  {% if is_owner and show_owner_actions %}
-    <div class="actions mb-8">
-      <a href="/edit" class="btn">+ Write</a>
-      <a href="/settings" class="btn-secondary">Settings</a>
-      <a href="/design" class="btn-secondary">Design</a>
-    </div>
-  {% endif %}
   {% if site.avatar %}
     <a href="/"><img src="{{ site.avatar }}" alt="avatar"></a>
   {% endif %}

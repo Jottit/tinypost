@@ -53,6 +53,7 @@ from db import (
     update_site,
     update_site_avatar,
     update_site_design,
+    update_user_email,
     verify_custom_domain,
 )
 from storage import (
@@ -76,6 +77,7 @@ def render_settings(site, **kwargs):
     return render_template(
         "settings.html",
         site=site,
+        is_owner=True,
         custom_domain_ipv4=CUSTOM_DOMAIN_IPV4,
         custom_domain_ipv6=CUSTOM_DOMAIN_IPV6,
         **kwargs,
@@ -391,6 +393,26 @@ def settings_domain_remove():
     return redirect("/settings")
 
 
+@app.route("/account", methods=["GET", "POST"])
+def account():
+    site = require_owner()
+    user = get_user_by_id(session["user_id"])
+
+    if request.method == "GET":
+        return render_template("account.html", site=site, user=user, is_owner=True)
+
+    email = request.form.get("email", "").strip().lower()
+    if not email:
+        return render_template(
+            "account.html", site=site, user=user, is_owner=True, error="Email is required."
+        )
+    update_user_email(user["id"], email)
+    user = get_user_by_id(user["id"])
+    return render_template(
+        "account.html", site=site, user=user, is_owner=True, success="Email updated."
+    )
+
+
 @app.route("/design", methods=["GET", "POST"])
 def design():
     site = require_owner()
@@ -400,6 +422,7 @@ def design():
         return render_template(
             "design.html",
             site=site,
+            is_owner=True,
             design=d,
             font_options=FONT_OPTIONS,
         )
@@ -420,6 +443,7 @@ def design():
             return render_template(
                 "design.html",
                 site=site,
+                is_owner=True,
                 design=d,
                 font_options=FONT_OPTIONS,
                 error="Invalid color value.",
@@ -447,10 +471,12 @@ def settings_delete_account():
     site = require_owner()
 
     if request.method == "GET":
-        return render_template("delete_account.html", site=site)
+        return render_template("delete_account.html", site=site, is_owner=True)
 
     if request.form.get("confirmation") != "delete":
-        return render_template("delete_account.html", site=site, error="Type 'delete' to confirm.")
+        return render_template(
+            "delete_account.html", site=site, is_owner=True, error="Type 'delete' to confirm."
+        )
 
     delete_all_images(site["subdomain"])
     delete_account(session["user_id"])

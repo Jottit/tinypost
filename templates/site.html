@@ -7,7 +7,7 @@
 {% endblock %}
 {% block body %}
   <main>
-    {% set show_owner_actions = true %}
+    {% include "admin_menu.html" %}
     {% include "site_header.html" %}
     {% if posts %}
       {% for post in posts %}

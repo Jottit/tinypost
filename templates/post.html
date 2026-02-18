@@ -7,6 +7,7 @@
 {% endblock %}
 {% block body %}
   <main>
+    {% include "admin_menu.html" %}
     {% include "site_header.html" %}
     <article>
       <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
