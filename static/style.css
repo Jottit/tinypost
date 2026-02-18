@@ -935,6 +935,10 @@ nav a:hover {
   margin-bottom: var(--space-4);
 }
 
+.mb-8 {
+  margin-bottom: var(--space-8);
+}
+
 .mt-4 {
   margin-top: var(--space-4);
 }
