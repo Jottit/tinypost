@@ -1,6 +1,6 @@
 """add pages table
 
-Revision ID: c1a2b3c4d5e6
+Revision ID: d2e3f4a5b6c7
 Revises: bbcc42d2f54a
 Create Date: 2026-02-18 14:00:00.000000
 
@@ -11,7 +11,7 @@ from typing import Sequence, Union
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "c1a2b3c4d5e6"
+revision: str = "d2e3f4a5b6c7"
 down_revision: Union[str, Sequence[str], None] = "bbcc42d2f54a"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
