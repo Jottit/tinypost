@@ -1148,7 +1148,7 @@ nav a:hover {
 
 input.page-nav-add-input {
   position: absolute;
-  right: calc(100% + 2px);
+  right: calc(100% + var(--space-3));
   top: 50%;
   transform: translateY(-50%) translateX(4px);
   width: 200px;
