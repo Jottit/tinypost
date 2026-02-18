@@ -6,4 +6,13 @@
   {% if site.bio %}
     <p>{{ site.bio }}</p>
   {% endif %}
+  {% set visible_pages = pages if is_owner else pages | rejectattr('is_draft') | list %}
+  {% if visible_pages %}
+    <nav class="page-nav">
+      {% for p in visible_pages %}
+        {% if not loop.first %}<span class="page-nav-sep">&middot;</span>{% endif %}
+        <a href="/{{ p.slug }}"{% if p.is_draft %} class="page-nav-draft"{% endif %}>{{ p.title }}</a>
+      {% endfor %}
+    </nav>
+  {% endif %}
 </header>

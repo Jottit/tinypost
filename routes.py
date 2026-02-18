@@ -33,11 +33,16 @@ from config import (
     VALID_FONT_VALUES,
 )
 from db import (
+    create_page,
     create_post,
     create_user_and_site,
     delete_account,
+    delete_page,
     delete_post,
     get_all_posts_for_site,
+    get_page_by_id,
+    get_page_by_slug,
+    get_pages_for_site,
     get_post_by_slug,
     get_posts_for_site,
     get_site_by_custom_domain,
@@ -47,8 +52,10 @@ from db import (
     get_user_by_id,
     is_domain_taken,
     remove_custom_domain,
+    reorder_pages,
     set_custom_domain,
     subdomain_taken,
+    update_page,
     update_post,
     update_site,
     update_site_avatar,
@@ -74,10 +81,12 @@ ET.register_namespace("source", SOURCE_NS)
 
 
 def render_settings(site, **kwargs):
+    pages = get_pages_for_site(site["id"], include_drafts=True)
     return render_template(
         "settings.html",
         site=site,
         is_owner=True,
+        pages=pages,
         custom_domain_ipv4=CUSTOM_DOMAIN_IPV4,
         custom_domain_ipv6=CUSTOM_DOMAIN_IPV6,
         **kwargs,
@@ -155,7 +164,8 @@ def home():
         return redirect(f"https://{site['custom_domain']}", code=308)
 
     posts = get_posts_for_site(site["id"], include_drafts=is_owner)
-    return render_template("site.html", site=site, posts=posts, is_owner=is_owner)
+    pages = get_pages_for_site(site["id"], include_drafts=is_owner)
+    return render_template("site.html", site=site, posts=posts, pages=pages, is_owner=is_owner)
 
 
 @app.route("/check-subdomain")
@@ -235,6 +245,8 @@ def edit():
     if not body:
         return render_template("edit.html", site=site, error="Post body is required.")
     slug = slugify(title or body[:50]) or "post"
+    if get_page_by_slug(site["id"], slug):
+        return render_template("edit.html", site=site, error="A page already uses that URL slug.")
     is_draft = request.form.get("is_draft") == "on"
     create_post(site["id"], slug, title or None, body, is_draft=is_draft)
     return redirect(f"/{slug}")
@@ -255,6 +267,10 @@ def edit_post(slug):
     if not body:
         return render_template("edit.html", site=site, post=post, error="Post body is required.")
     new_slug = slugify(title or body[:50]) or "post"
+    if get_page_by_slug(site["id"], new_slug):
+        return render_template(
+            "edit.html", site=site, post=post, error="A page already uses that URL slug."
+        )
     is_draft = request.form.get("is_draft") == "on"
     update_post(post["id"], new_slug, title or None, body, is_draft=is_draft)
     return redirect(f"/{new_slug}")
@@ -335,6 +351,10 @@ def settings_export():
             content = f"# {p['title']}\n\n{p['body']}" if p["title"] else p["body"]
             folder = "drafts/" if p["is_draft"] else ""
             zf.writestr(f"{folder}{p['slug']}.md", content)
+
+        for p in get_pages_for_site(site["id"], include_drafts=True):
+            content = f"# {p['title']}\n\n{p['body']}" if p["body"] else f"# {p['title']}"
+            zf.writestr(f"pages/{p['slug']}.md", content)
 
         for key in list_images(site["subdomain"]):
             data = download_image(key)
@@ -466,6 +486,58 @@ def design():
     return redirect("/")
 
 
+@app.route("/settings/navigation/add", methods=["POST"])
+def settings_navigation_add():
+    site = require_owner()
+    title = request.form.get("title", "").strip()
+    slug = slugify(title) if title else None
+    if not slug:
+        return render_settings(site, nav_error="Title is required.")
+    if get_post_by_slug(site["id"], slug) or get_page_by_slug(site["id"], slug):
+        return render_settings(site, nav_error="That URL slug is already taken.")
+    create_page(site["id"], slug, title)
+    return redirect("/settings")
+
+
+@app.route("/settings/navigation/delete/<int:page_id>", methods=["POST"])
+def settings_navigation_delete(page_id):
+    site = require_owner()
+    page = get_page_by_id(page_id)
+    if not page or page["site_id"] != site["id"]:
+        abort(404)
+    delete_page(page_id)
+    return redirect("/")
+
+
+@app.route("/settings/navigation/reorder", methods=["POST"])
+def settings_navigation_reorder():
+    site = require_owner()
+    data = request.get_json()
+    if not data or "order" not in data:
+        return jsonify({"error": "Missing order"}), 400
+    reorder_pages(site["id"], data["order"])
+    return jsonify({"ok": True})
+
+
+@app.route("/edit-page/<slug>", methods=["GET", "POST"])
+def edit_page(slug):
+    site = require_owner()
+    page = get_page_by_slug(site["id"], slug)
+    if not page:
+        abort(404)
+
+    if request.method == "GET":
+        return render_template("edit_page.html", site=site, page=page)
+
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    if not title:
+        return render_template("edit_page.html", site=site, page=page, error="Title is required.")
+    is_draft = request.form.get("is_draft") == "on"
+    update_page(page["id"], title, body, is_draft=is_draft)
+    return redirect(f"/{page['slug']}")
+
+
 @app.route("/settings/delete-account", methods=["GET", "POST"])
 def settings_delete_account():
     site = require_owner()
@@ -586,13 +658,22 @@ def post(slug):
     site = get_current_site()
     if not site:
         abort(404)
-    post = get_post_by_slug(site["id"], slug)
-    if not post:
-        abort(404)
     is_owner = session.get("user_id") == site["user_id"]
-    if post["is_draft"] and not is_owner:
-        abort(404)
-    return render_template("post.html", site=site, post=post, is_owner=is_owner)
+    pages = get_pages_for_site(site["id"], include_drafts=is_owner)
+
+    post = get_post_by_slug(site["id"], slug)
+    if post:
+        if post["is_draft"] and not is_owner:
+            abort(404)
+        return render_template("post.html", site=site, post=post, pages=pages, is_owner=is_owner)
+
+    page = get_page_by_slug(site["id"], slug)
+    if page:
+        if page["is_draft"] and not is_owner:
+            abort(404)
+        return render_template("page.html", site=site, page=page, pages=pages, is_owner=is_owner)
+
+    abort(404)
 
 
 @app.route("/upload", methods=["POST"])

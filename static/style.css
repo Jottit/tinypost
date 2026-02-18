@@ -1069,6 +1069,90 @@ nav a:hover {
   color: var(--text-bright);
 }
 
+/* ── Page nav ────────────────────────── */
+.page-nav {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.page-nav a {
+  color: var(--site-accent);
+  text-decoration: none;
+  margin: 0;
+}
+
+.page-nav a:hover {
+  color: var(--site-text-bright);
+}
+
+.page-nav-sep {
+  color: var(--site-text-muted);
+  margin: 0 var(--space-2);
+}
+
+.page-nav-draft {
+  opacity: 0.5;
+}
+
+/* ── Navigation settings ─────────────── */
+.nav-add-form {
+  margin-bottom: var(--space-4);
+}
+
+.nav-items {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-4) 0 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--site-divider);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  background: var(--site-bg);
+}
+
+.nav-item.dragging {
+  opacity: 0.4;
+}
+
+.nav-item.drag-over {
+  border-color: var(--site-text-muted);
+}
+
+.nav-item-handle {
+  cursor: grab;
+  color: var(--site-text-muted);
+  font-size: var(--text-lg);
+  user-select: none;
+}
+
+.nav-item-title {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--site-text-bright);
+}
+
+.nav-item-published {
+  font-size: var(--text-xs);
+  color: var(--success);
+}
+
+.nav-item-edit {
+  font-size: var(--text-sm);
+}
+
+.nav-item-delete {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: #c0392b;
+}
+
 /* ── 5. Utilities ────────────────────── */
 .mb-4 {
   margin-bottom: var(--space-4);

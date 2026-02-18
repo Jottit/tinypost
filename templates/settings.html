@@ -59,6 +59,35 @@
         </div>
       </form>
       <div class="panel-divider">
+        <h3>Navigation</h3>
+        {% if nav_error %}
+          <p class="error">{{ nav_error }}</p>
+        {% endif %}
+        <form method="POST" action="/settings/navigation/add" class="nav-add-form">
+          <input type="text" name="title" placeholder="Page title">
+          <button type="submit" class="btn mt-4">Add</button>
+        </form>
+        {% if pages %}
+          <ul class="nav-items" id="nav-items">
+            {% for page in pages %}
+              <li class="nav-item" draggable="true" data-id="{{ page.id }}">
+                <span class="nav-item-handle">&equiv;</span>
+                <span class="nav-item-title">{{ page.title }}</span>
+                {% if page.is_draft %}
+                  <span class="draft-label">Draft</span>
+                {% else %}
+                  <span class="nav-item-published">Published</span>
+                {% endif %}
+                <a href="/edit-page/{{ page.slug }}" class="nav-item-edit">Edit</a>
+                <form method="POST" action="/settings/navigation/delete/{{ page.id }}" class="inline">
+                  <button type="submit" class="nav-item-delete">Delete</button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+      <div class="panel-divider">
         <h3>Custom domain</h3>
         {% if domain_error %}
           <p class="error">{{ domain_error }}</p>
@@ -110,4 +139,5 @@
       <a href="/settings/export" class="btn-secondary">Export</a>
     </div>
   </main>
+  <script src="{{ url_for('static', filename='navigation.js') }}"></script>
 {% endblock %}

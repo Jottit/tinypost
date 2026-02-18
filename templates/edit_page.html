@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ page.title }} — {{ site.title }}{% endblock %}
+{% block body_attrs %} class="editor-page"{% endblock %}
+{% block body %}
+  <main class="editor">
+    {% if error %}
+      <p class="editor-error">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="/edit-page/{{ page.slug }}">
+      <input type="text" name="title" placeholder="Title" class="editor-title" value="{{ page.title }}" autofocus>
+      <textarea name="body" placeholder="Write here..." class="editor-body">{{ page.body }}</textarea>
+      <div class="editor-actions">
+        <label class="editor-draft">
+          <input type="checkbox" name="is_draft" {% if page.is_draft %}checked{% endif %}>
+          Don't publish yet
+        </label>
+        <button type="submit" class="btn">Save</button>
+      </div>
+    </form>
+  </main>
+  <script src="{{ url_for('static', filename='editor.js') }}"></script>
+{% endblock %}

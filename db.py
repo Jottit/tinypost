@@ -175,10 +175,69 @@ def update_user_email(user_id, email):
     return user
 
 
+def get_pages_for_site(site_id, include_drafts=False):
+    sql = "SELECT * FROM pages WHERE site_id = %s"
+    if not include_drafts:
+        sql += " AND is_draft = FALSE"
+    sql += " ORDER BY sort_order"
+    return query(sql, (site_id,))
+
+
+def get_page_by_slug(site_id, slug):
+    return query("SELECT * FROM pages WHERE site_id = %s AND slug = %s", (site_id, slug), one=True)
+
+
+def get_page_by_id(page_id):
+    return query("SELECT * FROM pages WHERE id = %s", (page_id,), one=True)
+
+
+def create_page(site_id, slug, title):
+    db = get_db()
+    max_order = db.execute(
+        "SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM pages WHERE site_id = %s",
+        (site_id,),
+    ).fetchone()["max_order"]
+    page = db.execute(
+        "INSERT INTO pages (site_id, slug, title, sort_order)"
+        " VALUES (%s, %s, %s, %s) RETURNING *",
+        (site_id, slug, title, max_order + 1),
+    ).fetchone()
+    db.commit()
+    return page
+
+
+def update_page(page_id, title, body, is_draft=False):
+    db = get_db()
+    page = db.execute(
+        "UPDATE pages SET title = %s, body = %s, is_draft = %s, updated_at = NOW()"
+        " WHERE id = %s RETURNING *",
+        (title, body, is_draft, page_id),
+    ).fetchone()
+    db.commit()
+    return page
+
+
+def delete_page(page_id):
+    db = get_db()
+    db.execute("DELETE FROM pages WHERE id = %s", (page_id,))
+    db.commit()
+
+
+def reorder_pages(site_id, page_ids):
+    db = get_db()
+    for i, page_id in enumerate(page_ids):
+        db.execute(
+            "UPDATE pages SET sort_order = %s WHERE id = %s AND site_id = %s",
+            (i, page_id, site_id),
+        )
+    db.commit()
+
+
 def delete_account(user_id):
     db = get_db()
     site = get_site_by_user(user_id)
     if site:
+        db.execute("DELETE FROM pages WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM posts WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM sites WHERE id = %s", (site["id"],))
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))

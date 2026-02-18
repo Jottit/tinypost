@@ -35,3 +35,16 @@ CREATE TABLE posts (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(site_id, slug)
 );
+
+CREATE TABLE pages (
+    id SERIAL PRIMARY KEY,
+    site_id INTEGER NOT NULL REFERENCES sites(id),
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL DEFAULT '',
+    is_draft BOOLEAN NOT NULL DEFAULT TRUE,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(site_id, slug)
+);
