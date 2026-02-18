@@ -108,7 +108,7 @@ table {
   --space-10: 6rem;
 
   /* Layout */
-  --measure: 37.5rem;
+  --measure: 50rem;
 
   /* Border radius */
   --radius-sm: 3px;
@@ -276,7 +276,6 @@ hr {
 }
 
 img {
-  border-radius: var(--radius-md);
   margin-bottom: var(--space-4);
 }
 
