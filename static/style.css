@@ -109,6 +109,7 @@ table {
 
   /* Layout */
   --measure: 50rem;
+  --measure-narrow: 35rem;
 
   /* Border radius */
   --radius-sm: 3px;
@@ -744,22 +745,19 @@ nav a:hover {
   border-color: var(--site-text-muted);
 }
 
-.settings-page {
+.panel {
   max-width: var(--measure);
   margin: 0 auto;
-}
-
-.panel {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
 }
 
-@media (max-width: 640px) {
-  .settings-page {
-    padding: var(--space-6);
-  }
+.panel--narrow {
+  max-width: var(--measure-narrow);
+}
 
+@media (max-width: 640px) {
   .panel {
     background: none;
     border-radius: 0;

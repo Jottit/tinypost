@@ -3,8 +3,8 @@
 {% block body %}
   {% set show_back_link = true %}
   {% include "admin_menu.html" %}
-  <main class="settings-page">
-    <div class="panel">
+  <main>
+    <div class="panel panel--narrow">
       <h2>Account</h2>
       {% if error %}
         <p class="error">{{ error }}</p>
