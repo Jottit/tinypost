@@ -150,6 +150,14 @@
   fontHeader.addEventListener("change", applyFonts);
   fontBody.addEventListener("change", applyFonts);
 
+  var cssFileInput = document.getElementById("css-file-input");
+  if (cssFileInput) {
+    cssFileInput.addEventListener("change", function () {
+      document.getElementById("css-file-name").textContent = this.files[0].name;
+      document.getElementById("css-upload-btn").hidden = false;
+    });
+  }
+
   applyFonts();
   applyAccent();
   applyBackground();

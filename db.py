@@ -98,6 +98,16 @@ def update_site_avatar(site_id, avatar_url):
     return site
 
 
+def update_site_custom_css(site_id, custom_css):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET custom_css = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (custom_css, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
 def update_site_design(site_id, design):
     db = get_db()
     site = db.execute(

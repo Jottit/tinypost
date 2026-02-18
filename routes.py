@@ -59,6 +59,7 @@ from db import (
     update_post,
     update_site,
     update_site_avatar,
+    update_site_custom_css,
     update_site_design,
     update_user_email,
     verify_custom_domain,
@@ -482,6 +483,59 @@ def design():
     design_data = {k: v for k, v in fields.items() if v}
     update_site_design(site["id"], design_data or None)
     return redirect("/")
+
+
+@app.route("/download-theme")
+def download_theme():
+    site = require_owner()
+    custom_css = site.get("custom_css")
+
+    header = f"""\
+/*
+ * Theme: {"Custom" if custom_css else "Default"}
+ * Author: {site["title"]}
+ * Site: {site_url(site)}
+ * Version: 1.0
+ * License: {site.get("license") or ""}
+ */
+
+"""
+
+    if custom_css:
+        body = custom_css
+    else:
+        theme_path = os.path.join(app.static_folder, "theme.css")
+        with open(theme_path) as f:
+            body = f.read()
+
+    return Response(
+        header + body,
+        mimetype="text/css",
+        headers={"Content-Disposition": 'attachment; filename="theme.css"'},
+    )
+
+
+@app.route("/design/upload-css", methods=["POST"])
+def upload_css():
+    site = require_owner()
+
+    css_file = request.files.get("css_file")
+    if not css_file:
+        return redirect("/design")
+
+    content = css_file.read().decode("utf-8", errors="replace").strip()
+    if not content:
+        return redirect("/design")
+
+    update_site_custom_css(site["id"], content)
+    return redirect("/design")
+
+
+@app.route("/design/remove-css", methods=["POST"])
+def remove_css():
+    site = require_owner()
+    update_site_custom_css(site["id"], None)
+    return redirect("/design")
 
 
 @app.route("/settings/navigation/add", methods=["POST"])

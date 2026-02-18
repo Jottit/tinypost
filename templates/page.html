@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% block title %}{{ page.title }} — {{ site.title }}{% endblock %}
+{% block theme_css %}{% include "theme_css.html" %}{% endblock %}
 {% block head_extra %}
   {% include "site_design.html" %}
 {% endblock %}
 {% block body %}
   <main>
+    {% include "admin_menu.html" %}
     {% include "site_header.html" %}
     <article>
       <h2>{{ page.title }}{% if page.is_draft %} <span class="draft-label">Draft</span>{% endif %}</h2>

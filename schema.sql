@@ -19,6 +19,7 @@ CREATE TABLE sites (
     domain_verified_at TIMESTAMPTZ,
     domain_verification_token TEXT,
     design JSONB,
+    custom_css TEXT,
     license TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
