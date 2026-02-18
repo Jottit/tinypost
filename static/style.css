@@ -816,7 +816,8 @@ nav a:hover {
 }
 
 .export-zone {
-  margin-top: var(--space-8);
+  max-width: var(--measure-narrow);
+  margin: var(--space-8) auto 0;
   border: 1px solid var(--site-divider);
   border-radius: var(--radius-md);
   padding: var(--space-6);
@@ -832,7 +833,8 @@ nav a:hover {
 }
 
 .danger-zone {
-  margin-top: var(--space-8);
+  max-width: var(--measure-narrow);
+  margin: var(--space-8) auto 0;
   border: 1px solid #c0392b;
   border-radius: var(--radius-md);
   padding: var(--space-6);
