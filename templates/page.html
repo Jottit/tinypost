@@ -9,7 +9,7 @@
     <article>
       <h2>{{ page.title }}{% if page.is_draft %} <span class="draft-label">Draft</span>{% endif %}</h2>
       {% if page.body %}
-        <div class="post-body">{{ page.body | markdown }}</div>
+        <div class="page-body">{{ page.body | markdown }}</div>
       {% endif %}
       {% if is_owner %}
         <div class="actions mt-6">

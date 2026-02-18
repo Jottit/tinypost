@@ -434,8 +434,12 @@ article time {
 }
 
 article h2 {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-5);
   text-align: center;
+}
+
+article img {
+  margin-bottom: var(--space-6);
 }
 
 article h2 a {
@@ -450,10 +454,16 @@ article h2 a:hover {
 .post-body {
   width: fit-content;
   margin: 0 auto;
+  font-size: var(--text-lg);
 }
 
-.post-body a {
+.post-body a,
+.page-body a {
   color: var(--site-accent);
+}
+
+.page-body {
+  font-size: var(--text-lg);
 }
 
 .site-header img[alt="avatar"] {
