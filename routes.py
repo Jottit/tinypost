@@ -273,9 +273,10 @@ def settings():
 
     title = request.form.get("title", "").strip()
     bio = request.form.get("bio", "").strip()
+    license = request.form.get("license", "").strip() or None
     if not title:
         return render_settings(site, error="Title is required.")
-    update_site(site["id"], title, bio or None)
+    update_site(site["id"], title, bio or None, license=license)
     return redirect("/")
 
 

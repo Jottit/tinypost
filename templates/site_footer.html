@@ -1,1 +1,16 @@
-<footer>Powered by <a href="http://{{ config.BASE_DOMAIN }}">Jottit</a></footer>
+<footer>
+  <div>Powered by <a href="http://{{ config.BASE_DOMAIN }}">Jottit</a></div>
+  {% if site.license == 'all-rights-reserved' %}
+    <div class="license">&copy; {{ now.year }} {{ site.title }}</div>
+  {% elif site.license == 'cc-by-4.0' %}
+    <div class="license"><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div>
+  {% elif site.license == 'cc-by-sa-4.0' %}
+    <div class="license"><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></div>
+  {% elif site.license == 'cc-by-nc-4.0' %}
+    <div class="license"><a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></div>
+  {% elif site.license == 'cc-by-nc-sa-4.0' %}
+    <div class="license"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></div>
+  {% elif site.license == 'cc0-1.0' %}
+    <div class="license"><a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a></div>
+  {% endif %}
+</footer>
