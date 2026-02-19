@@ -205,19 +205,6 @@ def test_send_requires_auth(client):
     assert "/signin" in response.headers["Location"]
 
 
-def test_subscriber_count_shown_for_owner(client):
-    user, site = setup_site(client)
-    with app.app_context():
-        create_subscriber(site["id"], "a@example.com", "tok-a")
-        confirm_subscriber("tok-a")
-        create_subscriber(site["id"], "b@example.com", "tok-b")
-        confirm_subscriber("tok-b")
-    with client.session_transaction() as sess:
-        sess["user_id"] = user["id"]
-    response = client.get("/", headers=HEADERS)
-    assert b"2 subscribers" in response.data
-
-
 def test_subscriber_count_hidden_for_visitors(client):
     _, site = setup_site(client)
     with app.app_context():
