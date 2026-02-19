@@ -697,11 +697,16 @@ main {
 
 .editor-actions {
   position: fixed;
-  bottom: var(--space-8);
-  right: max(var(--space-4), calc((100vw - var(--editor-measure)) / 2 + var(--space-4)));
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--space-4);
+  background: #fff;
+  padding: var(--space-4) max(var(--space-4), calc((100vw - var(--editor-measure)) / 2));
+  border-top: 1px solid #eee;
 }
 
 .editor-draft {
@@ -719,8 +724,12 @@ main {
 
 .editor-send {
   position: fixed;
-  bottom: var(--space-8);
-  left: max(var(--space-4), calc((100vw - var(--editor-measure)) / 2 + var(--space-4)));
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) max(var(--space-4), calc((100vw - var(--editor-measure)) / 2 + var(--space-4)));
+  border-top: 1px solid transparent;
 }
 
 .editor-sent {
