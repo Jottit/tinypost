@@ -307,6 +307,22 @@ def unsubscribe(token):
     db.commit()
 
 
+def delete_subscriber(subscriber_id, site_id):
+    db = get_db()
+    db.execute(
+        "DELETE FROM subscribers WHERE id = %s AND site_id = %s",
+        (subscriber_id, site_id),
+    )
+    db.commit()
+
+
+def get_all_subscribers(site_id):
+    return query(
+        "SELECT * FROM subscribers WHERE site_id = %s ORDER BY created_at DESC",
+        (site_id,),
+    )
+
+
 def get_confirmed_subscribers(site_id):
     return query(
         "SELECT * FROM subscribers WHERE site_id = %s AND confirmed = TRUE",

@@ -973,6 +973,41 @@ input.page-nav-add-input.active {
   color: var(--error);
 }
 
+.subscribers-table {
+  width: 100%;
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.subscribers-table th {
+  text-align: left;
+  font-weight: var(--weight-medium);
+  color: var(--site-text-muted);
+}
+
+.subscribers-table thead tr {
+  border-bottom: 1px solid color-mix(in srgb, var(--site-divider), transparent 80%);
+}
+
+.subscribers-table td,
+.subscribers-table th {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: none;
+}
+
+.subscribers-table td:last-child {
+  text-align: right;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
 /* ── 7. Utilities ────────────────────── */
 .hidden {
   display: none !important;

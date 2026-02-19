@@ -214,7 +214,7 @@ def test_subscriber_count_hidden_for_visitors(client):
     assert b"subscriber" not in response.data
 
 
-def test_send_button_shown_on_edit(client):
+def test_send_button_shown_on_post(client):
     user, site = setup_site(client)
     with app.app_context():
         create_post(site["id"], "hello", "Hello", "Body")
@@ -222,7 +222,7 @@ def test_send_button_shown_on_edit(client):
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.get("/edit/hello", headers=HEADERS)
+    response = client.get("/hello", headers=HEADERS)
     assert b"Send to 1 subscriber" in response.data
 
 
@@ -234,5 +234,5 @@ def test_send_button_hidden_for_draft(client):
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.get("/edit/hello", headers=HEADERS)
+    response = client.get("/hello", headers=HEADERS)
     assert b"Send to" not in response.data
