@@ -78,7 +78,7 @@ def test_honeypot_rejects(mock_send, client):
 def test_confirm_subscription(mock_send, client):
     _, site = setup_site(client)
     with app.app_context():
-        sub = create_subscriber(site["id"], "reader@example.com", "confirmtok")
+        create_subscriber(site["id"], "reader@example.com", "confirmtok")
     response = client.get("/confirm/confirmtok", headers=HEADERS)
     assert response.status_code == 200
     assert b"on the list" in response.data.lower()

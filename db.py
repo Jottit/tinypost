@@ -23,6 +23,10 @@ def create_user_and_site(email, subdomain):
     return user, site
 
 
+def get_site_by_id(site_id):
+    return query("SELECT * FROM sites WHERE id = %s", (site_id,), one=True)
+
+
 def get_site_by_subdomain(subdomain):
     return query("SELECT * FROM sites WHERE subdomain = %s", (subdomain,), one=True)
 

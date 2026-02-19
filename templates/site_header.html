@@ -1,11 +1,4 @@
 <header class="site-header">
-  {% if site.avatar %}
-    <a href="/"><img src="{{ site.avatar }}" alt="avatar"></a>
-  {% endif %}
-  <h1><a href="/">{{ site.title }}</a></h1>
-  {% if site.bio %}
-    <p>{{ site.bio }}</p>
-  {% endif %}
   {% set visible_pages = pages if is_owner else pages | rejectattr('is_draft') | list %}
   {% if visible_pages or is_owner %}
     <nav class="page-nav"{% if is_owner %} data-owner{% endif %}>
@@ -27,4 +20,18 @@
   {% if is_owner %}
     <script src="{{ url_for('static', filename='navigation.js') }}"></script>
   {% endif %}
+  {% if site.avatar %}
+    <a href="/"><img src="{{ site.avatar }}" alt="avatar"></a>
+  {% endif %}
+  <h1><a href="/">{{ site.title }}</a></h1>
+  {% if site.bio %}
+    <p class="site-bio">{{ site.bio }}</p>
+  {% endif %}
+  <form action="/subscribe" method="post" class="subscribe-form">
+    <div class="pill-input">
+      <input type="email" name="email" placeholder="Your email" required>
+      <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+      <button type="submit">Subscribe</button>
+    </div>
+  </form>
 </header>

@@ -49,6 +49,7 @@ from db import (
     get_post_by_slug,
     get_posts_for_site,
     get_site_by_custom_domain,
+    get_site_by_id,
     get_site_by_subdomain,
     get_site_by_user,
     get_subscriber,
@@ -74,7 +75,6 @@ from db import (
     verify_custom_domain,
 )
 from mailer import send_email
-from models import query
 from storage import (
     crop_square,
     delete_all_images,
@@ -175,14 +175,13 @@ def home():
 
     posts = get_posts_for_site(site["id"], include_drafts=is_owner)
     pages = get_pages_for_site(site["id"], include_drafts=is_owner)
-    sub_count = get_subscriber_count(site["id"]) if is_owner else 0
     return render_template(
         "site.html",
         site=site,
         posts=posts,
         pages=pages,
         is_owner=is_owner,
-        subscriber_count=sub_count,
+        subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
     )
 
 
@@ -866,7 +865,7 @@ def confirm(token):
     if not subscriber:
         abort(404)
     confirm_subscriber(token)
-    site = query("SELECT * FROM sites WHERE id = %s", (subscriber["site_id"],), one=True)
+    site = get_site_by_id(subscriber["site_id"])
     return render_template(
         "confirmed.html",
         site=site,
@@ -880,7 +879,7 @@ def unsubscribe_route(token):
     subscriber = get_subscriber_by_token(token)
     if not subscriber:
         abort(404)
-    site = query("SELECT * FROM sites WHERE id = %s", (subscriber["site_id"],), one=True)
+    site = get_site_by_id(subscriber["site_id"])
     unsubscribe(token)
     return render_template("unsubscribed.html", site=site, base_url=site_url(site))
 
