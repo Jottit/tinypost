@@ -745,6 +745,16 @@ main {
   margin-bottom: var(--space-4);
 }
 
+.editor-page .jot-bubble-menu {
+  border-radius: 999px;
+  padding: 6px 14px;
+  gap: 6px;
+}
+
+.editor-page .jot-bubble-divider {
+  margin: 0 4px;
+}
+
 .editor .editor-body.drag-over {
   border: 1px dashed #ddd;
   border-radius: var(--radius-md);

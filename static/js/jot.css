@@ -3,10 +3,10 @@
   position: absolute;
   z-index: 100;
   display: flex;
+  align-items: center;
   gap: 2px;
   padding: 4px;
-  background: #fff;
-  border: 1px solid #d0d0d0;
+  background: #1c1c1e;
   border-radius: 6px;
 }
 .jot-bubble-btn {
@@ -27,14 +27,14 @@
     sans-serif;
   font-size: 14px;
   cursor: pointer;
-  color: #333;
+  color: rgba(255, 255, 255, 0.85);
 }
 .jot-bubble-btn:hover {
-  background: #f0f0f0;
+  background: rgba(255, 255, 255, 0.12);
 }
 .jot-bubble-btn-active {
-  background: #e0e0e0;
-  color: #000;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 .jot-bubble-btn-bold {
   font-weight: 700;
@@ -42,14 +42,17 @@
 .jot-bubble-btn-italic {
   font-style: italic;
 }
-.jot-bubble-btn-code {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    "SF Mono",
-    Menlo,
-    Consolas,
-    monospace;
-  font-size: 12px;
-  letter-spacing: -1px;
+.jot-bubble-btn-h1 {
+  font-size: 13px;
+  font-weight: 700;
+}
+.jot-bubble-btn-h2 {
+  font-size: 13px;
+  font-weight: 700;
+}
+.jot-bubble-divider {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: rgba(255, 255, 255, 0.2);
 }
