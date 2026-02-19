@@ -228,7 +228,13 @@ input[type="submit"] {
 main {
   max-width: var(--site-measure);
   margin: 0 auto;
-  padding: var(--space-8) var(--space-4) var(--space-8);
+  padding: var(--space-9) var(--space-4) var(--space-8);
+}
+
+@media (min-width: 641px) {
+  main {
+    padding-top: var(--space-6);
+  }
 }
 
 /* ── 5. Avatar settings ──────────────── */
@@ -775,6 +781,12 @@ main {
   justify-content: flex-end;
   gap: var(--space-4);
   pointer-events: none;
+}
+
+@media (min-width: 641px) {
+  .admin-menu {
+    top: var(--space-6);
+  }
 }
 
 .admin-menu > * {

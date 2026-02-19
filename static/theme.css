@@ -230,7 +230,7 @@ footer .license {
 
 .subscribe-form .pill-input {
   font-family: var(--font-mono);
-  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
 }
 
 .subscribe-form input[type="email"] {
@@ -302,7 +302,7 @@ article h2 a:hover {
 /* ── Social links ────────────────────── */
 .social-links {
   font-size: var(--text-sm);
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-4);
 }
 
 .social-links a {
