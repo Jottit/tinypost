@@ -62,7 +62,7 @@
               <div class="social-link-row">
                 <input type="text" name="social_links[{{ loop.index0 }}][label]" value="{{ link.label or '' }}" placeholder="Label" class="input--sm">
                 <input type="url" name="social_links[{{ loop.index0 }}][url]" value="{{ link.url or '' }}" placeholder="https://..." class="input--sm">
-                <button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>
+                <button type="button" class="social-link-remove" onclick="removeSocialLink(this)" aria-label="Remove">&times;</button>
               </div>
             {% endfor %}
           </div>
@@ -126,15 +126,27 @@
     </div>
   </main>
   <script>
+    function reindexSocialLinks() {
+      var rows = document.querySelectorAll('.social-link-row');
+      rows.forEach(function(row, i) {
+        row.querySelector('input[type="text"]').name = 'social_links[' + i + '][label]';
+        row.querySelector('input[type="url"]').name = 'social_links[' + i + '][url]';
+      });
+    }
+
+    function removeSocialLink(btn) {
+      btn.parentElement.remove();
+      reindexSocialLinks();
+    }
+
     function addSocialLink() {
       var container = document.querySelector('.social-links-editor');
-      var rows = container.querySelectorAll('.social-link-row');
-      var idx = rows.length;
+      var idx = container.querySelectorAll('.social-link-row').length;
       var row = document.createElement('div');
       row.className = 'social-link-row';
       row.innerHTML = '<input type="text" name="social_links[' + idx + '][label]" placeholder="Label" class="input--sm">' +
         '<input type="url" name="social_links[' + idx + '][url]" placeholder="https://..." class="input--sm">' +
-        '<button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>';
+        '<button type="button" class="social-link-remove" onclick="removeSocialLink(this)" aria-label="Remove">&times;</button>';
       container.appendChild(row);
     }
   </script>
