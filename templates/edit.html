@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{% if post %}Edit — {{ site.title }}{% else %}Write — {{ site.title }}{% endif %}{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="/static/js/jot.css">{% endblock %}
 {% block body_attrs %} class="editor-page"{% endblock %}
 {% block body %}
   <main class="editor">

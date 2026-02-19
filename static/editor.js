@@ -9,6 +9,9 @@ var jot = new Jot(editorEl, {
   initialValue: hiddenInput.value,
   onChange: function(markdown) {
     hiddenInput.value = markdown;
+  },
+  ui: {
+    bubbleMenu: true
   }
 });
 
