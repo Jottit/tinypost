@@ -42,6 +42,7 @@ from db import (
     delete_page,
     delete_post,
     get_all_posts_for_site,
+    get_confirmed_subscribers,
     get_page_by_id,
     get_page_by_slug,
     get_pages_for_site,
@@ -52,9 +53,11 @@ from db import (
     get_site_by_user,
     get_subscriber,
     get_subscriber_by_token,
+    get_subscriber_count,
     get_user_by_email,
     get_user_by_id,
     is_domain_taken,
+    mark_post_sent,
     remove_custom_domain,
     reorder_pages,
     set_custom_domain,
@@ -172,7 +175,15 @@ def home():
 
     posts = get_posts_for_site(site["id"], include_drafts=is_owner)
     pages = get_pages_for_site(site["id"], include_drafts=is_owner)
-    return render_template("site.html", site=site, posts=posts, pages=pages, is_owner=is_owner)
+    sub_count = get_subscriber_count(site["id"]) if is_owner else 0
+    return render_template(
+        "site.html",
+        site=site,
+        posts=posts,
+        pages=pages,
+        is_owner=is_owner,
+        subscriber_count=sub_count,
+    )
 
 
 @app.route("/check-subdomain")
@@ -266,17 +277,29 @@ def edit_post(slug):
     if not post:
         abort(404)
 
+    sub_count = get_subscriber_count(site["id"])
+
     if request.method == "GET":
-        return render_template("edit.html", site=site, post=post)
+        return render_template("edit.html", site=site, post=post, subscriber_count=sub_count)
 
     title = request.form.get("title", "").strip()
     body = request.form.get("body", "").strip()
     if not body:
-        return render_template("edit.html", site=site, post=post, error="Post body is required.")
+        return render_template(
+            "edit.html",
+            site=site,
+            post=post,
+            subscriber_count=sub_count,
+            error="Post body is required.",
+        )
     new_slug = slugify(title or body[:50]) or "post"
     if get_page_by_slug(site["id"], new_slug):
         return render_template(
-            "edit.html", site=site, post=post, error="A page already uses that URL slug."
+            "edit.html",
+            site=site,
+            post=post,
+            subscriber_count=sub_count,
+            error="A page already uses that URL slug.",
         )
     is_draft = request.form.get("is_draft") == "on"
     update_post(post["id"], new_slug, title or None, body, is_draft=is_draft)
@@ -291,6 +314,38 @@ def delete_post_route(slug):
         abort(404)
     delete_post(post["id"])
     return redirect("/")
+
+
+@app.route("/send/<slug>", methods=["POST"])
+def send_post(slug):
+    site = require_owner()
+    post = get_post_by_slug(site["id"], slug)
+    if not post:
+        abort(404)
+    if post["is_draft"] or post.get("sent_at"):
+        return redirect(f"/edit/{slug}")
+
+    subscribers = get_confirmed_subscribers(site["id"])
+    if not subscribers:
+        return redirect(f"/edit/{slug}")
+
+    base_url = site_url(site)
+    for sub in subscribers:
+        send_email(
+            to=sub["email"],
+            from_addr="Jottit <noreply@jottit.pub>",
+            subject=post["title"] or site["title"],
+            text=(
+                f"{post['title'] or ''}\n\n"
+                f"{post['body']}\n\n"
+                f"---\n"
+                f"You're receiving this because you subscribed to {site['title']}.\n"
+                f"Unsubscribe: {base_url}/unsubscribe/{sub['token']}"
+            ),
+        )
+
+    mark_post_sent(post["id"])
+    return redirect(f"/{slug}")
 
 
 @app.route("/settings", methods=["GET", "POST"])

@@ -301,3 +301,29 @@ def unsubscribe(token):
     db = get_db()
     db.execute("DELETE FROM subscribers WHERE token = %s", (token,))
     db.commit()
+
+
+def get_confirmed_subscribers(site_id):
+    return query(
+        "SELECT * FROM subscribers WHERE site_id = %s AND confirmed = TRUE",
+        (site_id,),
+    )
+
+
+def get_subscriber_count(site_id):
+    row = query(
+        "SELECT COUNT(*) AS count FROM subscribers WHERE site_id = %s AND confirmed = TRUE",
+        (site_id,),
+        one=True,
+    )
+    return row["count"]
+
+
+def mark_post_sent(post_id):
+    db = get_db()
+    post = db.execute(
+        "UPDATE posts SET sent_at = NOW() WHERE id = %s RETURNING *",
+        (post_id,),
+    ).fetchone()
+    db.commit()
+    return post

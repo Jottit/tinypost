@@ -32,6 +32,7 @@ CREATE TABLE posts (
     title TEXT,
     body TEXT NOT NULL,
     is_draft BOOLEAN NOT NULL DEFAULT FALSE,
+    sent_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(site_id, slug)

@@ -716,6 +716,17 @@ main {
   width: auto;
 }
 
+.editor-send {
+  position: fixed;
+  bottom: var(--space-8);
+  left: max(var(--space-4), calc((100vw - var(--editor-measure)) / 2 + var(--space-4)));
+}
+
+.editor-sent {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
 .draft-label {
   display: inline-block;
   font-size: 0.65rem;

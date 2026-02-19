@@ -181,6 +181,14 @@ header.site-header::after {
   margin: var(--space-8) auto 0;
 }
 
+.subscriber-count {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  margin-top: calc(-1 * var(--space-4));
+  margin-bottom: var(--space-8);
+}
+
 header.site-header h1 {
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
