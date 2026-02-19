@@ -472,6 +472,17 @@ main {
   font-size: var(--text-xs);
 }
 
+.btn--outline {
+  color: var(--site-text-muted);
+  background: none;
+  border: 1px solid var(--site-text-muted);
+}
+
+.btn--outline:hover {
+  color: var(--site-text-bright);
+  border-color: var(--site-text-bright);
+}
+
 .btn--primary {
   background: color-mix(in srgb, var(--brand-1), var(--brand-2) 40%);
   color: #fff;

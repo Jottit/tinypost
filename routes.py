@@ -906,7 +906,14 @@ def post(slug):
     if post:
         if post["is_draft"] and not is_owner:
             abort(404)
-        return render_template("post.html", site=site, post=post, pages=pages, is_owner=is_owner)
+        return render_template(
+            "post.html",
+            site=site,
+            post=post,
+            pages=pages,
+            is_owner=is_owner,
+            subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
+        )
 
     page = get_page_by_slug(site["id"], slug)
     if page:
