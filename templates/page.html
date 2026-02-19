@@ -15,9 +15,9 @@
       {% endif %}
       {% if is_owner %}
         <div class="actions mt-6">
-          <a href="/edit-page/{{ page.slug }}" class="btn--secondary">Edit</a>
+          <a href="/edit-page/{{ page.slug }}" class="btn">Edit</a>
           <form method="POST" action="/settings/navigation/delete/{{ page.id }}" onsubmit="return confirm('Delete this page?')">
-            <button type="submit" class="btn--secondary">Delete</button>
+            <button type="submit" class="btn">Delete</button>
           </form>
         </div>
       {% endif %}

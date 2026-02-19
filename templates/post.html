@@ -23,9 +23,9 @@
       <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if is_owner %}
         <div class="actions mt-6">
-          <a href="/edit/{{ post.slug }}" class="btn--secondary">Edit</a>
+          <a href="/edit/{{ post.slug }}" class="btn">Edit</a>
           <form method="POST" action="/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
-            <button type="submit" class="btn--secondary">Delete</button>
+            <button type="submit" class="btn">Delete</button>
           </form>
         </div>
       {% endif %}

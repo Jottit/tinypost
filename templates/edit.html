@@ -26,7 +26,7 @@
         <span class="editor-sent">Sent {{ post.sent_at.strftime('%B %-d, %Y') }}</span>
       {% else %}
         <form method="POST" action="/send/{{ post.slug }}">
-          <button type="submit" class="btn btn--secondary">Send to {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}</button>
+          <button type="submit" class="btn btn">Send to {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}</button>
         </form>
       {% endif %}
     </div>

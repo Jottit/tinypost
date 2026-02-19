@@ -150,7 +150,7 @@
 
         <div class="design-actions">
           <button type="submit" class="btn">Save</button>
-          <a href="/" class="btn--secondary">Cancel</a>
+          <a href="/" class="btn">Cancel</a>
         </div>
       </form>
 
@@ -158,20 +158,20 @@
         <h3>Custom CSS</h3>
         <p class="text-muted mb-4">Download the default theme, customize it, and upload your own.</p>
 
-        <a href="/download-theme" class="btn--secondary">Download theme</a>
+        <a href="/download-theme" class="btn">Download theme</a>
 
         {% if site.custom_css %}
           <div class="mt-4 mb-4">
             <span class="success">Using custom theme</span>
           </div>
           <form method="POST" action="/design/remove-css">
-            <button type="submit" class="btn--secondary">Remove custom theme</button>
+            <button type="submit" class="btn">Remove custom theme</button>
           </form>
         {% endif %}
 
         <form id="css-upload-form" method="POST" action="/design/upload-css" enctype="multipart/form-data" class="mt-4">
           <input type="file" id="css-file-input" name="css_file" accept=".css,text/css" hidden>
-          <label for="css-file-input" class="btn--secondary">Choose file</label>
+          <label for="css-file-input" class="btn">Choose file</label>
           <span id="css-file-name" class="text-muted pl-5"></span>
           <button type="submit" id="css-upload-btn" class="btn mt-4" hidden>Upload</button>
         </form>

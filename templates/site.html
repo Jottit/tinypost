@@ -24,7 +24,7 @@
             {% endif %}
             <div class="p-summary post-body">{{ post.body | truncatewords | markdown }}</div>
             {% if post.body.split()|length > 50 %}
-              <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn--secondary">Read more</a></div>
+              <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn">Read more</a></div>
             {% endif %}
             <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
           </article>
