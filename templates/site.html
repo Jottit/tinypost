@@ -11,9 +11,6 @@
     {% include "admin_menu.html" %}
     {% set site_header_home = true %}
     {% include "site_header.html" %}
-    {% if is_owner and subscriber_count %}
-      <p class="subscriber-count">{{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}</p>
-    {% endif %}
     {% if posts %}
       {% for post in posts %}
         <article{% if post.is_draft %} class="draft"{% endif %}>
