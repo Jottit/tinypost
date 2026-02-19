@@ -49,3 +49,12 @@ CREATE TABLE pages (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(site_id, slug)
 );
+
+CREATE TABLE subscribers (
+    id SERIAL PRIMARY KEY,
+    site_id INTEGER NOT NULL REFERENCES sites(id),
+    email TEXT NOT NULL,
+    confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    token TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);

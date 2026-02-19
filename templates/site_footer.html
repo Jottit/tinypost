@@ -1,4 +1,9 @@
 <footer>
+  <form action="/subscribe" method="post" class="subscribe-form">
+    <input type="email" name="email" placeholder="Your email" required>
+    <input type="text" name="website" style="display:none">
+    <button type="submit">Subscribe</button>
+  </form>
   <div>Powered by <a href="http://{{ config.BASE_DOMAIN }}">Jottit</a></div>
   {% if site.license == 'all-rights-reserved' %}
     <div class="license">&copy; {{ now.year }} {{ site.title }}</div>

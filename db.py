@@ -247,8 +247,57 @@ def delete_account(user_id):
     db = get_db()
     site = get_site_by_user(user_id)
     if site:
+        db.execute("DELETE FROM subscribers WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM pages WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM posts WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM sites WHERE id = %s", (site["id"],))
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    db.commit()
+
+
+def get_subscriber(site_id, email):
+    return query(
+        "SELECT * FROM subscribers WHERE site_id = %s AND email = %s",
+        (site_id, email),
+        one=True,
+    )
+
+
+def create_subscriber(site_id, email, token):
+    db = get_db()
+    subscriber = db.execute(
+        "INSERT INTO subscribers (site_id, email, token) VALUES (%s, %s, %s) RETURNING *",
+        (site_id, email, token),
+    ).fetchone()
+    db.commit()
+    return subscriber
+
+
+def update_subscriber_token(subscriber_id, token):
+    db = get_db()
+    subscriber = db.execute(
+        "UPDATE subscribers SET token = %s, confirmed = FALSE WHERE id = %s RETURNING *",
+        (token, subscriber_id),
+    ).fetchone()
+    db.commit()
+    return subscriber
+
+
+def get_subscriber_by_token(token):
+    return query("SELECT * FROM subscribers WHERE token = %s", (token,), one=True)
+
+
+def confirm_subscriber(token):
+    db = get_db()
+    subscriber = db.execute(
+        "UPDATE subscribers SET confirmed = TRUE WHERE token = %s RETURNING *",
+        (token,),
+    ).fetchone()
+    db.commit()
+    return subscriber
+
+
+def unsubscribe(token):
+    db = get_db()
+    db.execute("DELETE FROM subscribers WHERE token = %s", (token,))
     db.commit()

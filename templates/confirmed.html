@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Subscribed — {{ site.title }}{% endblock %}
+{% block theme_css %}{% endblock %}
+{% block body_attrs %} class="subscribe-page"{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <div class="subscribe-identity">
+      {% if site.avatar %}
+        <img src="{{ site.avatar }}" alt="" class="subscribe-avatar">
+      {% endif %}
+      <p class="subscribe-name">{{ site.title }}</p>
+    </div>
+    <div class="subscribe-card">
+      <h1>You're on the list.</h1>
+      <p>{{ site.title }} may not send every post to the mailing list. While every post hits the web, {{ site.title }} gets to decide which posts are sent to their list.</p>
+      <a href="{{ base_url }}" class="btn btn--primary subscribe-btn">See all posts</a>
+    </div>
+    <a href="{{ base_url }}/unsubscribe/{{ token }}" class="subscribe-unsub">Unsubscribe</a>
+  </main>
+{% endblock %}

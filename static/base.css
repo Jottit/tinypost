@@ -927,3 +927,69 @@ input.page-nav-add-input.active {
   justify-content: center;
   gap: var(--space-3);
 }
+
+/* ── Subscribe pages ────────────────── */
+.subscribe-page {
+  background: #333840;
+  color: #ccc;
+}
+
+.subscribe-identity {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.subscribe-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  margin: 0 auto var(--space-3);
+}
+
+.subscribe-name {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #999;
+}
+
+.subscribe-card {
+  background: #3c4149;
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.subscribe-card h1 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: #eee;
+  margin-bottom: var(--space-4);
+}
+
+.subscribe-card p {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: #aaa;
+  margin-bottom: 0;
+}
+
+.subscribe-btn {
+  margin-top: var(--space-6);
+}
+
+.subscribe-unsub {
+  display: block;
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: #777;
+  text-decoration: none;
+}
+
+.subscribe-unsub:hover {
+  color: #aaa;
+}

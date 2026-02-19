@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Unsubscribed — {{ site.title }}{% endblock %}
+{% block theme_css %}{% endblock %}
+{% block body_attrs %} class="subscribe-page"{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <div class="subscribe-identity">
+      {% if site.avatar %}
+        <img src="{{ site.avatar }}" alt="" class="subscribe-avatar">
+      {% endif %}
+      <p class="subscribe-name">{{ site.title }}</p>
+    </div>
+    <div class="subscribe-card">
+      <h1>You've been unsubscribed.</h1>
+      <p>You won't receive any more emails from {{ site.title }}.</p>
+      <a href="{{ base_url }}" class="btn btn--primary subscribe-btn">See all posts</a>
+    </div>
+  </main>
+{% endblock %}

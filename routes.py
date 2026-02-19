@@ -33,8 +33,10 @@ from config import (
     VALID_FONT_VALUES,
 )
 from db import (
+    confirm_subscriber,
     create_page,
     create_post,
+    create_subscriber,
     create_user_and_site,
     delete_account,
     delete_page,
@@ -48,6 +50,8 @@ from db import (
     get_site_by_custom_domain,
     get_site_by_subdomain,
     get_site_by_user,
+    get_subscriber,
+    get_subscriber_by_token,
     get_user_by_email,
     get_user_by_id,
     is_domain_taken,
@@ -55,15 +59,19 @@ from db import (
     reorder_pages,
     set_custom_domain,
     subdomain_taken,
+    unsubscribe,
     update_page,
     update_post,
     update_site,
     update_site_avatar,
     update_site_custom_css,
     update_site_design,
+    update_subscriber_token,
     update_user_email,
     verify_custom_domain,
 )
+from mailer import send_email
+from models import query
 from storage import (
     crop_square,
     delete_all_images,
@@ -751,6 +759,75 @@ def feed_json():
     response = jsonify(data)
     response.content_type = "application/feed+json; charset=utf-8"
     return response
+
+
+@app.route("/subscribe", methods=["POST"])
+def subscribe():
+    site = get_current_site()
+    if not site:
+        abort(404)
+
+    if request.form.get("website"):
+        return render_template("subscribed.html", site=site)
+
+    email = request.form.get("email", "").strip().lower()
+    if not email:
+        return redirect("/")
+
+    token = secrets.token_urlsafe(32)
+    existing = get_subscriber(site["id"], email)
+    if existing:
+        if existing["confirmed"]:
+            return render_template("subscribed.html", site=site)
+        update_subscriber_token(existing["id"], token)
+    else:
+        create_subscriber(site["id"], email, token)
+
+    base_url = site_url(site)
+    confirm_url = f"{base_url}/confirm/{token}"
+    send_email(
+        to=email,
+        subject=f"Please confirm your subscription to {site['title']}",
+        from_addr="Jottit <confirm-subscriber@jottit.pub>",
+        text=(
+            f"You're almost subscribed to updates from {site['title']}.\n\n"
+            f"Confirm your subscription below to get future posts in your inbox.\n\n"
+            f"{confirm_url}\n\n"
+            f"---\n"
+            f"Don't want to subscribe? Feel free to ignore this email."
+        ),
+        html=render_template(
+            "email_confirm_subscription.html",
+            site=site,
+            confirm_url=confirm_url,
+        ),
+    )
+    return render_template("subscribed.html", site=site)
+
+
+@app.route("/confirm/<token>")
+def confirm(token):
+    subscriber = get_subscriber_by_token(token)
+    if not subscriber:
+        abort(404)
+    confirm_subscriber(token)
+    site = query("SELECT * FROM sites WHERE id = %s", (subscriber["site_id"],), one=True)
+    return render_template(
+        "confirmed.html",
+        site=site,
+        token=token,
+        base_url=site_url(site),
+    )
+
+
+@app.route("/unsubscribe/<token>")
+def unsubscribe_route(token):
+    subscriber = get_subscriber_by_token(token)
+    if not subscriber:
+        abort(404)
+    site = query("SELECT * FROM sites WHERE id = %s", (subscriber["site_id"],), one=True)
+    unsubscribe(token)
+    return render_template("unsubscribed.html", site=site, base_url=site_url(site))
 
 
 @app.route("/<slug>")
