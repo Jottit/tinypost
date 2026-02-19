@@ -60,16 +60,11 @@
           <div class="social-links-editor">
             {% for link in links %}
               <div class="social-link-row">
-                <input type="text" name="social_links[{{ loop.index0 }}][label]" value="{{ link.label or '' }}" placeholder="Label">
-                <input type="url" name="social_links[{{ loop.index0 }}][url]" value="{{ link.url or '' }}" placeholder="https://...">
+                <input type="text" name="social_links[{{ loop.index0 }}][label]" value="{{ link.label or '' }}" placeholder="Label" class="input--sm">
+                <input type="url" name="social_links[{{ loop.index0 }}][url]" value="{{ link.url or '' }}" placeholder="https://..." class="input--sm">
                 <button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>
               </div>
             {% endfor %}
-            <div class="social-link-row">
-              <input type="text" name="social_links[{{ links|length }}][label]" placeholder="Label">
-              <input type="url" name="social_links[{{ links|length }}][url]" placeholder="https://...">
-              <button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>
-            </div>
           </div>
           <button type="button" class="btn--secondary mt-2" onclick="addSocialLink()">Add link</button>
         </fieldset>
@@ -137,8 +132,8 @@
       var idx = rows.length;
       var row = document.createElement('div');
       row.className = 'social-link-row';
-      row.innerHTML = '<input type="text" name="social_links[' + idx + '][label]" placeholder="Label">' +
-        '<input type="url" name="social_links[' + idx + '][url]" placeholder="https://...">' +
+      row.innerHTML = '<input type="text" name="social_links[' + idx + '][label]" placeholder="Label" class="input--sm">' +
+        '<input type="url" name="social_links[' + idx + '][url]" placeholder="https://..." class="input--sm">' +
         '<button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>';
       container.appendChild(row);
     }

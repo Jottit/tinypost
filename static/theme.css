@@ -334,8 +334,12 @@ nav a:hover {
 .page-nav {
   display: inline-block;
   position: relative;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-8);
   font-size: var(--text-base);
+}
+
+.page-nav--compact {
+  margin-bottom: var(--space-2);
 }
 
 .page-nav a {
