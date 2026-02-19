@@ -359,7 +359,17 @@ def settings():
     license = request.form.get("license", "").strip() or None
     if not title:
         return render_settings(site, error="Title is required.")
-    update_site(site["id"], title, bio or None, license=license)
+
+    social_links = []
+    i = 0
+    while f"social_links[{i}][label]" in request.form:
+        label = request.form.get(f"social_links[{i}][label]", "").strip()
+        url = request.form.get(f"social_links[{i}][url]", "").strip()
+        if label and url:
+            social_links.append({"label": label, "url": url})
+        i += 1
+
+    update_site(site["id"], title, bio or None, license=license, social_links=social_links)
     return redirect("/")
 
 

@@ -913,6 +913,55 @@ input.page-nav-add-input.active {
   transform: translateY(-50%) translateX(0);
 }
 
+/* ── Social links editor ─────────────── */
+.settings-form fieldset {
+  border: none;
+  padding: 0;
+}
+
+.settings-form fieldset legend {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-2);
+}
+
+.social-links-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.social-link-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.social-link-row input[type="text"] {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.social-link-row input[type="url"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.social-link-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-xl);
+  color: var(--text-muted);
+  padding: 0 var(--space-1);
+  line-height: 1;
+}
+
+.social-link-remove:hover {
+  color: var(--error);
+}
+
 /* ── 7. Utilities ────────────────────── */
 .hidden {
   display: none !important;

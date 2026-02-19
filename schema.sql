@@ -21,6 +21,7 @@ CREATE TABLE sites (
     design JSONB,
     custom_css TEXT,
     license TEXT,
+    social_links JSONB DEFAULT '[]',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

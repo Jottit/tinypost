@@ -11,24 +11,28 @@
     {% include "admin_menu.html" %}
     {% set site_header_home = true %}
     {% include "site_header.html" %}
-    {% if posts %}
-      {% for post in posts %}
-        <article{% if post.is_draft %} class="draft"{% endif %}>
-          <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
-          {% if post.title %}
-            <h2><a href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
-          {% elif post.is_draft %}
-            <p class="draft-label text-center">Draft</p>
-          {% endif %}
-          <div class="post-body">{{ post.body | truncatewords | markdown }}</div>
-          {% if post.body.split()|length > 50 %}
-            <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn--secondary">Read more</a></div>
-          {% endif %}
-        </article>
-      {% endfor %}
-    {% else %}
-      <p class="text-center">No posts yet.</p>
-    {% endif %}
+    <div class="h-feed">
+      <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
+      {% if posts %}
+        {% for post in posts %}
+          <article class="h-entry{% if post.is_draft %} draft{% endif %}">
+            <time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
+            {% if post.title %}
+              <h2><a class="p-name u-url" href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
+            {% elif post.is_draft %}
+              <p class="draft-label text-center">Draft</p>
+            {% endif %}
+            <div class="p-summary post-body">{{ post.body | truncatewords | markdown }}</div>
+            {% if post.body.split()|length > 50 %}
+              <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn--secondary">Read more</a></div>
+            {% endif %}
+            <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
+          </article>
+        {% endfor %}
+      {% else %}
+        <p class="text-center">No posts yet.</p>
+      {% endif %}
+    </div>
   </main>
   {% include "site_footer.html" %}
 {% endblock %}

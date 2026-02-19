@@ -81,12 +81,12 @@ def update_post(post_id, slug, title, body, is_draft=False):
     return post
 
 
-def update_site(site_id, title, bio, license=None):
+def update_site(site_id, title, bio, license=None, social_links=None):
     db = get_db()
     site = db.execute(
-        "UPDATE sites SET title = %s, bio = %s, license = %s, updated_at = NOW()"
+        "UPDATE sites SET title = %s, bio = %s, license = %s, social_links = %s, updated_at = NOW()"
         " WHERE id = %s RETURNING *",
-        (title, bio, license, site_id),
+        (title, bio, license, Json(social_links or []), site_id),
     ).fetchone()
     db.commit()
     return site

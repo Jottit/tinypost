@@ -53,6 +53,26 @@
           <option value="cc-by-nc-sa-4.0"{{ ' selected' if site.license == 'cc-by-nc-sa-4.0' }}>CC BY-NC-SA 4.0</option>
           <option value="cc0-1.0"{{ ' selected' if site.license == 'cc0-1.0' }}>CC0 (Public Domain)</option>
         </select>
+        <fieldset class="mt-6">
+          <legend>Social links</legend>
+          <p class="text-muted">Links to your profiles elsewhere on the web.</p>
+          {% set links = site.social_links or [] %}
+          <div class="social-links-editor">
+            {% for link in links %}
+              <div class="social-link-row">
+                <input type="text" name="social_links[{{ loop.index0 }}][label]" value="{{ link.label or '' }}" placeholder="Label">
+                <input type="url" name="social_links[{{ loop.index0 }}][url]" value="{{ link.url or '' }}" placeholder="https://...">
+                <button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>
+              </div>
+            {% endfor %}
+            <div class="social-link-row">
+              <input type="text" name="social_links[{{ links|length }}][label]" placeholder="Label">
+              <input type="url" name="social_links[{{ links|length }}][url]" placeholder="https://...">
+              <button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>
+            </div>
+          </div>
+          <button type="button" class="btn--secondary mt-2" onclick="addSocialLink()">Add link</button>
+        </fieldset>
         <div class="actions mt-6">
           <button type="submit" class="btn">Save</button>
           <a href="/" class="btn--secondary">Cancel</a>
@@ -110,4 +130,17 @@
       <a href="/settings/export" class="btn--secondary">Export</a>
     </div>
   </main>
+  <script>
+    function addSocialLink() {
+      var container = document.querySelector('.social-links-editor');
+      var rows = container.querySelectorAll('.social-link-row');
+      var idx = rows.length;
+      var row = document.createElement('div');
+      row.className = 'social-link-row';
+      row.innerHTML = '<input type="text" name="social_links[' + idx + '][label]" placeholder="Label">' +
+        '<input type="url" name="social_links[' + idx + '][url]" placeholder="https://...">' +
+        '<button type="button" class="social-link-remove" onclick="this.parentElement.remove()" aria-label="Remove">&times;</button>';
+      container.appendChild(row);
+    }
+  </script>
 {% endblock %}

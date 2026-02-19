@@ -299,6 +299,22 @@ article h2 a:hover {
   margin: 0 auto var(--space-4);
 }
 
+/* ── Social links ────────────────────── */
+.social-links {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.social-links a {
+  color: var(--site-text-muted);
+  text-decoration: none;
+  margin: 0 var(--space-2);
+}
+
+.social-links a:hover {
+  color: var(--site-text-bright);
+}
+
 /* ── Nav ─────────────────────────────── */
 nav {
   font-size: var(--text-sm);

@@ -33,6 +33,10 @@ def truncatewords_filter(text, n=50):
     return " ".join(words[:n]) + "…"
 
 
+from utils import site_url
+
+app.jinja_env.globals["site_url"] = site_url
+
 from routes import *
 
 if __name__ == "__main__":
