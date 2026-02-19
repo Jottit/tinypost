@@ -1,4 +1,4 @@
-<header class="site-header">
+<header class="site-header{% if site_header_home %} site-header-home{% endif %}">
   {% set visible_pages = pages if is_owner else pages | rejectattr('is_draft') | list %}
   {% if visible_pages or is_owner %}
     <nav class="page-nav"{% if is_owner %} data-owner{% endif %}>
@@ -24,14 +24,16 @@
     <a href="/"><img src="{{ site.avatar }}" alt="avatar"></a>
   {% endif %}
   <h1><a href="/">{{ site.title }}</a></h1>
-  {% if site.bio %}
-    <p class="site-bio">{{ site.bio }}</p>
+  {% if not hide_subscribe %}
+    {% if site.bio %}
+      <p class="site-bio">{{ site.bio }}</p>
+    {% endif %}
+    <form action="/subscribe" method="post" class="subscribe-form">
+      <div class="pill-input">
+        <input type="email" name="email" placeholder="Your email" required>
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
   {% endif %}
-  <form action="/subscribe" method="post" class="subscribe-form">
-    <div class="pill-input">
-      <input type="email" name="email" placeholder="Your email" required>
-      <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-      <button type="submit">Subscribe</button>
-    </div>
-  </form>
 </header>

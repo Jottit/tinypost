@@ -9,6 +9,7 @@
 {% block body %}
   <main>
     {% include "admin_menu.html" %}
+    {% set hide_subscribe = true %}
     {% include "site_header.html" %}
     <article>
       <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
@@ -27,6 +28,16 @@
         </div>
       {% endif %}
     </article>
+    {% if site.bio %}
+      <p class="post-subscribe-bio">{{ site.bio }}</p>
+    {% endif %}
+    <form action="/subscribe" method="post" class="subscribe-form">
+      <div class="pill-input">
+        <input type="email" name="email" placeholder="Your email" required>
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
   </main>
   {% include "site_footer.html" %}
 {% endblock %}

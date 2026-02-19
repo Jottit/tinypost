@@ -172,7 +172,7 @@ header.site-header {
   color: var(--site-text-muted);
 }
 
-header.site-header::after {
+header.site-header-home::after {
   content: "";
   display: block;
   width: 160px;
@@ -213,6 +213,13 @@ footer {
 
 footer .license {
   margin-top: var(--space-4);
+}
+
+.post-subscribe-bio {
+  text-align: center;
+  font-size: var(--text-base);
+  color: var(--site-text-muted);
+  margin-top: var(--space-8);
 }
 
 .subscribe-form {

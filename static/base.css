@@ -223,7 +223,7 @@ input[type="submit"] {
 main {
   max-width: var(--site-measure);
   margin: 0 auto;
-  padding: var(--space-10) var(--space-4) var(--space-8);
+  padding: var(--space-8) var(--space-4) var(--space-8);
 }
 
 /* ── 5. Avatar settings ──────────────── */
@@ -948,6 +948,9 @@ input.page-nav-add-input.active {
 .subscribe-page {
   background: #333840;
   color: #ccc;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
 }
 
 .subscribe-identity {
@@ -980,15 +983,17 @@ input.page-nav-add-input.active {
   text-align: center;
 }
 
-.subscribe-card h1 {
+.subscribe-page .subscribe-card h1 {
+  font-family: var(--font-sans);
   font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   color: #eee;
   margin-bottom: var(--space-4);
 }
 
-.subscribe-card p {
-  font-size: var(--text-base);
+.subscribe-page .subscribe-card p {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
   line-height: var(--leading-normal);
   color: #aaa;
   margin-bottom: 0;
