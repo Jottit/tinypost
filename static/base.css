@@ -866,6 +866,10 @@ main {
 }
 
 /* ── Page nav ────────────────────────── */
+.page-nav a {
+  text-transform: lowercase;
+}
+
 /* ── Inline nav management ───────────── */
 .page-nav-item {
   display: inline;
