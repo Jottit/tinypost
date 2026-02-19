@@ -8,7 +8,8 @@
     {% endif %}
     <form method="POST" action="{% if post %}/edit/{{ post.slug }}{% else %}/edit{% endif %}">
       <input type="text" name="title" placeholder="Title" class="editor-title" value="{{ post.title or '' if post else '' }}" {% if not post %}autofocus{% endif %}>
-      <textarea name="body" placeholder="Write here..." class="editor-body" {% if post %}autofocus{% endif %}>{{ post.body if post else '' }}</textarea>
+      <input type="hidden" name="body" value="{{ post.body if post else '' }}">
+      <div id="editor" class="editor-body" {% if post %}autofocus{% endif %}></div>
       <div class="editor-actions">
         <label class="editor-draft">
           <input type="checkbox" name="is_draft" {% if post and post.is_draft %}checked{% endif %}>
@@ -18,5 +19,5 @@
       </div>
     </form>
   </main>
-  <script src="{{ url_for('static', filename='editor.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='editor.js') }}"></script>
 {% endblock %}

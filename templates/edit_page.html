@@ -8,7 +8,8 @@
     {% endif %}
     <form method="POST" action="{{ '/new-page' if new else '/edit-page/' ~ page.slug }}">
       <input type="text" name="title" placeholder="Title" class="editor-title" value="{{ page.title }}" autofocus>
-      <textarea name="body" placeholder="Write here..." class="editor-body">{{ page.body }}</textarea>
+      <input type="hidden" name="body" value="{{ page.body }}">
+      <div id="editor" class="editor-body"></div>
       <div class="editor-actions">
         <label class="editor-draft">
           <input type="checkbox" name="is_draft" {% if page.is_draft %}checked{% endif %}>
@@ -18,5 +19,5 @@
       </div>
     </form>
   </main>
-  <script src="{{ url_for('static', filename='editor.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='editor.js') }}"></script>
 {% endblock %}

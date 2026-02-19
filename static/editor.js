@@ -1,43 +1,46 @@
-var ta = document.querySelector('.editor-body');
+import { Jot } from '/static/js/jot.js';
+
+var editorEl = document.getElementById('editor');
+var hiddenInput = document.querySelector('input[name="body"]');
 var titleInput = document.querySelector('.editor-title');
 var form = document.querySelector('form');
 
-function autoExpand() {
-  ta.style.height = 'auto';
-  ta.style.height = ta.scrollHeight + 'px';
+var jot = new Jot(editorEl, {
+  initialValue: hiddenInput.value,
+  onChange: function(markdown) {
+    hiddenInput.value = markdown;
+  }
+});
+
+if (editorEl.hasAttribute('autofocus')) {
+  editorEl.querySelector('.ProseMirror').focus();
 }
 
-ta.addEventListener('input', autoExpand);
-autoExpand();
-
 titleInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') { e.preventDefault(); ta.focus(); }
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    editorEl.querySelector('.ProseMirror').focus();
+  }
 });
 
 var origTitle = titleInput.value;
-var origBody = ta.value;
+var origBody = hiddenInput.value;
 var submitting = false;
 
-form.addEventListener('submit', function() { submitting = true; });
+form.addEventListener('submit', function() {
+  hiddenInput.value = jot.getValue();
+  submitting = true;
+});
+
 window.addEventListener('beforeunload', function(e) {
   if (submitting) return;
-  if (titleInput.value !== origTitle || ta.value !== origBody) { e.preventDefault(); }
+  if (titleInput.value !== origTitle || jot.getValue() !== origBody) {
+    e.preventDefault();
+  }
 });
 
 var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 var maxSize = 5 * 1024 * 1024;
-
-function insertAtCursor(text) {
-  var start = ta.selectionStart;
-  ta.value = ta.value.slice(0, start) + text + ta.value.slice(ta.selectionEnd);
-  ta.selectionStart = ta.selectionEnd = start + text.length;
-  autoExpand();
-}
-
-function removePlaceholder(placeholder) {
-  ta.value = ta.value.replace(placeholder, '');
-  autoExpand();
-}
 
 function uploadImage(file) {
   if (allowedTypes.indexOf(file.type) === -1) {
@@ -49,9 +52,6 @@ function uploadImage(file) {
     return;
   }
 
-  var placeholder = '![Uploading...]()\n';
-  insertAtCursor(placeholder);
-
   var data = new FormData();
   data.append('file', file);
 
@@ -59,29 +59,27 @@ function uploadImage(file) {
     .then(function(res) { return res.json(); })
     .then(function(json) {
       if (json.url) {
-        ta.value = ta.value.replace(placeholder, '![image](' + json.url + ')\n');
-        autoExpand();
+        var current = jot.getValue();
+        jot.setValue(current + '\n![image](' + json.url + ')\n');
       } else {
-        removePlaceholder(placeholder);
         alert(json.error || 'Upload failed');
       }
     })
     .catch(function() {
-      removePlaceholder(placeholder);
       alert('Upload failed');
     });
 }
 
-ta.addEventListener('dragover', function(e) {
+editorEl.addEventListener('dragover', function(e) {
   e.preventDefault();
-  ta.classList.add('drag-over');
+  editorEl.classList.add('drag-over');
 });
-ta.addEventListener('dragleave', function() {
-  ta.classList.remove('drag-over');
+editorEl.addEventListener('dragleave', function() {
+  editorEl.classList.remove('drag-over');
 });
-ta.addEventListener('drop', function(e) {
+editorEl.addEventListener('drop', function(e) {
   e.preventDefault();
-  ta.classList.remove('drag-over');
+  editorEl.classList.remove('drag-over');
   var files = e.dataTransfer.files;
   for (var i = 0; i < files.length; i++) {
     if (files[i].type.startsWith('image/')) {
@@ -89,7 +87,7 @@ ta.addEventListener('drop', function(e) {
     }
   }
 });
-ta.addEventListener('paste', function(e) {
+editorEl.addEventListener('paste', function(e) {
   var items = e.clipboardData && e.clipboardData.items;
   if (!items) return;
   for (var i = 0; i < items.length; i++) {

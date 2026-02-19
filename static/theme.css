@@ -17,7 +17,6 @@ body {
 
 /* ── Headings ────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--site-text-bright);
   font-family: var(--site-font-header);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
@@ -54,7 +53,6 @@ p:last-child {
 
 strong, b {
   font-weight: var(--weight-bold);
-  color: var(--site-text-bright);
 }
 
 em, i {
