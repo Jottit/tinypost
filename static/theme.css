@@ -301,8 +301,8 @@ article h2 a:hover {
 
 /* ── Social links ────────────────────── */
 .social-links {
-  margin-top: var(--space-2);
   font-size: var(--text-sm);
+  margin-bottom: var(--space-8);
 }
 
 .social-links a {
@@ -334,7 +334,7 @@ nav a:hover {
 .page-nav {
   display: inline-block;
   position: relative;
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-2);
   font-size: var(--text-base);
 }
 

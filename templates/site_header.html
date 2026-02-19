@@ -20,10 +20,6 @@
   {% if is_owner %}
     <script src="{{ url_for('static', filename='navigation.js') }}"></script>
   {% endif %}
-  {% if site.avatar %}
-    <a href="/"><img class="u-photo" src="{{ site.avatar }}" alt="avatar"></a>
-  {% endif %}
-  <h1><a class="p-name u-url" href="{{ site_url(site) }}">{{ site.title }}</a></h1>
   {% set links = site.social_links or [] %}
   {% if links %}
     <div class="social-links">
@@ -32,6 +28,10 @@
       {% endfor %}
     </div>
   {% endif %}
+  {% if site.avatar %}
+    <a href="/"><img class="u-photo" src="{{ site.avatar }}" alt="avatar"></a>
+  {% endif %}
+  <h1><a class="p-name u-url" href="{{ site_url(site) }}">{{ site.title }}</a></h1>
   {% if not hide_subscribe %}
     {% if site.bio %}
       <p class="site-bio">{{ site.bio }}</p>
