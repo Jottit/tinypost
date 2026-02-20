@@ -33,6 +33,7 @@
         <input type="hidden" name="code_challenge" value="{{ code_challenge }}">
         <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}">
         <input type="hidden" name="action" value="verify_passcode">
+        <input type="hidden" name="passcode_token" value="{{ passcode_token }}">
         <input type="hidden" name="passcode" id="passcode-value">
         <div class="passcode-inputs">
           <input type="text" inputmode="numeric" maxlength="1" required autofocus>
@@ -57,6 +58,7 @@
         <input type="hidden" name="scope" value="{{ scope }}">
         <input type="hidden" name="code_challenge" value="{{ code_challenge }}">
         <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}">
+        <input type="hidden" name="auth_token" value="{{ auth_token }}">
         <div class="actions">
           <button type="submit" name="action" value="approve" class="btn">Approve</button>
           <button type="submit" name="action" value="deny" class="btn--secondary">Deny</button>

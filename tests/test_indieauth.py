@@ -1,9 +1,15 @@
 import base64
 import hashlib
+import re
 from unittest.mock import patch
 
 from app import app
 from db import create_user_and_site
+
+
+def extract_hidden(html, name):
+    match = re.search(rf'name="{name}"\s+value="([^"]*)"', html)
+    return match.group(1) if match else ""
 
 
 def make_site(client):
@@ -107,41 +113,54 @@ class TestPasscodeFlow:
         )
         assert resp.status_code == 200
         assert b"6-digit code" in resp.data
+        assert b"passcode_token" in resp.data
         mock_send.assert_called_once()
 
     @patch("indieauth.send_passcode")
     def test_verify_correct_passcode(self, mock_send, client):
         make_site(client)
         _, challenge = pkce_pair()
-        # Send passcode first
-        client.post(
+        resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "send_passcode"},
             base_url="http://myblog.jottit.localhost:8000",
         )
-        # Get the passcode from session
-        with client.session_transaction() as sess:
-            passcode = sess["indieauth_passcode"]
+        html = resp.data.decode()
+        passcode_token = extract_hidden(html, "passcode_token")
+        passcode = mock_send.call_args[0][1]
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "verify_passcode", "passcode": passcode},
+            data={
+                **auth_params(challenge),
+                "action": "verify_passcode",
+                "passcode": passcode,
+                "passcode_token": passcode_token,
+            },
             base_url="http://myblog.jottit.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"Approve" in resp.data
+        assert b"auth_token" in resp.data
 
     @patch("indieauth.send_passcode")
     def test_verify_wrong_passcode(self, mock_send, client):
         make_site(client)
         _, challenge = pkce_pair()
-        client.post(
+        resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "send_passcode"},
             base_url="http://myblog.jottit.localhost:8000",
         )
+        html = resp.data.decode()
+        passcode_token = extract_hidden(html, "passcode_token")
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "verify_passcode", "passcode": "000000"},
+            data={
+                **auth_params(challenge),
+                "action": "verify_passcode",
+                "passcode": "000000",
+                "passcode_token": passcode_token,
+            },
             base_url="http://myblog.jottit.localhost:8000",
         )
         assert resp.status_code == 200
@@ -149,14 +168,23 @@ class TestPasscodeFlow:
 
 
 class TestApproveAndDeny:
-    def test_approve_redirects_with_code(self, client):
-        user, site = make_site(client)
+    def _get_auth_token(self, client, user, challenge):
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
+        resp = client.get(
+            "/auth",
+            query_string=auth_params(challenge),
+            base_url="http://myblog.jottit.localhost:8000",
+        )
+        return extract_hidden(resp.data.decode(), "auth_token")
+
+    def test_approve_redirects_with_code(self, client):
+        user, site = make_site(client)
         _, challenge = pkce_pair()
+        auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "approve"},
+            data={**auth_params(challenge), "action": "approve", "auth_token": auth_token},
             base_url="http://myblog.jottit.localhost:8000",
         )
         assert resp.status_code == 302
@@ -191,12 +219,21 @@ class TestApproveAndDeny:
 
 
 class TestTokenExchange:
-    def _get_code(self, client, user, challenge):
+    def _get_auth_token(self, client, user, challenge):
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
+        resp = client.get(
+            "/auth",
+            query_string=auth_params(challenge),
+            base_url="http://myblog.jottit.localhost:8000",
+        )
+        return extract_hidden(resp.data.decode(), "auth_token")
+
+    def _get_code(self, client, user, challenge):
+        auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "approve", "scope": "create"},
+            data={**auth_params(challenge), "action": "approve", "scope": "create", "auth_token": auth_token},
             base_url="http://myblog.jottit.localhost:8000",
         )
         from urllib.parse import parse_qs, urlparse
@@ -311,12 +348,10 @@ class TestTokenExchange:
     def test_identity_only_no_access_token(self, client):
         user, site = make_site(client)
         verifier, challenge = pkce_pair()
-        # Approve with empty scope
-        with client.session_transaction() as sess:
-            sess["user_id"] = user["id"]
+        auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "approve", "scope": ""},
+            data={**auth_params(challenge), "action": "approve", "scope": "", "auth_token": auth_token},
             base_url="http://myblog.jottit.localhost:8000",
         )
         from urllib.parse import parse_qs, urlparse
@@ -359,5 +394,6 @@ class TestLinkTags:
         with app.app_context():
             create_post(site["id"], "hello", "Hello", "World")
         resp = client.get("/hello", base_url="http://myblog.jottit.localhost:8000")
-        assert b'rel="indieauth-metadata"' in resp.data
-        assert b"http://myblog.jottit.localhost:8000/auth" in resp.data
+        html = resp.data.decode()
+        assert 'rel="indieauth-metadata"' in html
+        assert 'href="http://myblog.jottit.localhost:8000/auth"' in html
