@@ -40,11 +40,17 @@
       {% endif %}
       <p>Upload your Substack export zip file to import posts and subscribers.</p>
       <form method="POST" action="/account/import" enctype="multipart/form-data">
-        <input type="file" name="archive" accept=".zip">
-        <div class="actions mt-6">
-          <button type="submit" class="btn">Import</button>
-        </div>
+        <input type="file" id="import-file" name="archive" accept=".zip" hidden>
+        <label for="import-file" class="btn">Choose file</label>
+        <span id="import-file-name" class="text-muted pl-5"></span>
+        <button type="submit" id="import-btn" class="btn" hidden>Import</button>
       </form>
+      <script>
+        document.getElementById("import-file").addEventListener("change", function () {
+          document.getElementById("import-file-name").textContent = this.files[0].name;
+          document.getElementById("import-btn").hidden = false;
+        });
+      </script>
     </div>
     <div class="danger-zone">
       <h3>Delete account</h3>
