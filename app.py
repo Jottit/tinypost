@@ -39,6 +39,7 @@ app.jinja_env.globals["site_url"] = site_url
 
 from routes import *
 from indieauth import *
+from micropub import *
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
