@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background:#333840; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#333840; padding:60px 20px;">
+    <tr>
+      <td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;">
+          {% if site.avatar %}
+          <tr>
+            <td align="center" style="padding-bottom:12px;">
+              <img src="{{ site.avatar }}" alt="" width="48" height="48" style="border-radius:50%; display:block;">
+            </td>
+          </tr>
+          {% endif %}
+          <tr>
+            <td align="center" style="padding-bottom:32px; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:#999;">
+              {{ site.title }}
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#3c4149; border-radius:16px; padding:40px 32px;">
+              {% if post.title %}
+              <h1 style="margin:0 0 24px; font-size:22px; font-weight:600; color:#eee; line-height:1.3;">{{ post.title }}</h1>
+              {% endif %}
+              <div style="font-size:16px; line-height:1.6; color:#ccc;">
+                {{ body_html | safe }}
+              </div>
+              <div style="margin-top:28px; text-align:center;">
+                <a href="{{ post_url }}" style="display:inline-block; padding:12px 28px; background:#117a65; color:#fff; font-size:14px; font-weight:600; text-decoration:none; border-radius:999px;">Read on {{ site.title }}</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top:24px; font-size:13px; color:#777; line-height:1.5;">
+              You're receiving this because you subscribed to {{ site.title }}.
+              <a href="{{ unsubscribe_url }}" style="color:#777;">Unsubscribe</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

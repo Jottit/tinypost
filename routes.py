@@ -331,7 +331,10 @@ def send_post(slug):
         return redirect(f"/edit/{slug}")
 
     base_url = site_url(site)
+    body_html = md.markdown(post["body"])
+    post_url = f"{base_url}/{slug}"
     for sub in subscribers:
+        unsubscribe_url = f"{base_url}/unsubscribe/{sub['token']}"
         send_email(
             to=sub["email"],
             from_addr=f"Jottit <noreply@{BASE_DOMAIN}>",
@@ -341,7 +344,15 @@ def send_post(slug):
                 f"{post['body']}\n\n"
                 f"---\n"
                 f"You're receiving this because you subscribed to {site['title']}.\n"
-                f"Unsubscribe: {base_url}/unsubscribe/{sub['token']}"
+                f"Unsubscribe: {unsubscribe_url}"
+            ),
+            html=render_template(
+                "email_post.html",
+                site=site,
+                post=post,
+                body_html=body_html,
+                post_url=post_url,
+                unsubscribe_url=unsubscribe_url,
             ),
         )
 
