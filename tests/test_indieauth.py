@@ -344,9 +344,13 @@ class TestLinkTags:
     def test_homepage_has_indieauth_links(self, client):
         make_site(client)
         resp = client.get("/", base_url="http://myblog.jottit.localhost:8000")
-        assert b'rel="indieauth-metadata"' in resp.data
-        assert b'rel="authorization_endpoint"' in resp.data
-        assert b'rel="token_endpoint"' in resp.data
+        html = resp.data.decode()
+        assert 'rel="indieauth-metadata"' in html
+        assert 'href="http://myblog.jottit.localhost:8000/.well-known/oauth-authorization-server"' in html
+        assert 'rel="authorization_endpoint"' in html
+        assert 'href="http://myblog.jottit.localhost:8000/auth"' in html
+        assert 'rel="token_endpoint"' in html
+        assert 'href="http://myblog.jottit.localhost:8000/auth/token"' in html
 
     def test_post_page_has_indieauth_links(self, client):
         user, site = make_site(client)
@@ -356,3 +360,4 @@ class TestLinkTags:
             create_post(site["id"], "hello", "Hello", "World")
         resp = client.get("/hello", base_url="http://myblog.jottit.localhost:8000")
         assert b'rel="indieauth-metadata"' in resp.data
+        assert b"http://myblog.jottit.localhost:8000/auth" in resp.data
