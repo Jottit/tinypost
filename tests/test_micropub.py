@@ -14,8 +14,15 @@ def make_site(client):
 
 def make_token(site, scope="create"):
     with app.app_context():
-        create_auth_code(site["id"], "testcode", "https://app.example.com",
-                         "https://app.example.com/cb", scope, "challenge", "S256")
+        create_auth_code(
+            site["id"],
+            "testcode",
+            "https://app.example.com",
+            "https://app.example.com/cb",
+            scope,
+            "challenge",
+            "S256",
+        )
         exchange_auth_code("testcode", "test-access-token")
     return "test-access-token"
 
@@ -46,13 +53,15 @@ class TestMicropubCreate:
         token = make_token(site)
         resp = client.post(
             "/micropub",
-            data=json.dumps({
-                "type": ["h-entry"],
-                "properties": {
-                    "name": ["JSON Post"],
-                    "content": ["Body from JSON."],
-                },
-            }),
+            data=json.dumps(
+                {
+                    "type": ["h-entry"],
+                    "properties": {
+                        "name": ["JSON Post"],
+                        "content": ["Body from JSON."],
+                    },
+                }
+            ),
             content_type="application/json",
             headers={"Authorization": f"Bearer {token}"},
             base_url=BASE,
@@ -215,6 +224,7 @@ class TestMicropubMedia:
         token = make_token(site)
         mock_upload.return_value = "https://cdn.example.com/myblog/test.jpg"
         from io import BytesIO
+
         data = {"file": (BytesIO(b"\xff\xd8\xff\xe0" + b"\x00" * 100), "photo.jpg", "image/jpeg")}
         resp = client.post(
             "/micropub/media",
@@ -241,6 +251,7 @@ class TestMicropubMedia:
         _, site = make_site(client)
         token = make_token(site)
         from io import BytesIO
+
         data = {"file": (BytesIO(b"not an image"), "file.txt", "text/plain")}
         resp = client.post(
             "/micropub/media",
@@ -254,6 +265,7 @@ class TestMicropubMedia:
     def test_upload_unauthorized(self, client):
         make_site(client)
         from io import BytesIO
+
         data = {"file": (BytesIO(b"\xff\xd8\xff\xe0"), "photo.jpg", "image/jpeg")}
         resp = client.post(
             "/micropub/media",

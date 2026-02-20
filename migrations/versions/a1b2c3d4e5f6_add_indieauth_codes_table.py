@@ -22,7 +22,12 @@ def upgrade() -> None:
     op.create_table(
         "indieauth_codes",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("site_id", sa.Integer, sa.ForeignKey("sites.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "site_id",
+            sa.Integer,
+            sa.ForeignKey("sites.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("code", sa.Text, unique=True, nullable=False),
         sa.Column("client_id", sa.Text, nullable=False),
         sa.Column("redirect_uri", sa.Text, nullable=False),

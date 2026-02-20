@@ -8,7 +8,7 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from app import app
 from auth import generate_passcode, send_passcode
-from db import get_user_by_id
+from db import get_site_by_id, get_user_by_id
 from indieauth_db import create_auth_code, exchange_auth_code, get_auth_code
 from utils import get_current_site, mask_email, site_url
 
@@ -115,11 +115,18 @@ def indieauth_authorize_post():
             data = _serializer.loads(token, max_age=600)
         except (BadSignature, SignatureExpired):
             return _consent_template(
-                site, "send_passcode", params, error="Code expired. Try again."
+                site,
+                "send_passcode",
+                params,
+                error="Code expired. Try again.",
             )
         if data["site_id"] != site["id"] or data["passcode"] != passcode:
             return _consent_template(
-                site, "verify_passcode", params, passcode_token=token, error="Wrong passcode."
+                site,
+                "verify_passcode",
+                params,
+                passcode_token=token,
+                error="Wrong passcode.",
             )
         auth_token = _serializer.dumps({"site_id": site["id"], "authenticated": True})
         session["user_id"] = site["user_id"]
@@ -184,8 +191,6 @@ def indieauth_token():
         expected = base64.urlsafe_b64encode(digest).rstrip(b"=").decode()
         if expected != auth_code["code_challenge"]:
             return jsonify({"error": "invalid_grant"}), 400
-
-    from db import get_site_by_id
 
     site = get_site_by_id(auth_code["site_id"])
     me = site_url(site)

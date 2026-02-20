@@ -233,7 +233,12 @@ class TestTokenExchange:
         auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "approve", "scope": "create", "auth_token": auth_token},
+            data={
+                **auth_params(challenge),
+                "action": "approve",
+                "scope": "create",
+                "auth_token": auth_token,
+            },
             base_url="http://myblog.jottit.localhost:8000",
         )
         from urllib.parse import parse_qs, urlparse
@@ -351,7 +356,12 @@ class TestTokenExchange:
         auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
             "/auth",
-            data={**auth_params(challenge), "action": "approve", "scope": "", "auth_token": auth_token},
+            data={
+                **auth_params(challenge),
+                "action": "approve",
+                "scope": "",
+                "auth_token": auth_token,
+            },
             base_url="http://myblog.jottit.localhost:8000",
         )
         from urllib.parse import parse_qs, urlparse
@@ -381,7 +391,8 @@ class TestLinkTags:
         resp = client.get("/", base_url="http://myblog.jottit.localhost:8000")
         html = resp.data.decode()
         assert 'rel="indieauth-metadata"' in html
-        assert 'href="http://myblog.jottit.localhost:8000/.well-known/oauth-authorization-server"' in html
+        base = "http://myblog.jottit.localhost:8000"
+        assert f'href="{base}/.well-known/oauth-authorization-server"' in html
         assert 'rel="authorization_endpoint"' in html
         assert 'href="http://myblog.jottit.localhost:8000/auth"' in html
         assert 'rel="token_endpoint"' in html

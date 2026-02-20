@@ -1,13 +1,14 @@
 import uuid
 
 from flask import abort, jsonify, request
+from markdownify import markdownify
 
 from app import app
 from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
 from db import create_post, get_post_by_slug
 from indieauth_db import get_token
 from storage import file_size, upload_image
-from utils import get_current_site, site_url, slugify
+from utils import get_current_site, site_url, slugify, subdomain_url
 
 
 def _verify_token(site):
@@ -29,10 +30,17 @@ def _first(values):
     return values
 
 
+def _html_to_markdown(html):
+    return markdownify(html, heading_style="ATX").strip()
+
+
 def _unwrap_content(value):
     value = _first(value)
     if isinstance(value, dict):
-        return value.get("html", value.get("value", ""))
+        html = value.get("html", "")
+        if html:
+            return _html_to_markdown(html)
+        return value.get("value", "")
     return value
 
 
@@ -46,20 +54,17 @@ def _parse_entry():
             "post_status": _first(props.get("post-status", "")),
             "slug": _first(props.get("mp-slug", "")),
         }
+    html = request.form.get("content[html]", "")
     return {
         "name": request.form.get("name", ""),
-        "content": request.form.get("content[html]", "") or request.form.get("content", ""),
+        "content": _html_to_markdown(html) if html else request.form.get("content", ""),
         "post_status": request.form.get("post-status", ""),
         "slug": request.form.get("mp-slug", ""),
     }
 
 
 def _generate_slug(title):
-    if title:
-        slug = slugify(title)
-        if slug:
-            return slug
-    return uuid.uuid4().hex[:8]
+    return (title and slugify(title)) or uuid.uuid4().hex[:8]
 
 
 @app.route("/micropub", methods=["POST"])
@@ -88,7 +93,7 @@ def micropub_post():
 
     post = create_post(site["id"], slug, title, body, is_draft=is_draft)
 
-    location = f"{site_url(site)}/{post['slug']}"
+    location = f"{subdomain_url(site)}/{post['slug']}"
     return "", 201, {"Location": location}
 
 
@@ -104,10 +109,7 @@ def micropub_query():
 
     q = request.args.get("q", "")
 
-    if q == "config":
-        return jsonify({"syndicate-to": []})
-
-    if q == "syndicate-to":
+    if q in ("config", "syndicate-to"):
         return jsonify({"syndicate-to": []})
 
     if q == "source":
@@ -115,7 +117,7 @@ def micropub_query():
         base = site_url(site)
         if not url.startswith(base + "/"):
             return jsonify({"error": "invalid_request"}), 400
-        slug = url[len(base) + 1:]
+        slug = url[len(base) + 1 :]
         post = get_post_by_slug(site["id"], slug)
         if not post:
             return jsonify({"error": "invalid_request"}), 400
@@ -144,7 +146,12 @@ def micropub_media():
         return jsonify({"error": "invalid_request", "error_description": "No file provided"}), 400
 
     if file.content_type not in ALLOWED_IMAGE_TYPES:
-        return jsonify({"error": "invalid_request", "error_description": "File type not allowed"}), 400
+        return (
+            jsonify(
+                {"error": "invalid_request", "error_description": "File type not allowed"},
+            ),
+            400,
+        )
 
     if file_size(file) > MAX_IMAGE_SIZE:
         return jsonify({"error": "invalid_request", "error_description": "File too large"}), 400

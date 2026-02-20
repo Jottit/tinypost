@@ -5,6 +5,7 @@ flask
 gunicorn
 markdownify
 markdown
+markdownify
 Pillow
 psycopg[binary]
 pytest

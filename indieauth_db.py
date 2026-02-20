@@ -3,14 +3,31 @@ from datetime import datetime, timedelta, timezone
 from models import get_db, query
 
 
-def create_auth_code(site_id, code, client_id, redirect_uri, scope, code_challenge, code_challenge_method):
+def create_auth_code(
+    site_id,
+    code,
+    client_id,
+    redirect_uri,
+    scope,
+    code_challenge,
+    code_challenge_method,
+):
     db = get_db()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     db.execute(
         "INSERT INTO indieauth_codes (site_id, code, client_id, redirect_uri, scope,"
         " code_challenge, code_challenge_method, expires_at)"
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (site_id, code, client_id, redirect_uri, scope, code_challenge, code_challenge_method, expires_at),
+        (
+            site_id,
+            code,
+            client_id,
+            redirect_uri,
+            scope,
+            code_challenge,
+            code_challenge_method,
+            expires_at,
+        ),
     )
     db.commit()
 
