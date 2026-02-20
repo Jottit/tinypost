@@ -1,10 +1,19 @@
 import csv
 import io
+import re
+import uuid
 from datetime import datetime
+from urllib.request import urlopen
 
 from markdownify import markdownify
 
-from db import get_db, get_post_by_slug
+from config import ALLOWED_IMAGE_TYPES
+from db import get_all_posts_for_site, get_db, get_post_by_slug
+from storage import upload_image
+
+SUBSTACK_CDN_RE = re.compile(
+    r"https?://(?:substackcdn\.com|substack-post-media\.s3\.amazonaws\.com)/[^\s\)]+"
+)
 
 
 def find_in_zip(zf, suffix):
@@ -63,3 +72,41 @@ def import_posts(zf, site_id):
 
     db.commit()
     return {"posts_imported": imported, "posts_skipped": skipped}
+
+
+def rehost_images(site_id, subdomain):
+    posts = get_all_posts_for_site(site_id)
+    db = get_db()
+    url_map = {}
+    rehosted = 0
+
+    for post in posts:
+        body = post["body"]
+        urls = set(SUBSTACK_CDN_RE.findall(body))
+        if not urls:
+            continue
+
+        for url in urls:
+            if url in url_map:
+                body = body.replace(url, url_map[url])
+                continue
+            try:
+                with urlopen(url) as resp:
+                    content_type = resp.headers.get("Content-Type", "image/jpeg")
+                    ext = ALLOWED_IMAGE_TYPES.get(content_type, "jpg")
+                    key = f"{subdomain}/{uuid.uuid4()}.{ext}"
+                    new_url = upload_image(key, io.BytesIO(resp.read()), content_type)
+                url_map[url] = new_url
+                body = body.replace(url, new_url)
+                rehosted += 1
+            except Exception:
+                continue
+
+        if body != post["body"]:
+            db.execute(
+                "UPDATE posts SET body = %s WHERE id = %s",
+                (body, post["id"]),
+            )
+
+    db.commit()
+    return rehosted

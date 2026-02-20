@@ -87,6 +87,7 @@ from storage import (
     upload_image,
 )
 from substack import import_posts as import_substack_posts
+from substack import rehost_images as rehost_substack_images
 from utils import (
     auto_text_color,
     get_current_site,
@@ -551,6 +552,7 @@ def account_import():
     with zf:
         results = import_substack_posts(zf, site["id"])
 
+    results["images_rehosted"] = rehost_substack_images(site["id"], site["subdomain"])
     return render_account(site, user, import_results=results)
 
 

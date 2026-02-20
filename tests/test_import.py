@@ -1,6 +1,7 @@
 import csv
 import io
 import zipfile
+from unittest.mock import MagicMock, patch
 
 from app import app
 from db import create_post, create_user_and_site, get_post_by_slug
@@ -218,3 +219,90 @@ def test_import_multiple_posts(client):
     with app.app_context():
         assert get_post_by_slug(site["id"], "first") is not None
         assert get_post_by_slug(site["id"], "second") is not None
+
+
+def _mock_urlopen(url):
+    resp = MagicMock()
+    resp.read.return_value = b"\x89PNG fake image"
+    resp.headers = {"Content-Type": "image/png"}
+    resp.__enter__ = lambda s: s
+    resp.__exit__ = MagicMock(return_value=False)
+    return resp
+
+
+def test_rehost_substack_images(client):
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+        create_post(
+            site["id"],
+            "img-post",
+            "Images",
+            "![photo](https://substackcdn.com/image/fetch/w_800/photo.jpg)",
+        )
+    login(client, user["id"])
+
+    archive = make_zip([], {})
+    with patch("substack.urlopen", side_effect=_mock_urlopen):
+        with patch("substack.upload_image", return_value="/uploads/myblog/new.png"):
+            response = client.post(
+                "/account/import",
+                data={"archive": (archive, "export.zip")},
+                headers=HOST,
+                content_type="multipart/form-data",
+            )
+
+    assert b"1 images re-hosted" in response.data
+    with app.app_context():
+        post = get_post_by_slug(site["id"], "img-post")
+        assert "substackcdn.com" not in post["body"]
+        assert "/uploads/myblog/new.png" in post["body"]
+
+
+def test_rehost_skips_non_substack_urls(client):
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+        create_post(
+            site["id"],
+            "ext-post",
+            "External",
+            "![photo](https://example.com/photo.jpg)",
+        )
+    login(client, user["id"])
+
+    archive = make_zip([], {})
+    with patch("substack.urlopen", side_effect=_mock_urlopen):
+        with patch("substack.upload_image", return_value="/uploads/myblog/new.png") as mock_upload:
+            response = client.post(
+                "/account/import",
+                data={"archive": (archive, "export.zip")},
+                headers=HOST,
+                content_type="multipart/form-data",
+            )
+
+    mock_upload.assert_not_called()
+    with app.app_context():
+        post = get_post_by_slug(site["id"], "ext-post")
+        assert "example.com/photo.jpg" in post["body"]
+
+
+def test_rehost_deduplicates_same_url(client):
+    url = "https://substack-post-media.s3.amazonaws.com/public/images/abc.jpg"
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+        create_post(site["id"], "dup", "Dup", f"![a]({url}) ![b]({url})")
+    login(client, user["id"])
+
+    archive = make_zip([], {})
+    with patch("substack.urlopen", side_effect=_mock_urlopen) as mock_fetch:
+        with patch("substack.upload_image", return_value="/uploads/myblog/new.png"):
+            client.post(
+                "/account/import",
+                data={"archive": (archive, "export.zip")},
+                headers=HOST,
+                content_type="multipart/form-data",
+            )
+
+    mock_fetch.assert_called_once()
+    with app.app_context():
+        post = get_post_by_slug(site["id"], "dup")
+        assert post["body"].count("/uploads/myblog/new.png") == 2
