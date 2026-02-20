@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import secrets
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode
 
 from flask import abort, jsonify, redirect, render_template, request, session
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
@@ -60,14 +60,16 @@ def indieauth_metadata():
     if not site:
         abort(404)
     base = site_url(site)
-    return jsonify({
-        "issuer": base,
-        "authorization_endpoint": f"{base}/auth",
-        "token_endpoint": f"{base}/auth/token",
-        "code_challenge_methods_supported": ["S256"],
-        "response_types_supported": ["code"],
-        "grant_types_supported": ["authorization_code"],
-    })
+    return jsonify(
+        {
+            "issuer": base,
+            "authorization_endpoint": f"{base}/auth",
+            "token_endpoint": f"{base}/auth/token",
+            "code_challenge_methods_supported": ["S256"],
+            "response_types_supported": ["code"],
+            "grant_types_supported": ["authorization_code"],
+        }
+    )
 
 
 @app.route("/auth", methods=["GET"])
@@ -114,9 +116,13 @@ def indieauth_authorize_post():
         try:
             data = _serializer.loads(token, max_age=600)
         except (BadSignature, SignatureExpired):
-            return _consent_template(site, "send_passcode", params, error="Code expired. Try again.")
+            return _consent_template(
+                site, "send_passcode", params, error="Code expired. Try again."
+            )
         if data["site_id"] != site["id"] or data["passcode"] != passcode:
-            return _consent_template(site, "verify_passcode", params, passcode_token=token, error="Wrong passcode.")
+            return _consent_template(
+                site, "verify_passcode", params, passcode_token=token, error="Wrong passcode."
+            )
         auth_token = _serializer.dumps({"site_id": site["id"], "authenticated": True})
         session["user_id"] = site["user_id"]
         return _consent_template(site, "approve", params, auth_token=auth_token)
@@ -193,9 +199,11 @@ def indieauth_token():
 
     token = secrets.token_urlsafe(32)
     exchange_auth_code(code, token)
-    return jsonify({
-        "access_token": token,
-        "token_type": "Bearer",
-        "scope": scope,
-        "me": me,
-    })
+    return jsonify(
+        {
+            "access_token": token,
+            "token_type": "Bearer",
+            "scope": scope,
+            "me": me,
+        }
+    )
