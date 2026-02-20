@@ -1044,6 +1044,11 @@ input.page-nav-add-input.active {
   padding-left: var(--space-5);
 }
 
+.ph-2 {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
 .text-center {
   text-align: center;
 }

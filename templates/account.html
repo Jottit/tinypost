@@ -42,13 +42,13 @@
       <form method="POST" action="/account/import" enctype="multipart/form-data">
         <input type="file" id="import-file" name="archive" accept=".zip" hidden>
         <label for="import-file" class="btn">Choose file</label>
-        <span id="import-file-name" class="text-muted pl-5"></span>
-        <button type="submit" id="import-btn" class="btn" hidden>Import</button>
+        <span id="import-file-name" class="text-muted ph-2"></span>
+        <button type="submit" id="import-btn" class="btn hidden">Import</button>
       </form>
       <script>
         document.getElementById("import-file").addEventListener("change", function () {
           document.getElementById("import-file-name").textContent = this.files[0].name;
-          document.getElementById("import-btn").hidden = false;
+          document.getElementById("import-btn").classList.remove("hidden");
         });
       </script>
     </div>
