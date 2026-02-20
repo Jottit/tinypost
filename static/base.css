@@ -935,8 +935,9 @@ input.page-nav-add-input.active {
 }
 
 .settings-form fieldset legend {
-  font-weight: var(--weight-bold);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--site-text-bright);
   margin-bottom: var(--space-2);
 }
 

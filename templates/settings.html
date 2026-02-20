@@ -74,7 +74,7 @@
         </div>
       </form>
       <div class="panel-divider">
-        <h3>Custom domain</h3>
+        <label>Custom domain</label>
         {% if domain_error %}
           <p class="error">{{ domain_error }}</p>
         {% endif %}
@@ -118,11 +118,6 @@
           </form>
         {% endif %}
       </div>
-    </div>
-    <div class="export-zone">
-      <h3>Export</h3>
-      <p>Download all your posts and images as a zip file.</p>
-      <a href="/settings/export" class="btn">Export</a>
     </div>
   </main>
   <script>
