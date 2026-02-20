@@ -37,11 +37,13 @@ def _parse_entry():
             "name": _first(props.get("name", "")),
             "content": _first(props.get("content", "")),
             "post_status": _first(props.get("post-status", "")),
+            "slug": _first(props.get("mp-slug", "")),
         }
     return {
         "name": request.form.get("name", ""),
         "content": request.form.get("content", ""),
         "post_status": request.form.get("post-status", ""),
+        "slug": request.form.get("mp-slug", ""),
     }
 
 
@@ -68,7 +70,7 @@ def micropub_post():
     body = entry["content"]
     is_draft = entry["post_status"] == "draft"
 
-    slug = _generate_slug(title)
+    slug = entry["slug"] or _generate_slug(title)
     existing = get_post_by_slug(site["id"], slug)
     if existing:
         slug = f"{slug}-{uuid.uuid4().hex[:6]}"

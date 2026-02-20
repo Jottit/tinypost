@@ -74,6 +74,18 @@ class TestMicropubCreate:
             post = get_post_by_slug(site["id"], "draft-post")
             assert post["is_draft"] is True
 
+    def test_create_with_mp_slug(self, client):
+        _, site = make_site(client)
+        token = make_token(site)
+        resp = client.post(
+            "/micropub",
+            data={"name": "My Title", "content": "Body", "mp-slug": "custom-slug"},
+            headers={"Authorization": f"Bearer {token}"},
+            base_url=BASE,
+        )
+        assert resp.status_code == 201
+        assert "/custom-slug" in resp.headers["Location"]
+
     def test_create_untitled_post(self, client):
         _, site = make_site(client)
         token = make_token(site)
