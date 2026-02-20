@@ -86,7 +86,7 @@ from storage import (
     list_images,
     upload_image,
 )
-from utils import auto_text_color, is_valid_subdomain, mask_email, site_url, slugify, subdomain_url
+from utils import auto_text_color, get_current_site, host_and_base, is_valid_subdomain, mask_email, site_url, slugify, subdomain_url
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 SOURCE_NS = "http://source.scripting.com/"
@@ -107,23 +107,6 @@ def render_settings(site, **kwargs):
 
 def render_account(site, user, **kwargs):
     return render_template("account.html", site=site, user=user, is_owner=True, **kwargs)
-
-
-def host_and_base():
-    host = request.host.split(":")[0]
-    base = app.config["BASE_DOMAIN"].split(":")[0]
-    return host, base
-
-
-def get_current_site():
-    host, base = host_and_base()
-    suffix = "." + base
-    if host.endswith(suffix):
-        subdomain = host.removesuffix(suffix)
-        return get_site_by_subdomain(subdomain)
-    if host != base:
-        return get_site_by_custom_domain(host)
-    return None
 
 
 def require_owner():

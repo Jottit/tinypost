@@ -31,3 +31,26 @@ def subdomain_url(site):
     from app import app
 
     return f"http://{site['subdomain']}.{app.config['BASE_DOMAIN']}"
+
+
+def host_and_base():
+    from flask import request
+
+    from app import app
+
+    host = request.host.split(":")[0]
+    base = app.config["BASE_DOMAIN"].split(":")[0]
+    return host, base
+
+
+def get_current_site():
+    from db import get_site_by_custom_domain, get_site_by_subdomain
+
+    host, base = host_and_base()
+    suffix = "." + base
+    if host.endswith(suffix):
+        subdomain = host.removesuffix(suffix)
+        return get_site_by_subdomain(subdomain)
+    if host != base:
+        return get_site_by_custom_domain(host)
+    return None

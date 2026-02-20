@@ -251,6 +251,7 @@ def delete_account(user_id):
     db = get_db()
     site = get_site_by_user(user_id)
     if site:
+        db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM subscribers WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM pages WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM posts WHERE site_id = %s", (site["id"],))

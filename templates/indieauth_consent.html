@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Authorize — {{ site.title }}{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <h2>Sign in to {{ client_id }}</h2>
+    <p>as <strong>{{ me }}</strong></p>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if step == "send_passcode" %}
+      <form method="post" action="/auth" class="form-narrow">
+        <input type="hidden" name="response_type" value="{{ response_type }}">
+        <input type="hidden" name="client_id" value="{{ client_id }}">
+        <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+        <input type="hidden" name="state" value="{{ state }}">
+        <input type="hidden" name="scope" value="{{ scope }}">
+        <input type="hidden" name="code_challenge" value="{{ code_challenge }}">
+        <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}">
+        <input type="hidden" name="action" value="send_passcode">
+        <button type="submit" class="btn">Send code to {{ masked_email }}</button>
+      </form>
+
+    {% elif step == "verify_passcode" %}
+      <p>We sent a 6-digit code to <strong>{{ masked_email }}</strong>.</p>
+      <form method="post" action="/auth" class="passcode-form">
+        <input type="hidden" name="response_type" value="{{ response_type }}">
+        <input type="hidden" name="client_id" value="{{ client_id }}">
+        <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+        <input type="hidden" name="state" value="{{ state }}">
+        <input type="hidden" name="scope" value="{{ scope }}">
+        <input type="hidden" name="code_challenge" value="{{ code_challenge }}">
+        <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}">
+        <input type="hidden" name="action" value="verify_passcode">
+        <input type="hidden" name="passcode" id="passcode-value">
+        <div class="passcode-inputs">
+          <input type="text" inputmode="numeric" maxlength="1" required autofocus>
+          <input type="text" inputmode="numeric" maxlength="1" required>
+          <input type="text" inputmode="numeric" maxlength="1" required>
+          <input type="text" inputmode="numeric" maxlength="1" required>
+          <input type="text" inputmode="numeric" maxlength="1" required>
+          <input type="text" inputmode="numeric" maxlength="1" required>
+        </div>
+      </form>
+      <script src="/static/passcode.js"></script>
+
+    {% elif step == "approve" %}
+      {% if scope %}
+        <p>This app is requesting: <strong>{{ scope }}</strong></p>
+      {% endif %}
+      <form method="post" action="/auth" class="form-narrow">
+        <input type="hidden" name="response_type" value="{{ response_type }}">
+        <input type="hidden" name="client_id" value="{{ client_id }}">
+        <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+        <input type="hidden" name="state" value="{{ state }}">
+        <input type="hidden" name="scope" value="{{ scope }}">
+        <input type="hidden" name="code_challenge" value="{{ code_challenge }}">
+        <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}">
+        <div class="actions">
+          <button type="submit" name="action" value="approve" class="btn">Approve</button>
+          <button type="submit" name="action" value="deny" class="btn--secondary">Deny</button>
+        </div>
+      </form>
+    {% endif %}
+  </main>
+{% endblock %}
