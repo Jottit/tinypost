@@ -68,6 +68,10 @@ def micropub_post():
     entry = _parse_entry()
     title = entry["name"]
     body = entry["content"]
+    if not title and body.startswith("# "):
+        first_line, _, rest = body.partition("\n")
+        title = first_line[2:].strip()
+        body = rest.lstrip("\n")
     is_draft = entry["post_status"] == "draft"
 
     slug = entry["slug"] or _generate_slug(title)

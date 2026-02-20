@@ -86,6 +86,22 @@ class TestMicropubCreate:
         assert resp.status_code == 201
         assert "/custom-slug" in resp.headers["Location"]
 
+    def test_extract_title_from_markdown_heading(self, client):
+        _, site = make_site(client)
+        token = make_token(site)
+        resp = client.post(
+            "/micropub",
+            data={"content": "# Yo\n\nSome text"},
+            headers={"Authorization": f"Bearer {token}"},
+            base_url=BASE,
+        )
+        assert resp.status_code == 201
+        assert "/yo" in resp.headers["Location"]
+        with app.app_context():
+            post = get_post_by_slug(site["id"], "yo")
+            assert post["title"] == "Yo"
+            assert post["body"] == "Some text"
+
     def test_create_untitled_post(self, client):
         _, site = make_site(client)
         token = make_token(site)
