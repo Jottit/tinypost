@@ -29,19 +29,26 @@ def _first(values):
     return values
 
 
+def _unwrap_content(value):
+    value = _first(value)
+    if isinstance(value, dict):
+        return value.get("html", value.get("value", ""))
+    return value
+
+
 def _parse_entry():
     if request.content_type and "application/json" in request.content_type:
         data = request.get_json(silent=True) or {}
         props = data.get("properties", {})
         return {
             "name": _first(props.get("name", "")),
-            "content": _first(props.get("content", "")),
+            "content": _unwrap_content(props.get("content", "")),
             "post_status": _first(props.get("post-status", "")),
             "slug": _first(props.get("mp-slug", "")),
         }
     return {
         "name": request.form.get("name", ""),
-        "content": request.form.get("content", ""),
+        "content": request.form.get("content[html]", "") or request.form.get("content", ""),
         "post_status": request.form.get("post-status", ""),
         "slug": request.form.get("mp-slug", ""),
     }
