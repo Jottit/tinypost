@@ -3,7 +3,6 @@ boto3
 dnspython
 flask
 gunicorn
-markdownify
 markdown
 markdownify
 Pillow
