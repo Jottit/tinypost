@@ -86,9 +86,7 @@ from storage import (
     list_images,
     upload_image,
 )
-from substack import import_posts as import_substack_posts
-from substack import import_subscribers as import_substack_subscribers
-from substack import rehost_images as rehost_substack_images
+from substack import import_posts, import_subscribers, rehost_images
 from utils import (
     auto_text_color,
     get_current_site,
@@ -551,10 +549,10 @@ def account_import():
         return render_account(site, user, import_error="Invalid zip file.")
 
     with zf:
-        results = import_substack_posts(zf, site["id"])
-        results.update(import_substack_subscribers(zf, site["id"]))
+        results = import_posts(zf, site["id"])
+        results.update(import_subscribers(zf, site["id"]))
 
-    results["images_rehosted"] = rehost_substack_images(site["id"], site["subdomain"])
+    results["images_rehosted"] = rehost_images(site["id"], site["subdomain"])
     return render_account(site, user, import_results=results)
 
 

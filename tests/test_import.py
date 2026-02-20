@@ -241,8 +241,7 @@ def _mock_urlopen(url):
     resp = MagicMock()
     resp.read.return_value = b"\x89PNG fake image"
     resp.headers = {"Content-Type": "image/png"}
-    resp.__enter__ = lambda s: s
-    resp.__exit__ = MagicMock(return_value=False)
+    resp.__enter__.return_value = resp
     return resp
 
 
@@ -258,14 +257,16 @@ def test_rehost_substack_images(client):
     login(client, user["id"])
 
     archive = make_zip([], {})
-    with patch("substack.urlopen", side_effect=_mock_urlopen):
-        with patch("substack.upload_image", return_value="/uploads/myblog/new.png"):
-            response = client.post(
-                "/account/import",
-                data={"archive": (archive, "export.zip")},
-                headers=HOST,
-                content_type="multipart/form-data",
-            )
+    with (
+        patch("substack.urlopen", side_effect=_mock_urlopen),
+        patch("substack.upload_image", return_value="/uploads/myblog/new.png"),
+    ):
+        response = client.post(
+            "/account/import",
+            data={"archive": (archive, "export.zip")},
+            headers=HOST,
+            content_type="multipart/form-data",
+        )
 
     assert b"1 images re-hosted" in response.data
     with app.app_context():
@@ -286,14 +287,16 @@ def test_rehost_skips_non_substack_urls(client):
     login(client, user["id"])
 
     archive = make_zip([], {})
-    with patch("substack.urlopen", side_effect=_mock_urlopen):
-        with patch("substack.upload_image", return_value="/uploads/myblog/new.png") as mock_upload:
-            response = client.post(
-                "/account/import",
-                data={"archive": (archive, "export.zip")},
-                headers=HOST,
-                content_type="multipart/form-data",
-            )
+    with (
+        patch("substack.urlopen", side_effect=_mock_urlopen),
+        patch("substack.upload_image", return_value="/uploads/myblog/new.png") as mock_upload,
+    ):
+        client.post(
+            "/account/import",
+            data={"archive": (archive, "export.zip")},
+            headers=HOST,
+            content_type="multipart/form-data",
+        )
 
     mock_upload.assert_not_called()
     with app.app_context():
@@ -309,14 +312,16 @@ def test_rehost_deduplicates_same_url(client):
     login(client, user["id"])
 
     archive = make_zip([], {})
-    with patch("substack.urlopen", side_effect=_mock_urlopen) as mock_fetch:
-        with patch("substack.upload_image", return_value="/uploads/myblog/new.png"):
-            client.post(
-                "/account/import",
-                data={"archive": (archive, "export.zip")},
-                headers=HOST,
-                content_type="multipart/form-data",
-            )
+    with (
+        patch("substack.urlopen", side_effect=_mock_urlopen) as mock_fetch,
+        patch("substack.upload_image", return_value="/uploads/myblog/new.png"),
+    ):
+        client.post(
+            "/account/import",
+            data={"archive": (archive, "export.zip")},
+            headers=HOST,
+            content_type="multipart/form-data",
+        )
 
     mock_fetch.assert_called_once()
     with app.app_context():
