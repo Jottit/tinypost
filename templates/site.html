@@ -27,6 +27,7 @@
             {% if post.body.split()|length > 50 %}
               <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn">Read more</a></div>
             {% endif %}
+            <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
             <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
           </article>
         {% endfor %}

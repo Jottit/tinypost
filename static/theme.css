@@ -232,8 +232,14 @@ footer .license {
 
 /* ── Article ─────────────────────────── */
 article {
+  position: relative;
   margin-bottom: var(--space-8);
   padding-bottom: var(--space-8);
+}
+
+a.article-link {
+  position: absolute;
+  inset: 0;
 }
 
 article:last-child {
