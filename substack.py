@@ -38,10 +38,10 @@ def import_posts(zf, site_id):
         if row.get("is_published") != "true":
             continue
 
-        slug = row.get("slug", "").strip()
         post_id = row.get("post_id", "").strip()
-        if not slug or not post_id:
+        if not post_id or "." not in post_id:
             continue
+        slug = post_id.split(".", 1)[1]
 
         if get_post_by_slug(site_id, slug):
             skipped += 1

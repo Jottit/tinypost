@@ -26,7 +26,7 @@ def make_zip(csv_rows, html_files=None, subscriber_rows=None):
         out = io.StringIO()
         writer = csv.DictWriter(
             out,
-            fieldnames=["post_id", "title", "slug", "post_date", "is_published"],
+            fieldnames=["post_id", "title", "post_date", "is_published"],
         )
         writer.writeheader()
         for row in csv_rows:
@@ -56,14 +56,13 @@ def test_import_posts(client):
     archive = make_zip(
         [
             {
-                "post_id": "1",
+                "post_id": "1.hello",
                 "title": "Hello",
-                "slug": "hello",
                 "post_date": "2024-01-15T12:00:00Z",
                 "is_published": "true",
             }
         ],
-        {"1.html": "<h1>Hello</h1><p>World</p>"},
+        {"1.hello.html": "<h1>Hello</h1><p>World</p>"},
     )
 
     response = client.post(
@@ -91,14 +90,13 @@ def test_import_skips_existing_slug(client):
     archive = make_zip(
         [
             {
-                "post_id": "1",
+                "post_id": "1.hello",
                 "title": "Hello",
-                "slug": "hello",
                 "post_date": "2024-01-15T12:00:00Z",
                 "is_published": "true",
             }
         ],
-        {"1.html": "<p>New body</p>"},
+        {"1.hello.html": "<p>New body</p>"},
     )
 
     response = client.post(
@@ -122,14 +120,13 @@ def test_import_skips_unpublished(client):
     archive = make_zip(
         [
             {
-                "post_id": "1",
+                "post_id": "1.draft",
                 "title": "Draft",
-                "slug": "draft",
                 "post_date": "2024-01-15T12:00:00Z",
                 "is_published": "false",
             }
         ],
-        {"1.html": "<p>Draft content</p>"},
+        {"1.draft.html": "<p>Draft content</p>"},
     )
 
     response = client.post(
@@ -152,14 +149,13 @@ def test_import_converts_html_to_markdown(client):
     archive = make_zip(
         [
             {
-                "post_id": "1",
+                "post_id": "1.formatted",
                 "title": "Formatted",
-                "slug": "formatted",
                 "post_date": "2024-01-15T12:00:00Z",
                 "is_published": "true",
             }
         ],
-        {"1.html": "<p>Some <strong>bold</strong> and <em>italic</em> text.</p>"},
+        {"1.formatted.html": "<p>Some <strong>bold</strong> and <em>italic</em> text.</p>"},
     )
 
     response = client.post(
@@ -207,21 +203,19 @@ def test_import_multiple_posts(client):
     archive = make_zip(
         [
             {
-                "post_id": "1",
+                "post_id": "1.first",
                 "title": "First",
-                "slug": "first",
                 "post_date": "2024-01-01T00:00:00Z",
                 "is_published": "true",
             },
             {
-                "post_id": "2",
+                "post_id": "2.second",
                 "title": "Second",
-                "slug": "second",
                 "post_date": "2024-02-01T00:00:00Z",
                 "is_published": "true",
             },
         ],
-        {"1.html": "<p>First post</p>", "2.html": "<p>Second post</p>"},
+        {"1.first.html": "<p>First post</p>", "2.second.html": "<p>Second post</p>"},
     )
 
     response = client.post(
