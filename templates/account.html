@@ -35,6 +35,7 @@
         <p class="success">
           {{ import_results.posts_imported }} posts imported{% if import_results.posts_skipped %}, {{ import_results.posts_skipped }} skipped{% endif %}.
           {% if import_results.images_rehosted %}{{ import_results.images_rehosted }} images re-hosted.{% endif %}
+          {% if import_results.subscribers_imported %}{{ import_results.subscribers_imported }} subscribers imported.{% endif %}
         </p>
       {% endif %}
       <p>Upload your Substack export zip file to import posts and subscribers.</p>

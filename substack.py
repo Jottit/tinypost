@@ -1,6 +1,7 @@
 import csv
 import io
 import re
+import secrets
 import uuid
 from datetime import datetime
 from urllib.request import urlopen
@@ -8,7 +9,7 @@ from urllib.request import urlopen
 from markdownify import markdownify
 
 from config import ALLOWED_IMAGE_TYPES
-from db import get_all_posts_for_site, get_db, get_post_by_slug
+from db import get_all_posts_for_site, get_db, get_post_by_slug, get_subscriber
 from storage import upload_image
 
 SUBSTACK_CDN_RE = re.compile(
@@ -110,3 +111,46 @@ def rehost_images(site_id, subdomain):
 
     db.commit()
     return rehosted
+
+
+def import_subscribers(zf, site_id):
+    csv_path = None
+    for name in zf.namelist():
+        basename = name.rsplit("/", 1)[-1].lower()
+        if basename.endswith(".csv") and (
+            "subscribers" in basename or basename.startswith("email_list")
+        ):
+            csv_path = name
+            break
+
+    if not csv_path:
+        return {"subscribers_imported": 0, "subscribers_skipped": 0}
+
+    reader = csv.DictReader(io.StringIO(zf.read(csv_path).decode("utf-8")))
+    db = get_db()
+    imported = 0
+    skipped = 0
+
+    for row in reader:
+        email = row.get("email", "").strip().lower()
+        if not email:
+            continue
+
+        if row.get("active_subscription", "").strip().lower() == "paid":
+            skipped += 1
+            continue
+
+        if get_subscriber(site_id, email):
+            skipped += 1
+            continue
+
+        token = secrets.token_urlsafe(32)
+        db.execute(
+            "INSERT INTO subscribers (site_id, email, token, confirmed)"
+            " VALUES (%s, %s, %s, TRUE)",
+            (site_id, email, token),
+        )
+        imported += 1
+
+    db.commit()
+    return {"subscribers_imported": imported, "subscribers_skipped": skipped}

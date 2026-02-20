@@ -4,7 +4,13 @@ import zipfile
 from unittest.mock import MagicMock, patch
 
 from app import app
-from db import create_post, create_user_and_site, get_post_by_slug
+from db import (
+    create_post,
+    create_subscriber,
+    create_user_and_site,
+    get_post_by_slug,
+    get_subscriber,
+)
 
 HOST = {"Host": "myblog.jottit.localhost:8000"}
 
@@ -14,7 +20,7 @@ def login(client, user_id):
         sess["user_id"] = user_id
 
 
-def make_zip(csv_rows, html_files=None):
+def make_zip(csv_rows, html_files=None, subscriber_rows=None):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as zf:
         out = io.StringIO()
@@ -28,6 +34,16 @@ def make_zip(csv_rows, html_files=None):
         zf.writestr("posts.csv", out.getvalue())
         for name, content in (html_files or {}).items():
             zf.writestr(f"posts/{name}", content)
+        if subscriber_rows is not None:
+            out = io.StringIO()
+            writer = csv.DictWriter(
+                out,
+                fieldnames=["email", "active_subscription"],
+            )
+            writer.writeheader()
+            for row in subscriber_rows:
+                writer.writerow(row)
+            zf.writestr("subscribers.csv", out.getvalue())
     buf.seek(0)
     return buf
 
@@ -306,3 +322,82 @@ def test_rehost_deduplicates_same_url(client):
     with app.app_context():
         post = get_post_by_slug(site["id"], "dup")
         assert post["body"].count("/uploads/myblog/new.png") == 2
+
+
+def test_import_subscribers(client):
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+    login(client, user["id"])
+
+    archive = make_zip(
+        [],
+        {},
+        subscriber_rows=[
+            {"email": "reader@example.com", "active_subscription": "free"},
+            {"email": "fan@example.com", "active_subscription": "free"},
+        ],
+    )
+
+    response = client.post(
+        "/account/import",
+        data={"archive": (archive, "export.zip")},
+        headers=HOST,
+        content_type="multipart/form-data",
+    )
+    assert b"2 subscribers imported" in response.data
+
+    with app.app_context():
+        sub = get_subscriber(site["id"], "reader@example.com")
+        assert sub is not None
+        assert sub["confirmed"] is True
+
+
+def test_import_subscribers_skips_paid(client):
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+    login(client, user["id"])
+
+    archive = make_zip(
+        [],
+        {},
+        subscriber_rows=[
+            {"email": "free@example.com", "active_subscription": "free"},
+            {"email": "paid@example.com", "active_subscription": "paid"},
+        ],
+    )
+
+    response = client.post(
+        "/account/import",
+        data={"archive": (archive, "export.zip")},
+        headers=HOST,
+        content_type="multipart/form-data",
+    )
+    assert b"1 subscribers imported" in response.data
+
+    with app.app_context():
+        assert get_subscriber(site["id"], "free@example.com") is not None
+        assert get_subscriber(site["id"], "paid@example.com") is None
+
+
+def test_import_subscribers_skips_duplicates(client):
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+        create_subscriber(site["id"], "existing@example.com", "tok123")
+    login(client, user["id"])
+
+    archive = make_zip(
+        [],
+        {},
+        subscriber_rows=[
+            {"email": "existing@example.com", "active_subscription": "free"},
+            {"email": "new@example.com", "active_subscription": "free"},
+        ],
+    )
+
+    response = client.post(
+        "/account/import",
+        data={"archive": (archive, "export.zip")},
+        headers=HOST,
+        content_type="multipart/form-data",
+    )
+    assert b"1 subscribers imported" in response.data
