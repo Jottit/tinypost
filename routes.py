@@ -86,7 +86,16 @@ from storage import (
     list_images,
     upload_image,
 )
-from utils import auto_text_color, get_current_site, host_and_base, is_valid_subdomain, mask_email, site_url, slugify, subdomain_url
+from utils import (
+    auto_text_color,
+    get_current_site,
+    host_and_base,
+    is_valid_subdomain,
+    mask_email,
+    site_url,
+    slugify,
+    subdomain_url,
+)
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 SOURCE_NS = "http://source.scripting.com/"
@@ -788,7 +797,9 @@ def feed():
         ET.SubElement(image, "title").text = site["title"]
         ET.SubElement(image, "link").text = base_url
     if posts:
-        last_build = posts[0]["created_at"].replace(tzinfo=timezone.utc)
+        last_build = (posts[0]["published_at"] or posts[0]["created_at"]).replace(
+            tzinfo=timezone.utc
+        )
         ET.SubElement(channel, "lastBuildDate").text = format_datetime(last_build)
 
     for p in posts:
@@ -797,7 +808,7 @@ def feed():
         ET.SubElement(item, "title").text = p["title"] or ""
         ET.SubElement(item, "link").text = permalink
         ET.SubElement(item, "guid").text = permalink
-        pub_date = p["created_at"].replace(tzinfo=timezone.utc)
+        pub_date = (p["published_at"] or p["created_at"]).replace(tzinfo=timezone.utc)
         ET.SubElement(item, "pubDate").text = format_datetime(pub_date)
         html = md.markdown(p["body"])
         ET.SubElement(item, "description").text = html
@@ -827,7 +838,9 @@ def feed_json():
                 "title": p["title"] or "",
                 "content_html": md.markdown(p["body"]),
                 "content_text": p["body"],
-                "date_published": p["created_at"].replace(tzinfo=timezone.utc).isoformat(),
+                "date_published": (p["published_at"] or p["created_at"])
+                .replace(tzinfo=timezone.utc)
+                .isoformat(),
             }
         )
 

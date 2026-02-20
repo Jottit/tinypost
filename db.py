@@ -35,12 +35,15 @@ def get_posts_for_site(site_id, include_drafts=False):
     sql = "SELECT * FROM posts WHERE site_id = %s"
     if not include_drafts:
         sql += " AND is_draft = FALSE"
-    sql += " ORDER BY created_at DESC LIMIT 30"
+    sql += " ORDER BY COALESCE(published_at, created_at) DESC LIMIT 30"
     return query(sql, (site_id,))
 
 
 def get_all_posts_for_site(site_id):
-    return query("SELECT * FROM posts WHERE site_id = %s ORDER BY created_at DESC", (site_id,))
+    return query(
+        "SELECT * FROM posts WHERE site_id = %s ORDER BY COALESCE(published_at, created_at) DESC",
+        (site_id,),
+    )
 
 
 def get_user_by_id(user_id):
@@ -62,9 +65,9 @@ def get_post_by_slug(site_id, slug):
 def create_post(site_id, slug, title, body, is_draft=False):
     db = get_db()
     post = db.execute(
-        "INSERT INTO posts (site_id, slug, title, body, is_draft)"
-        " VALUES (%s, %s, %s, %s, %s) RETURNING *",
-        (site_id, slug, title, body, is_draft),
+        "INSERT INTO posts (site_id, slug, title, body, is_draft, published_at)"
+        " VALUES (%s, %s, %s, %s, %s, CASE WHEN %s THEN NULL ELSE NOW() END) RETURNING *",
+        (site_id, slug, title, body, is_draft, is_draft),
     ).fetchone()
     db.commit()
     return post
@@ -73,9 +76,10 @@ def create_post(site_id, slug, title, body, is_draft=False):
 def update_post(post_id, slug, title, body, is_draft=False):
     db = get_db()
     post = db.execute(
-        "UPDATE posts SET slug = %s, title = %s, body = %s, is_draft = %s, updated_at = NOW()"
+        "UPDATE posts SET slug = %s, title = %s, body = %s, is_draft = %s, updated_at = NOW(),"
+        " published_at = CASE WHEN published_at IS NULL AND NOT %s THEN NOW() ELSE published_at END"
         " WHERE id = %s RETURNING *",
-        (slug, title, body, is_draft, post_id),
+        (slug, title, body, is_draft, is_draft, post_id),
     ).fetchone()
     db.commit()
     return post
