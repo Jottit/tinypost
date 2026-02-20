@@ -141,6 +141,7 @@ table {
 
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
     --bg: #333840;
     --text: #ccc;
     --text-muted: #777;
