@@ -35,8 +35,6 @@ def _validate_params(params):
         return "Missing client_id"
     if not params["redirect_uri"]:
         return "Missing redirect_uri"
-    if not params["code_challenge"]:
-        return "Missing code_challenge"
     return None
 
 
@@ -180,11 +178,12 @@ def indieauth_token():
     if auth_code["redirect_uri"] != redirect_uri:
         return jsonify({"error": "invalid_grant"}), 400
 
-    # Verify PKCE
-    digest = hashlib.sha256(code_verifier.encode()).digest()
-    expected = base64.urlsafe_b64encode(digest).rstrip(b"=").decode()
-    if expected != auth_code["code_challenge"]:
-        return jsonify({"error": "invalid_grant"}), 400
+    # Verify PKCE (if the client used it)
+    if auth_code["code_challenge"]:
+        digest = hashlib.sha256(code_verifier.encode()).digest()
+        expected = base64.urlsafe_b64encode(digest).rstrip(b"=").decode()
+        if expected != auth_code["code_challenge"]:
+            return jsonify({"error": "invalid_grant"}), 400
 
     from db import get_site_by_id
 

@@ -68,13 +68,13 @@ class TestAuthorizeGet:
         )
         assert resp.status_code == 400
 
-    def test_missing_code_challenge(self, client):
+    def test_missing_code_challenge_allowed(self, client):
         make_site(client)
         resp = client.get(
             "/auth?response_type=code&client_id=https://example.com&redirect_uri=https://example.com/cb",
             base_url="http://myblog.jottit.localhost:8000",
         )
-        assert resp.status_code == 400
+        assert resp.status_code == 200
 
     def test_shows_send_passcode_when_not_authenticated(self, client):
         make_site(client)
