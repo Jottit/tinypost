@@ -18,7 +18,7 @@ def test_send_email_with_api_key():
     assert req.get_header("User-agent") == "Jottit/1.0"
 
     body = json.loads(req.data)
-    assert body["from"] == "Jottit <noreply@jottit.dev>"
+    assert body["from"] == "Jottit <noreply@jottit.pub>"  # default BASE_DOMAIN
     assert body["to"] == ["user@example.com"]
     assert body["subject"] == "Test Subject"
     assert body["text"] == "Test body"

@@ -76,7 +76,7 @@ from db import (
     update_user_email,
     verify_custom_domain,
 )
-from mailer import send_email
+from mailer import BASE_DOMAIN, send_email
 from storage import (
     crop_square,
     delete_all_images,
@@ -334,7 +334,7 @@ def send_post(slug):
     for sub in subscribers:
         send_email(
             to=sub["email"],
-            from_addr="Jottit <noreply@jottit.pub>",
+            from_addr=f"Jottit <noreply@{BASE_DOMAIN}>",
             subject=post["title"] or site["title"],
             text=(
                 f"{post['title'] or ''}\n\n"
@@ -878,7 +878,7 @@ def subscribe():
     send_email(
         to=email,
         subject=f"Please confirm your subscription to {site['title']}",
-        from_addr="Jottit <confirm-subscriber@jottit.pub>",
+        from_addr=f"Jottit <confirm-subscriber@{BASE_DOMAIN}>",
         text=(
             f"You're almost subscribed to updates from {site['title']}.\n\n"
             f"Confirm your subscription below to get future posts in your inbox.\n\n"

@@ -6,6 +6,9 @@ import urllib.request
 logger = logging.getLogger(__name__)
 
 
+BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "jottit.pub")
+
+
 def send_email(to, subject, text, html=None, from_addr=None):
     api_key = os.environ.get("RESEND_API_KEY")
     if not api_key:
@@ -13,7 +16,7 @@ def send_email(to, subject, text, html=None, from_addr=None):
         return
 
     payload = {
-        "from": from_addr or "Jottit <noreply@jottit.dev>",
+        "from": from_addr or f"Jottit <noreply@{BASE_DOMAIN}>",
         "to": [to],
         "subject": subject,
         "text": text,
