@@ -86,6 +86,7 @@ from storage import (
     list_images,
     upload_image,
 )
+from substack import import_posts as import_substack_posts
 from utils import (
     auto_text_color,
     get_current_site,
@@ -531,6 +532,26 @@ def account():
     update_user_email(user["id"], email)
     user = get_user_by_id(user["id"])
     return render_account(site, user, success="Email updated.")
+
+
+@app.route("/account/import", methods=["POST"])
+def account_import():
+    site = require_owner()
+    user = get_user_by_id(session["user_id"])
+
+    file = request.files.get("archive")
+    if not file:
+        return render_account(site, user, import_error="No file selected.")
+
+    try:
+        zf = zipfile.ZipFile(file)
+    except zipfile.BadZipFile:
+        return render_account(site, user, import_error="Invalid zip file.")
+
+    with zf:
+        results = import_substack_posts(zf, site["id"])
+
+    return render_account(site, user, import_results=results)
 
 
 @app.route("/design", methods=["GET", "POST"])
