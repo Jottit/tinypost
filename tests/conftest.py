@@ -32,6 +32,7 @@ def create_test_db():
 def clean_tables():
     conn = psycopg.connect(f"dbname={TEST_DB}")
     conn.execute("DELETE FROM indieauth_codes")
+    conn.execute("DELETE FROM blogroll")
     conn.execute("DELETE FROM subscribers")
     conn.execute("DELETE FROM pages")
     conn.execute("DELETE FROM posts")

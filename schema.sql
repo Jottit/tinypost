@@ -68,6 +68,11 @@ CREATE TABLE blogroll (
     url TEXT NOT NULL,
     feed_url TEXT,
     sort_order INTEGER NOT NULL DEFAULT 0,
+    feed_title TEXT,
+    feed_icon_url TEXT,
+    latest_post_title TEXT,
+    last_fetched TIMESTAMPTZ,
+    last_updated TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

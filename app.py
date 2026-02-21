@@ -37,9 +37,22 @@ from utils import site_url
 
 app.jinja_env.globals["site_url"] = site_url
 
+import click
+
 from indieauth import *
 from micropub import *
 from routes import *
+
+
+@app.cli.command("refresh-feeds")
+def refresh_feeds_command():
+    """Fetch RSS/Atom feeds and update blogroll metadata."""
+    from feed_fetcher import refresh_all_feeds
+
+    click.echo("Refreshing feeds...")
+    refresh_all_feeds()
+    click.echo("Done.")
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)

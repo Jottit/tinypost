@@ -347,7 +347,7 @@ def get_subscriber_count(site_id):
 
 def get_blogroll(site_id):
     return query(
-        "SELECT * FROM blogroll WHERE site_id = %s ORDER BY sort_order",
+        "SELECT * FROM blogroll WHERE site_id = %s ORDER BY last_updated DESC NULLS LAST, sort_order",
         (site_id,),
     )
 

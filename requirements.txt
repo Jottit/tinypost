@@ -1,6 +1,7 @@
 alembic
 boto3
 dnspython
+feedparser
 flask
 gunicorn
 markdown
