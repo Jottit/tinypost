@@ -165,7 +165,7 @@ header {
 header.site-header-home::after {
   content: "";
   display: block;
-  width: 160px;
+  width: 100px;
   height: 1px;
   background: var(--site-text-muted);
   margin: var(--space-5) auto 0;

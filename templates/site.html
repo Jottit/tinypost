@@ -7,13 +7,14 @@
   {% include "indieauth_meta.html" %}
   {% include "site_design.html" %}
 {% endblock %}
-{% if blogroll %}{% block body_attrs %} class="has-sidebar"{% endblock %}{% endif %}
+{% set show_sidebar = posts or blogroll or site.avatar or site.bio %}
+{% if show_sidebar %}{% block body_attrs %} class="has-sidebar"{% endblock %}{% endif %}
 {% block body %}
   <main>
     {% include "admin_menu.html" %}
     {% set site_header_home = true %}
     {% include "site_header.html" %}
-    {% if blogroll %}<div class="site-layout">{% endif %}
+    {% if show_sidebar %}<div class="site-layout">{% endif %}
     <div class="h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if posts %}
@@ -34,7 +35,7 @@
         {% if is_owner %}
           <div class="empty-state">
             <p class="empty-state-text">Your blog is ready.</p>
-            <a href="/edit" class="btn btn--primary">Write your first post</a>
+            <button type="button" class="btn btn--primary" onclick="openWriteModal()">Write your first post</button>
           </div>
         {% else %}
           <div class="empty-state">
@@ -43,7 +44,7 @@
         {% endif %}
       {% endif %}
     </div>
-    {% if blogroll %}
+    {% if show_sidebar %}
       {% include "site_sidebar.html" %}
     </div>
     {% endif %}

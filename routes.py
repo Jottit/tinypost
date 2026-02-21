@@ -252,6 +252,7 @@ def signin_verify():
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
     site = require_owner()
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
 
     if request.method == "GET":
         return render_template("edit.html", site=site)
@@ -259,12 +260,18 @@ def edit():
     title = request.form.get("title", "").strip()
     body = request.form.get("body", "").strip()
     if not body:
+        if is_ajax:
+            return jsonify(error="Post body is required."), 400
         return render_template("edit.html", site=site, error="Post body is required.")
     slug = slugify(title or body[:50]) or "post"
     if get_page_by_slug(site["id"], slug):
+        if is_ajax:
+            return jsonify(error="A page already uses that URL slug."), 400
         return render_template("edit.html", site=site, error="A page already uses that URL slug.")
     is_draft = request.form.get("is_draft") == "on"
     create_post(site["id"], slug, title or None, body, is_draft=is_draft)
+    if is_ajax:
+        return jsonify(slug=slug)
     return redirect(f"/{slug}")
 
 

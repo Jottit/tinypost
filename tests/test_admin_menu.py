@@ -15,7 +15,7 @@ def test_menu_visible_to_owner(client):
     login(client, user["id"])
     response = client.get("/", headers=HOST)
     assert b"admin-menu" in response.data
-    assert b"> Write</a>" in response.data
+    assert b"> Write</button>" in response.data
 
 
 def test_menu_not_visible_to_non_owner(client):

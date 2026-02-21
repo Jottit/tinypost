@@ -2,19 +2,22 @@
   {% if site.avatar %}
     <a href="/"><img class="u-photo sidebar-avatar" src="{{ site.avatar }}" alt="avatar"></a>
   {% endif %}
-  <p class="sidebar-title">{{ site.title }}</p>
+  {% if site.avatar %}<p class="sidebar-title">{{ site.title }}</p>{% endif %}
   {% if site.bio %}
     <p class="sidebar-bio">{{ site.bio }}</p>
   {% endif %}
-  <form action="/subscribe" method="post" class="subscribe-form">
-    <div class="pill-input">
-      <input type="email" name="email" placeholder="Your email" required>
-      <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-      <button type="submit">Subscribe</button>
-    </div>
-  </form>
+  <div class="sidebar-section">
+    <h3>Subscribe by email</h3>
+    <form action="/subscribe" method="post" class="subscribe-form">
+      <div class="pill-input">
+        <input type="email" name="email" placeholder="Your email" required>
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
+  </div>
   {% if blogroll %}
-    <div class="sidebar-blogroll">
+    <div class="sidebar-section">
       <h3>Blogroll</h3>
       <ul>
         {% for item in blogroll %}

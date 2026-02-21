@@ -720,7 +720,6 @@ p.panel-notice {
   left: 0;
   right: 0;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   gap: var(--space-4);
   background: #fff;
@@ -736,8 +735,23 @@ p.panel-notice {
   margin-bottom: 0;
 }
 
-.editor-draft input[type="checkbox"] {
-  width: auto;
+input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 3px;
+  background: #fff;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:checked {
+  background: var(--text-muted);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 6l2.5 2.5 4.5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .editor-send {
@@ -1073,18 +1087,18 @@ input.page-nav-add-input.active {
 
 .sidebar-title {
   font-weight: var(--weight-semibold);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-2);
 }
 
 .sidebar-bio {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-2);
 }
 
 .site-sidebar .subscribe-form {
   justify-content: flex-start;
-  margin-top: 0;
+  margin-top: var(--space-4);
   margin-bottom: var(--space-5);
 }
 
@@ -1096,14 +1110,15 @@ input.page-nav-add-input.active {
   margin: 0 var(--space-2) 0 0;
 }
 
-/* ── Blogroll ────────────────────────── */
-.sidebar-blogroll {
-  margin-top: var(--space-5);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--site-divider);
+.sidebar-section {
+  margin-top: var(--space-6);
 }
 
-.sidebar-blogroll h3 {
+.sidebar-section:first-child {
+  margin-top: 0;
+}
+
+.sidebar-section h3 {
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
   text-transform: uppercase;
@@ -1112,13 +1127,13 @@ input.page-nav-add-input.active {
   margin-bottom: var(--space-3);
 }
 
-.sidebar-blogroll ul {
+.sidebar-section ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar-blogroll li {
+.sidebar-section li {
   margin-bottom: var(--space-2);
 }
 
@@ -1165,6 +1180,119 @@ input.page-nav-add-input.active {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ── Write modal ─────────────────────── */
+.write-modal[hidden] {
+  display: none;
+}
+
+.write-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.write-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  animation: write-modal-fade-in var(--speed-normal) ease;
+}
+
+.write-modal-content {
+  position: relative;
+  background: #fff;
+  width: 90vw;
+  max-width: var(--editor-measure);
+  max-height: 90vh;
+  border-radius: var(--radius-lg);
+  overflow-y: auto;
+  padding: var(--space-6);
+  color: #444;
+  animation: write-modal-slide-up var(--speed-normal) ease;
+}
+
+@keyframes write-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes write-modal-slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.write-modal-expand {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  color: var(--text-muted);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+
+.write-modal-expand:hover {
+  color: var(--text-bright);
+}
+
+.write-modal-expand svg {
+  display: block;
+}
+
+.write-modal-content .editor-title {
+  border: none;
+  border-radius: 0;
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  color: #111;
+  background: #fff;
+  padding: 0;
+  margin-bottom: var(--space-4);
+}
+
+.write-modal-content .editor-body {
+  min-height: 40vh;
+  font-size: var(--text-lg);
+  line-height: var(--leading-loose);
+  color: #444;
+  background: #fff;
+}
+
+.write-modal-content .editor-body .ProseMirror {
+  outline: none;
+  min-height: 40vh;
+}
+
+.write-modal-content .editor-body.drag-over {
+  border: 1px dashed #ddd;
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.write-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.write-modal-error {
+  color: var(--error);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.write-modal-content .ProseMirror[data-placeholder].ProseMirror-empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  position: absolute;
 }
 
 /* ── Empty state ─────────────────────── */
@@ -1237,6 +1365,10 @@ input.page-nav-add-input.active {
 
 .mt-6 {
   margin-top: var(--space-6);
+}
+
+.ml-auto {
+  margin-left: auto;
 }
 
 .text-muted {
