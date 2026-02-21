@@ -162,15 +162,6 @@ header {
   margin-bottom: var(--space-8);
 }
 
-header.site-header {
-  margin-bottom: var(--space-8);
-}
-
-.site-header p.site-bio {
-  font-size: var(--text-base);
-  color: var(--site-text-muted);
-}
-
 header.site-header-home::after {
   content: "";
   display: block;

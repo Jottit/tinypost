@@ -1042,22 +1042,6 @@ input.page-nav-add-input.active {
   top: var(--space-6);
 }
 
-.sidebar-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  object-fit: cover;
-  margin-bottom: var(--space-4);
-}
-
-.sidebar-name {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-3);
-}
-
 .sidebar-bio {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
@@ -1112,12 +1096,6 @@ input.page-nav-add-input.active {
 
 .blogroll-item:hover {
   color: var(--site-text-bright);
-}
-
-/* ── Post body override in layout ────── */
-.site-layout .post-body {
-  width: auto;
-  margin: 0;
 }
 
 /* ── Empty state ─────────────────────── */
