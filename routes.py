@@ -413,7 +413,7 @@ def settings():
 
     update_site(site["id"], title, bio or None, license=license, social_links=social_links)
     update_blogroll(site["id"], blogroll_items)
-    return redirect("/")
+    return redirect("/settings")
 
 
 @app.route("/settings/avatar", methods=["POST"])

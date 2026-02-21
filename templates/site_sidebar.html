@@ -1,4 +1,8 @@
 <aside class="site-sidebar">
+  {% if site.avatar %}
+    <a href="/"><img class="u-photo sidebar-avatar" src="{{ site.avatar }}" alt="avatar"></a>
+  {% endif %}
+  <p class="sidebar-title">{{ site.title }}</p>
   {% if site.bio %}
     <p class="sidebar-bio">{{ site.bio }}</p>
   {% endif %}

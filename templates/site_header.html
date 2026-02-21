@@ -2,16 +2,15 @@
   {% set visible_pages = pages if is_owner else pages | rejectattr('is_draft') | list %}
   {% if visible_pages or is_owner %}
     <nav class="page-nav"{% if is_owner %} data-owner{% endif %}>
-      {% if visible_pages %}<a href="/">Home</a>{% endif %}
       {% for p in visible_pages %}
         <span class="page-nav-item" data-id="{{ p.id }}"{% if is_owner %} draggable="true"{% endif %}>
-          <span class="page-nav-sep">&middot;</span>
+          {% if not loop.first %}<span class="page-nav-sep">&middot;</span>{% endif %}
           <a href="/{{ p.slug }}"{% if p.is_draft %} class="page-nav-draft"{% endif %}>{{ p.title }}</a>
         </span>
       {% endfor %}
       {% if is_owner %}
         <span class="page-nav-add-wrap">
-          <button class="page-nav-add">+</button>
+          <button class="page-nav-add{% if not visible_pages %} page-nav-add--pill{% endif %}">{% if visible_pages %}+{% else %}+ add menu{% endif %}</button>
           <input type="text" class="page-nav-add-input" placeholder="Page title">
         </span>
       {% endif %}
@@ -19,9 +18,6 @@
   {% endif %}
   {% if is_owner %}
     <script src="{{ url_for('static', filename='navigation.js') }}"></script>
-  {% endif %}
-  {% if site.avatar %}
-    <a href="/"><img class="u-photo" src="{{ site.avatar }}" alt="avatar"></a>
   {% endif %}
   <h1><a class="p-name u-url" href="{{ site_url(site) }}">{{ site.title }}</a></h1>
   {% set links = site.social_links or [] %}

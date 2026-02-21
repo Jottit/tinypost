@@ -26,20 +26,20 @@
               <p class="draft-label text-center">Draft</p>
             {% endif %}
             <div class="p-summary post-body">{{ post.body | truncatewords(25) | markdown }}</div>
-            {% if not blogroll and post.body.split()|length > 25 %}
-              <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn">Read more</a></div>
-            {% endif %}
             <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
             <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
           </article>
         {% endfor %}
       {% else %}
-        {% if blogroll and is_owner %}
+        {% if is_owner %}
           <div class="empty-state">
-            <a href="/edit" class="btn">Write your first post</a>
+            <p class="empty-state-text">Your blog is ready.</p>
+            <a href="/edit" class="btn btn--primary">Write your first post</a>
           </div>
         {% else %}
-          <p class="text-center">No posts yet.</p>
+          <div class="empty-state">
+            <p class="empty-state-text">Nothing here yet.</p>
+          </div>
         {% endif %}
       {% endif %}
     </div>

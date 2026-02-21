@@ -134,7 +134,7 @@ table {
   --site-accent: var(--text-bright);
   --site-font-size: var(--text-base);
   --site-leading: var(--leading-normal);
-  --site-measure: var(--measure);
+  --site-measure: 40rem;
   --editor-measure: 700px;
   --content-width: 60rem;
 }
@@ -236,6 +236,12 @@ main {
   main {
     padding-top: var(--space-6);
   }
+}
+
+article {
+  max-width: var(--site-measure);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ── 5. Avatar settings ──────────────── */
@@ -887,6 +893,7 @@ main {
   justify-content: center;
   width: 30px;
   height: 30px;
+  white-space: nowrap;
   border-radius: var(--radius-full);
   border: 1px solid var(--site-text-muted);
   font-size: var(--text-sm);
@@ -894,6 +901,12 @@ main {
   vertical-align: middle;
   line-height: 1;
   transition: color var(--speed-fast), border-color var(--speed-fast);
+}
+
+.page-nav-add--pill {
+  width: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
 }
 
 .page-nav-add:hover {
@@ -910,10 +923,10 @@ main {
 
 input.page-nav-add-input {
   position: absolute;
-  right: calc(100% + var(--space-3));
+  left: calc(100% + var(--space-3));
   top: 50%;
-  transform: translateY(-50%) translateX(4px);
-  width: 200px;
+  transform: translateY(-50%) translateX(-4px);
+  width: 10ch;
   padding: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
   border-radius: var(--radius-pill);
@@ -1042,6 +1055,19 @@ input.page-nav-add-input.active {
   top: var(--space-6);
 }
 
+.sidebar-avatar {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar-title {
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-5);
+}
+
 .sidebar-bio {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
@@ -1136,7 +1162,13 @@ input.page-nav-add-input.active {
 /* ── Empty state ─────────────────────── */
 .empty-state {
   text-align: center;
-  padding: var(--space-10) 0;
+  padding: var(--space-6) 0;
+}
+
+.empty-state-text {
+  font-size: var(--text-lg);
+  color: var(--site-text-muted);
+  margin-bottom: var(--space-5);
 }
 
 /* ── Blogroll editor ─────────────────── */
