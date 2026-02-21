@@ -256,6 +256,7 @@ def delete_account(user_id):
     site = get_site_by_user(user_id)
     if site:
         db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site["id"],))
+        db.execute("DELETE FROM blogroll WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM subscribers WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM pages WHERE site_id = %s", (site["id"],))
         db.execute("DELETE FROM posts WHERE site_id = %s", (site["id"],))
@@ -342,6 +343,25 @@ def get_subscriber_count(site_id):
         one=True,
     )
     return row["count"]
+
+
+def get_blogroll(site_id):
+    return query(
+        "SELECT * FROM blogroll WHERE site_id = %s ORDER BY sort_order",
+        (site_id,),
+    )
+
+
+def update_blogroll(site_id, items):
+    db = get_db()
+    db.execute("DELETE FROM blogroll WHERE site_id = %s", (site_id,))
+    for i, item in enumerate(items):
+        db.execute(
+            "INSERT INTO blogroll (site_id, name, url, feed_url, sort_order)"
+            " VALUES (%s, %s, %s, %s, %s)",
+            (site_id, item["name"], item["url"], item.get("feed_url") or None, i),
+        )
+    db.commit()
 
 
 def mark_post_sent(post_id):

@@ -1,0 +1,37 @@
+<aside class="site-sidebar">
+  {% if site.avatar %}
+    <img class="sidebar-avatar u-photo" src="{{ site.avatar }}" alt="avatar">
+  {% endif %}
+  <p class="sidebar-name">{{ site.title }}</p>
+  {% if site.bio %}
+    <p class="sidebar-bio">{{ site.bio }}</p>
+  {% endif %}
+  <form action="/subscribe" method="post" class="subscribe-form">
+    <div class="pill-input">
+      <input type="email" name="email" placeholder="Your email" required>
+      <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+      <button type="submit">Subscribe</button>
+    </div>
+  </form>
+  {% set links = site.social_links or [] %}
+  {% if links %}
+    <div class="sidebar-social-links">
+      <h3>Social links</h3>
+      <div class="social-links">
+        {% for link in links %}
+          <a class="u-url" rel="me" href="{{ link.url }}">{{ link.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+  {% if blogroll %}
+    <div class="sidebar-blogroll">
+      <h3>Blogroll</h3>
+      <ul>
+        {% for item in blogroll %}
+          <li><a class="blogroll-item" href="{{ item.url }}">{{ item.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</aside>

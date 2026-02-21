@@ -10,7 +10,6 @@
 {% block body %}
   <main>
     {% include "admin_menu.html" %}
-    {% set hide_subscribe = true %}
     {% include "site_header.html" %}
     <article class="h-entry">
       <time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>

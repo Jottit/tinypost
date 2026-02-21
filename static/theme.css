@@ -158,13 +158,12 @@ th {
 
 /* ── Header ──────────────────────────── */
 header {
-  text-align: center;
+  text-align: left;
   margin-bottom: var(--space-8);
 }
 
 header.site-header {
-  padding-bottom: var(--space-5);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-8);
 }
 
 .site-header p.site-bio {
@@ -173,21 +172,14 @@ header.site-header {
 }
 
 header.site-header-home::after {
-  content: "";
-  display: block;
-  width: 160px;
-  height: 1px;
-  background: var(--site-text-muted);
-  margin: var(--space-8) auto 0;
+  display: none;
 }
 
 header.site-header h1 {
-  font-size: var(--text-sm);
+  font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
-  margin-bottom: var(--space-1);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--site-text);
+  margin-bottom: var(--space-6);
+  color: var(--site-text-bright);
 }
 
 header h1 a {
@@ -214,6 +206,11 @@ footer .license {
   margin-top: var(--space-8);
 }
 
+.page-nav {
+  border-bottom: 1px solid var(--site-divider);
+  padding-bottom: 0;
+}
+
 .subscribe-form {
   display: flex;
   justify-content: center;
@@ -234,7 +231,6 @@ footer .license {
 article {
   position: relative;
   margin-bottom: var(--space-8);
-  padding-bottom: var(--space-8);
 }
 
 a.article-link {
@@ -244,19 +240,18 @@ a.article-link {
 
 article:last-child {
   margin-bottom: 0;
-  padding-bottom: 0;
 }
 
 article time {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
   display: block;
-  text-align: center;
+  text-align: left;
 }
 
 article h2 {
-  margin-bottom: var(--space-5);
-  text-align: center;
+  margin-bottom: var(--space-2);
+  text-align: left;
 }
 
 article img {
@@ -275,8 +270,10 @@ article h2 a:hover {
 /* ── Post body ───────────────────────── */
 .post-body {
   width: fit-content;
+  max-width: 40rem;
   margin: 0 auto;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-4);
 }
 
 .post-body a,
@@ -330,25 +327,33 @@ nav a:hover {
 
 /* ── Page nav ────────────────────────── */
 .page-nav {
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
   position: relative;
-  margin-bottom: var(--space-8);
   font-size: var(--text-base);
+  gap: var(--space-6);
 }
 
-.page-nav a {
-  color: var(--site-accent);
+.page-nav > a,
+.page-nav .page-nav-item a {
+  color: var(--site-text-muted);
   text-decoration: none;
+  font-weight: var(--weight-light);
+  text-transform: capitalize;
   margin: 0;
+  padding-bottom: var(--space-3);
 }
 
-.page-nav a:hover {
+.page-nav > a:hover,
+.page-nav .page-nav-item a:hover {
   color: var(--site-text-bright);
 }
 
-.page-nav-sep {
-  color: var(--site-text-muted);
-  margin: 0 var(--space-2);
+.page-nav > a.active,
+.page-nav .page-nav-item a.active {
+  color: var(--site-text-bright);
+  font-weight: var(--weight-medium);
+  box-shadow: 0 2px 0 0 var(--site-text-bright);
 }
 
 .page-nav-draft {

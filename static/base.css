@@ -65,7 +65,7 @@ table {
   /* Colors – light */
   --bg: #fff;
   --text: #444;
-  --text-muted: #999;
+  --text-muted: #777;
   --text-bright: #111;
   --divider: #eee;
   --code-bg: #f5f5f5;
@@ -87,6 +87,7 @@ table {
 
   /* Font weights */
   --weight-normal: 400;
+  --weight-light: 300;
   --weight-medium: 500;
   --weight-bold: 600;
 
@@ -137,20 +138,6 @@ table {
   --site-measure: var(--measure);
   --editor-measure: 700px;
   --content-width: 75rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --bg: #333840;
-    --text: #ccc;
-    --text-muted: #777;
-    --text-bright: #eee;
-    --divider: #222;
-    --code-bg: #1a1a1a;
-    --input-bg: #2a2e34;
-    --card-bg: #3c4149;
-  }
 }
 
 /* Breakpoints (used in media queries) */
@@ -867,13 +854,9 @@ main {
 }
 
 /* ── Page nav ────────────────────────── */
-.page-nav a {
-  text-transform: lowercase;
-}
 
 /* ── Inline nav management ───────────── */
 .page-nav-item {
-  display: inline;
   position: relative;
 }
 
@@ -1012,6 +995,174 @@ input.page-nav-add-input.active {
   font-size: inherit;
   padding: 0;
   text-decoration: underline;
+}
+
+/* ── Homepage layout ─────────────────── */
+.site-home main {
+  max-width: var(--content-width);
+}
+
+.site-home .site-header {
+  max-width: calc(100% - 280px - var(--space-9));
+}
+
+.site-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--space-9);
+  align-items: start;
+}
+
+@media (max-width: 864px) {
+  .site-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .site-home .site-header {
+    max-width: none;
+  }
+
+  .site-sidebar {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--site-divider);
+    padding-top: var(--space-6);
+  }
+}
+
+/* ── Sidebar ─────────────────────────── */
+.site-sidebar {
+  position: sticky;
+  top: var(--space-6);
+  border-left: 1px solid var(--site-divider);
+  padding-left: var(--space-9);
+  padding-bottom: var(--space-10);
+}
+
+.sidebar-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  margin-bottom: var(--space-4);
+}
+
+.sidebar-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar-bio {
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.site-sidebar .subscribe-form {
+  justify-content: flex-start;
+  margin-top: var(--space-4);
+}
+
+.site-sidebar .social-links {
+  margin-bottom: var(--space-3);
+}
+
+.site-sidebar .social-links a {
+  margin: 0 var(--space-2) 0 0;
+}
+
+/* ── Sidebar social links ────────────── */
+.sidebar-social-links {
+  margin-top: var(--space-6);
+}
+
+.sidebar-social-links h3 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-3);
+}
+
+/* ── Blogroll ────────────────────────── */
+.sidebar-blogroll {
+  margin-top: var(--space-6);
+}
+
+.sidebar-blogroll h3 {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar-blogroll ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-blogroll li {
+  margin-bottom: var(--space-2);
+}
+
+.blogroll-item {
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  text-decoration: none;
+}
+
+.blogroll-item:hover {
+  color: var(--site-text-bright);
+}
+
+/* ── Post body override in layout ────── */
+.site-layout .post-body {
+  width: auto;
+  margin: 0 0 var(--space-4);
+}
+
+/* ── Empty state ─────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: var(--space-10) 0;
+}
+
+/* ── Blogroll editor ─────────────────── */
+.blogroll-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.blogroll-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.blogroll-row input[type="text"] {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.blogroll-row input[type="url"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.blogroll-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-xl);
+  color: var(--text-muted);
+  padding: 0 var(--space-1);
+  line-height: 1;
+}
+
+.blogroll-remove:hover {
+  color: var(--error);
 }
 
 /* ── 7. Utilities ────────────────────── */

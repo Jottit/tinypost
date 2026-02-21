@@ -44,6 +44,7 @@ from db import (
     delete_subscriber,
     get_all_posts_for_site,
     get_all_subscribers,
+    get_blogroll,
     get_confirmed_subscribers,
     get_page_by_id,
     get_page_by_slug,
@@ -66,6 +67,7 @@ from db import (
     set_custom_domain,
     subdomain_taken,
     unsubscribe,
+    update_blogroll,
     update_page,
     update_post,
     update_site,
@@ -177,6 +179,7 @@ def home():
         pages=pages,
         is_owner=is_owner,
         subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
+        blogroll=get_blogroll(site["id"]),
     )
 
 
@@ -382,13 +385,13 @@ def settings():
     site = require_owner()
 
     if request.method == "GET":
-        return render_settings(site)
+        return render_settings(site, blogroll=get_blogroll(site["id"]))
 
     title = request.form.get("title", "").strip()
     bio = request.form.get("bio", "").strip()
     license = request.form.get("license", "").strip() or None
     if not title:
-        return render_settings(site, error="Title is required.")
+        return render_settings(site, blogroll=get_blogroll(site["id"]), error="Title is required.")
 
     social_links = []
     i = 0
@@ -399,7 +402,17 @@ def settings():
             social_links.append({"label": label, "url": url})
         i += 1
 
+    blogroll_items = []
+    i = 0
+    while f"blogroll[{i}][name]" in request.form:
+        name = request.form.get(f"blogroll[{i}][name]", "").strip()
+        url = request.form.get(f"blogroll[{i}][url]", "").strip()
+        if name and url:
+            blogroll_items.append({"name": name, "url": url})
+        i += 1
+
     update_site(site["id"], title, bio or None, license=license, social_links=social_links)
+    update_blogroll(site["id"], blogroll_items)
     return redirect("/")
 
 
@@ -801,6 +814,28 @@ def tls_ask():
     return "", 200
 
 
+@app.route("/blogroll.opml")
+def blogroll_opml():
+    site = get_current_site()
+    if not site:
+        abort(404)
+    items = get_blogroll(site["id"])
+
+    opml = ET.Element("opml", version="2.0")
+    head = ET.SubElement(opml, "head")
+    ET.SubElement(head, "title").text = f"{site['title']} Blogroll"
+    body = ET.SubElement(opml, "body")
+    for item in items:
+        attrs = {"text": item["name"], "htmlUrl": item["url"], "type": "rss"}
+        if item.get("feed_url"):
+            attrs["xmlUrl"] = item["feed_url"]
+        ET.SubElement(body, "outline", **attrs)
+
+    xml_str = ET.tostring(opml, encoding="unicode", xml_declaration=False)
+    xml_out = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_str
+    return Response(xml_out, content_type="text/x-opml; charset=utf-8")
+
+
 @app.route("/feed.xml")
 def feed():
     site = get_current_site()
@@ -824,6 +859,8 @@ def feed():
             tzinfo=timezone.utc
         )
         ET.SubElement(channel, "lastBuildDate").text = format_datetime(last_build)
+    if get_blogroll(site["id"]):
+        ET.SubElement(channel, f"{{{SOURCE_NS}}}blogroll").text = f"{base_url}/blogroll.opml"
 
     for p in posts:
         item = ET.SubElement(channel, "item")
