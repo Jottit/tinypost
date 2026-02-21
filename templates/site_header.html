@@ -1,11 +1,11 @@
 <header class="site-header h-card{% if site_header_home %} site-header-home{% endif %}">
-  <h1><a class="p-name u-url" href="{{ site_url(site) }}">{{ site.title }}</a></h1>
   {% set visible_pages = pages if is_owner else pages | rejectattr('is_draft') | list %}
   {% if visible_pages or is_owner %}
     <nav class="page-nav"{% if is_owner %} data-owner{% endif %}>
-      {% if visible_pages %}<a href="/"{% if site_header_home %} class="active"{% endif %}>Home</a>{% endif %}
+      {% if visible_pages %}<a href="/">Home</a>{% endif %}
       {% for p in visible_pages %}
         <span class="page-nav-item" data-id="{{ p.id }}"{% if is_owner %} draggable="true"{% endif %}>
+          <span class="page-nav-sep">&middot;</span>
           <a href="/{{ p.slug }}"{% if p.is_draft %} class="page-nav-draft"{% endif %}>{{ p.title }}</a>
         </span>
       {% endfor %}
@@ -19,5 +19,17 @@
   {% endif %}
   {% if is_owner %}
     <script src="{{ url_for('static', filename='navigation.js') }}"></script>
+  {% endif %}
+  {% if site.avatar %}
+    <a href="/"><img class="u-photo" src="{{ site.avatar }}" alt="avatar"></a>
+  {% endif %}
+  <h1><a class="p-name u-url" href="{{ site_url(site) }}">{{ site.title }}</a></h1>
+  {% set links = site.social_links or [] %}
+  {% if links %}
+    <div class="social-links">
+      {% for link in links %}
+        <a class="u-url" rel="me" href="{{ link.url }}">{{ link.label }}</a>
+      {% endfor %}
+    </div>
   {% endif %}
 </header>

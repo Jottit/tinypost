@@ -1,8 +1,4 @@
 <aside class="site-sidebar">
-  {% if site.avatar %}
-    <img class="sidebar-avatar u-photo" src="{{ site.avatar }}" alt="avatar">
-  {% endif %}
-  <p class="sidebar-name">{{ site.title }}</p>
   {% if site.bio %}
     <p class="sidebar-bio">{{ site.bio }}</p>
   {% endif %}
@@ -13,17 +9,6 @@
       <button type="submit">Subscribe</button>
     </div>
   </form>
-  {% set links = site.social_links or [] %}
-  {% if links %}
-    <div class="sidebar-social-links">
-      <h3>Social links</h3>
-      <div class="social-links">
-        {% for link in links %}
-          <a class="u-url" rel="me" href="{{ link.url }}">{{ link.label }}</a>
-        {% endfor %}
-      </div>
-    </div>
-  {% endif %}
   {% if blogroll %}
     <div class="sidebar-blogroll">
       <h3>Blogroll</h3>

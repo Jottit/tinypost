@@ -7,41 +7,67 @@
   {% include "indieauth_meta.html" %}
   {% include "site_design.html" %}
 {% endblock %}
-{% block body_attrs %} class="site-home"{% endblock %}
+{% if blogroll %}{% block body_attrs %} class="has-sidebar"{% endblock %}{% endif %}
 {% block body %}
   <main>
     {% include "admin_menu.html" %}
     {% set site_header_home = true %}
     {% include "site_header.html" %}
-    <div class="site-layout">
+    {% if blogroll %}
+      <div class="site-layout">
+        <div class="h-feed">
+          <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
+          {% if posts %}
+            {% for post in posts %}
+              <article class="h-entry{% if post.is_draft %} draft{% endif %}">
+                <time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
+                {% if post.title %}
+                  <h2><a class="p-name u-url" href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
+                {% elif post.is_draft %}
+                  <p class="draft-label text-center">Draft</p>
+                {% endif %}
+                <div class="p-summary post-body">{{ post.body | truncatewords(25) | markdown }}</div>
+                <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
+                <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
+              </article>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              {% if is_owner %}
+                <a href="/edit" class="btn">Write your first post</a>
+              {% else %}
+                <p>No posts yet.</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+        {% include "site_sidebar.html" %}
+      </div>
+    {% else %}
       <div class="h-feed">
         <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
         {% if posts %}
           {% for post in posts %}
             <article class="h-entry{% if post.is_draft %} draft{% endif %}">
+              <time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
               {% if post.title %}
                 <h2><a class="p-name u-url" href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
               {% elif post.is_draft %}
-                <p class="draft-label">Draft</p>
+                <p class="draft-label text-center">Draft</p>
               {% endif %}
               <div class="p-summary post-body">{{ post.body | truncatewords(25) | markdown }}</div>
-              <time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>
+              {% if post.body.split()|length > 25 %}
+                <div class="text-center mt-4"><a href="/{{ post.slug }}" class="btn">Read more</a></div>
+              {% endif %}
               <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
               <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
             </article>
           {% endfor %}
         {% else %}
-          <div class="empty-state">
-            {% if is_owner %}
-              <a href="/edit" class="btn">Write your first post</a>
-            {% else %}
-              <p>No posts yet.</p>
-            {% endif %}
-          </div>
+          <p class="text-center">No posts yet.</p>
         {% endif %}
       </div>
-      {% include "site_sidebar.html" %}
-    </div>
+    {% endif %}
   </main>
   {% include "site_footer.html" %}
 {% endblock %}

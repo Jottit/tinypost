@@ -158,7 +158,7 @@ th {
 
 /* ── Header ──────────────────────────── */
 header {
-  text-align: left;
+  text-align: center;
   margin-bottom: var(--space-8);
 }
 
@@ -172,14 +172,21 @@ header.site-header {
 }
 
 header.site-header-home::after {
-  display: none;
+  content: "";
+  display: block;
+  width: 160px;
+  height: 1px;
+  background: var(--site-text-muted);
+  margin: var(--space-5) auto 0;
 }
 
 header.site-header h1 {
-  font-size: var(--text-3xl);
+  font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  margin-bottom: var(--space-6);
-  color: var(--site-text-bright);
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--site-text);
 }
 
 header h1 a {
@@ -206,11 +213,6 @@ footer .license {
   margin-top: var(--space-8);
 }
 
-.page-nav {
-  border-bottom: 1px solid var(--site-divider);
-  padding-bottom: 0;
-}
-
 .subscribe-form {
   display: flex;
   justify-content: center;
@@ -231,6 +233,7 @@ footer .license {
 article {
   position: relative;
   margin-bottom: var(--space-8);
+  padding-bottom: var(--space-8);
 }
 
 a.article-link {
@@ -240,18 +243,17 @@ a.article-link {
 
 article:last-child {
   margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 article time {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
   display: block;
-  text-align: left;
 }
 
 article h2 {
-  margin-bottom: var(--space-2);
-  text-align: left;
+  margin-bottom: var(--space-5);
 }
 
 article img {
@@ -269,11 +271,7 @@ article h2 a:hover {
 
 /* ── Post body ───────────────────────── */
 .post-body {
-  width: fit-content;
-  max-width: 40rem;
-  margin: 0 auto;
-  font-size: var(--text-base);
-  margin-bottom: var(--space-4);
+  font-size: var(--text-lg);
 }
 
 .post-body a,
@@ -327,33 +325,25 @@ nav a:hover {
 
 /* ── Page nav ────────────────────────── */
 .page-nav {
-  display: inline-flex;
-  align-items: baseline;
+  display: inline-block;
   position: relative;
+  margin-bottom: var(--space-8);
   font-size: var(--text-base);
-  gap: var(--space-6);
 }
 
-.page-nav > a,
-.page-nav .page-nav-item a {
-  color: var(--site-text-muted);
+.page-nav a {
+  color: var(--site-accent);
   text-decoration: none;
-  font-weight: var(--weight-light);
-  text-transform: capitalize;
   margin: 0;
-  padding-bottom: var(--space-3);
 }
 
-.page-nav > a:hover,
-.page-nav .page-nav-item a:hover {
+.page-nav a:hover {
   color: var(--site-text-bright);
 }
 
-.page-nav > a.active,
-.page-nav .page-nav-item a.active {
-  color: var(--site-text-bright);
-  font-weight: var(--weight-medium);
-  box-shadow: 0 2px 0 0 var(--site-text-bright);
+.page-nav-sep {
+  color: var(--site-text-muted);
+  margin: 0 var(--space-2);
 }
 
 .page-nav-draft {
