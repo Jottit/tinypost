@@ -12,6 +12,7 @@ import markdown as md
 from flask import (
     Response,
     abort,
+    flash,
     jsonify,
     redirect,
     render_template,
@@ -413,6 +414,7 @@ def settings():
 
     update_site(site["id"], title, bio or None, license=license, social_links=social_links)
     update_blogroll(site["id"], blogroll_items)
+    flash("Settings updated.")
     return redirect("/settings")
 
 
@@ -682,6 +684,7 @@ def settings_navigation_add():
         title = (request.get_json().get("title") or "").strip()
     else:
         title = request.form.get("title", "").strip()
+    title = title.capitalize()
     slug = slugify(title) if title else None
 
     error = None

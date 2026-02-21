@@ -5,6 +5,9 @@
   {% include "admin_menu.html" %}
   <main>
     <div class="panel panel--narrow">
+      {% for message in get_flashed_messages() %}
+        <p class="panel-notice success">{{ message }}</p>
+      {% endfor %}
       <h2>Settings</h2>
       {% if error %}
         <p class="error">{{ error }}</p>

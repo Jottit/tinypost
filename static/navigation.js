@@ -34,7 +34,13 @@
     e.preventDefault();
     var title = addInput.value.trim();
     if (!title) return;
-    window.location.href = "/new-page?title=" + encodeURIComponent(title);
+    fetch("/settings/navigation/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: title }),
+    }).then(function (res) {
+      if (res.ok) window.location.reload();
+    });
   });
 
   addInput.addEventListener("blur", function () {

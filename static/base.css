@@ -507,6 +507,14 @@ article {
   max-width: var(--measure-narrow);
 }
 
+p.panel-notice {
+  display: block;
+  margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) var(--space-6);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  text-align: center;
+}
+
 @media (max-width: 640px) {
   .panel {
     background: none;
@@ -638,8 +646,8 @@ article {
 }
 
 .success {
-  color: var(--success);
-  background: color-mix(in srgb, var(--success), transparent 88%);
+  color: color-mix(in srgb, var(--success), transparent 30%);
+  background: color-mix(in srgb, var(--success), transparent 80%);
 }
 
 .editor-page {
