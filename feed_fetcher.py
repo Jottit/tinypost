@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import urllib.request
 from datetime import datetime, timezone
 from html.parser import HTMLParser
@@ -68,7 +69,16 @@ def fetch_feed(feed_url):
 
     if feed.entries:
         entry = feed.entries[0]
-        result["latest_post_title"] = getattr(entry, "title", None)
+        title = getattr(entry, "title", None)
+        if not title:
+            desc = getattr(entry, "summary", None) or ""
+            text = re.sub(r"<[^>]+>", "", desc).strip()
+            if text:
+                words = text.split()
+                title = " ".join(words[:10])
+                if len(words) > 10:
+                    title += "…"
+        result["latest_post_title"] = title or None
         result["latest_post_url"] = getattr(entry, "link", None)
 
         time_struct = getattr(entry, "published_parsed", None) or getattr(

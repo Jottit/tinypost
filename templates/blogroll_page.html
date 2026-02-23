@@ -11,30 +11,7 @@
       <h2>Blogroll</h2>
       <ul class="blogroll-list">
         {% for item in blogroll %}
-          <li>
-            <div class="blogroll-item">
-              {% if item.feed_icon_url %}
-                <img class="blogroll-icon" src="{{ item.feed_icon_url }}" width="20" height="20" alt="">
-              {% else %}
-                <span class="blogroll-icon blogroll-icon-fallback">{{ item.name[0] }}</span>
-              {% endif %}
-              <span class="blogroll-item-content">
-                <a class="blogroll-item-name" href="{{ item.url }}">{{ item.name }}</a>
-                {% if item.latest_post_title %}
-                  <span class="blogroll-item-meta">
-                    {% if item.latest_post_url %}
-                      <a class="blogroll-item-post" href="{{ item.latest_post_url }}">{{ item.latest_post_title }}</a>
-                    {% else %}
-                      <span class="blogroll-item-post">{{ item.latest_post_title }}</span>
-                    {% endif %}
-                    {% if item.last_updated %}
-                      <span class="blogroll-item-time">{{ item.last_updated|timeago }}</span>
-                    {% endif %}
-                  </span>
-                {% endif %}
-              </span>
-            </div>
-          </li>
+          <li>{% include "blogroll_item.html" %}</li>
         {% endfor %}
       </ul>
     </div>

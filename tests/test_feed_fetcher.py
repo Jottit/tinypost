@@ -5,7 +5,7 @@ import feedparser as _feedparser
 import pytest
 
 from app import app
-from db import create_user_and_site, get_blogroll, update_blogroll
+from db import create_user_and_site, get_blogroll, get_db, update_blogroll
 from feed_fetcher import discover_feed_url, fetch_feed, refresh_all_feeds
 
 HOST = {"Host": "myblog.jottit.localhost:8000"}
@@ -257,8 +257,6 @@ def test_sidebar_renders_feed_metadata(client):
                 },
             ],
         )
-        from db import get_db
-
         db = get_db()
         db.execute(
             "UPDATE blogroll SET latest_post_title = %s, feed_icon_url = %s WHERE site_id = %s",
@@ -304,8 +302,6 @@ def test_sidebar_links_latest_post(client):
                 },
             ],
         )
-        from db import get_db
-
         db = get_db()
         db.execute(
             "UPDATE blogroll SET latest_post_title = %s, latest_post_url = %s WHERE site_id = %s",
@@ -352,7 +348,6 @@ def test_blogroll_page_public(client):
 
 
 def test_timeago_filter():
-
     with app.app_context():
         env = app.jinja_env
         timeago = env.filters["timeago"]
