@@ -134,8 +134,111 @@ article {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-10);
   text-align: center;
+}
+
+.public-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body:has(.public-page) {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.public-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+}
+
+.public-header .top-nav-dark {
+  position: static;
+}
+
+.public-header .top-nav-dark a {
+  color: #999;
+}
+
+.public-header .top-nav-dark a:hover {
+  color: #333;
+}
+
+.public-content {
+  max-width: 640px;
+  padding: var(--space-8) var(--space-4);
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.public-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.public-content h2 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+}
+
+.public-content .panel {
+  padding: var(--space-8);
+}
+
+.public-content p {
+  font-size: var(--text-lg);
+  line-height: 1.7;
+}
+
+.public-page .home-footer {
+  position: static;
+  padding: var(--space-8) 0;
+}
+
+.home-footer {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.home-footer a {
+  color: #bbb;
+  text-decoration: none;
+}
+
+.home-footer a:hover {
+  color: #fff;
+}
+
+.home-footer-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  display: block;
+  margin: 0 auto;
+}
+
+.home-footer-nav {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.home-footer-nav a {
+  margin: 0 var(--space-2);
 }
 
 .logo {
@@ -149,6 +252,11 @@ article {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   display: inline-block;
+}
+
+.logo.logo-sm {
+  font-size: 1.65rem;
+  text-decoration: none;
 }
 
 .form-narrow {
@@ -704,6 +812,28 @@ input[type="checkbox"]:checked {
 .admin-dropdown button:hover {
   background: var(--input-bg);
   color: var(--text-bright);
+}
+
+.admin-dropdown form button {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+.admin-dropdown-email {
+  display: block;
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.top-nav .admin-menu {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin: 0;
+  max-width: none;
+  pointer-events: auto;
 }
 
 /* ── Settings extras ────────────────── */
