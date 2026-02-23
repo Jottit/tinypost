@@ -40,6 +40,7 @@ def test_dropdown_links_present(client):
     response = client.get("/", headers=HOST)
     assert b"/settings" in response.data
     assert b"/design" in response.data
+    assert b"/blogroll" in response.data
     assert b"/account" in response.data
     assert b"/signout" in response.data
 

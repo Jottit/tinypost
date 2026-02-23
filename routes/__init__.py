@@ -15,6 +15,7 @@ def require_owner():
 from routes import (  # noqa: E402, F401
     account,
     auth,
+    blogroll,
     design,
     feeds,
     home,

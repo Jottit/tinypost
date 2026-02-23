@@ -15,12 +15,10 @@ from config import (
 from db import (
     delete_account,
     get_all_posts_for_site,
-    get_blogroll,
     get_pages_for_site,
     is_domain_taken,
     remove_custom_domain,
     set_custom_domain,
-    update_blogroll,
     update_site,
     update_site_avatar,
     verify_custom_domain,
@@ -53,13 +51,13 @@ def settings():
     site = require_owner()
 
     if request.method == "GET":
-        return render_settings(site, blogroll=get_blogroll(site["id"]))
+        return render_settings(site)
 
     title = request.form.get("title", "").strip()
     bio = request.form.get("bio", "").strip()
     license = request.form.get("license", "").strip() or None
     if not title:
-        return render_settings(site, blogroll=get_blogroll(site["id"]), error="Title is required.")
+        return render_settings(site, error="Title is required.")
 
     social_links = []
     i = 0
@@ -70,17 +68,7 @@ def settings():
             social_links.append({"label": label, "url": url})
         i += 1
 
-    blogroll_items = []
-    i = 0
-    while f"blogroll[{i}][name]" in request.form:
-        name = request.form.get(f"blogroll[{i}][name]", "").strip()
-        url = request.form.get(f"blogroll[{i}][url]", "").strip()
-        if name and url:
-            blogroll_items.append({"name": name, "url": url})
-        i += 1
-
     update_site(site["id"], title, bio or None, license=license, social_links=social_links)
-    update_blogroll(site["id"], blogroll_items)
     flash("Settings updated.")
     return redirect("/settings")
 

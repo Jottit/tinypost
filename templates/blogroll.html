@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Blogroll — {{ site.title }}{% endblock %}
+{% block body %}
+  {% set show_back_link = true %}
+  {% include "admin_menu.html" %}
+  <main>
+    <div class="panel panel--narrow">
+      {% for message in get_flashed_messages() %}
+        <p class="panel-notice success">{{ message }}</p>
+      {% endfor %}
+      <h2>Blogroll</h2>
+      <p class="text-muted">Blogs and sites you recommend.</p>
+      <form method="POST" action="/blogroll">
+        {% set br = blogroll or [] %}
+        <div class="blogroll-editor">
+          {% for item in br %}
+            <div class="blogroll-row">
+              <input type="text" name="blogroll[{{ loop.index0 }}][name]" value="{{ item.name or '' }}" placeholder="Name" class="input--sm">
+              <input type="url" name="blogroll[{{ loop.index0 }}][url]" value="{{ item.url or '' }}" placeholder="https://..." class="input--sm">
+              <button type="button" class="blogroll-remove" onclick="removeBlogrollItem(this)" aria-label="Remove">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn mt-2" onclick="addBlogrollItem()">Add site</button>
+        <div class="actions mt-6">
+          <button type="submit" class="btn">Save</button>
+          <a href="/" class="btn">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <script>
+    function reindexBlogroll() {
+      var rows = document.querySelectorAll('.blogroll-row');
+      rows.forEach(function(row, i) {
+        row.querySelector('input[type="text"]').name = 'blogroll[' + i + '][name]';
+        row.querySelector('input[type="url"]').name = 'blogroll[' + i + '][url]';
+      });
+    }
+
+    function removeBlogrollItem(btn) {
+      btn.parentElement.remove();
+      reindexBlogroll();
+    }
+
+    function addBlogrollItem() {
+      var container = document.querySelector('.blogroll-editor');
+      var idx = container.querySelectorAll('.blogroll-row').length;
+      var row = document.createElement('div');
+      row.className = 'blogroll-row';
+      row.innerHTML = '<input type="text" name="blogroll[' + idx + '][name]" placeholder="Name" class="input--sm">' +
+        '<input type="url" name="blogroll[' + idx + '][url]" placeholder="https://..." class="input--sm">' +
+        '<button type="button" class="blogroll-remove" onclick="removeBlogrollItem(this)" aria-label="Remove">&times;</button>';
+      container.appendChild(row);
+    }
+  </script>
+{% endblock %}
