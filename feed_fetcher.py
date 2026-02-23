@@ -54,7 +54,10 @@ def discover_feed_url(url):
 
 
 def fetch_feed(feed_url):
-    feed = feedparser.parse(feed_url)
+    req = urllib.request.Request(feed_url, headers={"User-Agent": "Jottit/1.0"})
+    resp = urllib.request.urlopen(req, timeout=15)
+    content = resp.read()
+    feed = feedparser.parse(content)
 
     if feed.bozo and not feed.entries:
         raise ValueError(f"Failed to parse feed: {feed.bozo_exception}")
