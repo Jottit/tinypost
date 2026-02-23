@@ -18,6 +18,18 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+_FEED_COLUMNS = [
+    "url",
+    "feed_url",
+    "feed_title",
+    "feed_icon_url",
+    "latest_post_title",
+    "latest_post_url",
+    "last_updated",
+    "last_fetched",
+]
+
+
 def upgrade() -> None:
     op.execute("""
         CREATE TABLE feeds (
@@ -54,25 +66,15 @@ def upgrade() -> None:
     op.alter_column("blogroll", "feed_id", nullable=False)
     op.create_foreign_key("fk_blogroll_feed_id", "blogroll", "feeds", ["feed_id"], ["id"])
 
-    op.drop_column("blogroll", "url")
-    op.drop_column("blogroll", "feed_url")
-    op.drop_column("blogroll", "feed_title")
-    op.drop_column("blogroll", "feed_icon_url")
-    op.drop_column("blogroll", "latest_post_title")
-    op.drop_column("blogroll", "latest_post_url")
-    op.drop_column("blogroll", "last_updated")
-    op.drop_column("blogroll", "last_fetched")
+    for col in _FEED_COLUMNS:
+        op.drop_column("blogroll", col)
 
 
 def downgrade() -> None:
-    op.add_column("blogroll", sa.Column("url", sa.Text(), nullable=True))
-    op.add_column("blogroll", sa.Column("feed_url", sa.Text(), nullable=True))
-    op.add_column("blogroll", sa.Column("feed_title", sa.Text(), nullable=True))
-    op.add_column("blogroll", sa.Column("feed_icon_url", sa.Text(), nullable=True))
-    op.add_column("blogroll", sa.Column("latest_post_title", sa.Text(), nullable=True))
-    op.add_column("blogroll", sa.Column("latest_post_url", sa.Text(), nullable=True))
-    op.add_column("blogroll", sa.Column("last_updated", sa.DateTime(timezone=True), nullable=True))
-    op.add_column("blogroll", sa.Column("last_fetched", sa.DateTime(timezone=True), nullable=True))
+    _timestamp_columns = {"last_updated", "last_fetched"}
+    for col in _FEED_COLUMNS:
+        col_type = sa.DateTime(timezone=True) if col in _timestamp_columns else sa.Text()
+        op.add_column("blogroll", sa.Column(col, col_type, nullable=True))
 
     op.execute("""
         UPDATE blogroll SET

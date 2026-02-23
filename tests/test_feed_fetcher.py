@@ -362,7 +362,7 @@ def test_blogroll_page_public(client):
 def test_refresh_deduplicates_shared_feed(mock_fetch, client):
     _, site1 = _setup()
     with app.app_context():
-        user2, site2 = create_user_and_site("other@example.com", "otherblog")
+        _, site2 = create_user_and_site("other@example.com", "otherblog")
         update_blogroll(
             site1["id"],
             [

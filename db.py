@@ -398,9 +398,8 @@ def update_blogroll(site_id, items):
     }
     new_urls = {item["url"] for item in items}
 
-    for url in existing:
-        if url not in new_urls:
-            db.execute("DELETE FROM blogroll WHERE id = %s", (existing[url]["id"],))
+    for url in existing.keys() - new_urls:
+        db.execute("DELETE FROM blogroll WHERE id = %s", (existing[url]["id"],))
 
     for i, item in enumerate(items):
         feed_id = _find_or_create_feed(db, item["url"], item.get("feed_url"))
@@ -419,11 +418,12 @@ def update_blogroll(site_id, items):
 
 
 def _find_or_create_feed(db, url, feed_url=None):
-    db.execute(
-        "INSERT INTO feeds (url, feed_url) VALUES (%s, %s) ON CONFLICT (url) DO NOTHING",
+    row = db.execute(
+        "INSERT INTO feeds (url, feed_url) VALUES (%s, %s)"
+        " ON CONFLICT (url) DO UPDATE SET url = EXCLUDED.url"
+        " RETURNING id",
         (url, feed_url or None),
-    )
-    row = db.execute("SELECT id FROM feeds WHERE url = %s", (url,)).fetchone()
+    ).fetchone()
     return row["id"]
 
 
