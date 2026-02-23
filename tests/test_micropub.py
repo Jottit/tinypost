@@ -3,7 +3,13 @@ from unittest.mock import patch
 
 from app import app
 from db import create_post, create_user_and_site, get_post_by_slug
-from indieauth_db import create_auth_code, exchange_auth_code
+from indieauth_db import (
+    create_auth_code,
+    create_personal_token,
+    exchange_auth_code,
+    get_personal_token,
+    revoke_personal_token,
+)
 
 
 def make_site(client):
@@ -274,3 +280,68 @@ class TestMicropubMedia:
             base_url=BASE,
         )
         assert resp.status_code == 401
+
+
+class TestPersonalToken:
+    def test_create_and_use_personal_token(self, client):
+        _, site = make_site(client)
+        with app.app_context():
+            token = create_personal_token(site["id"])
+            assert token
+            row = get_personal_token(site["id"])
+            assert row["token"] == token
+            assert row["client_id"] == "personal-token"
+            assert row["scope"] == "create"
+
+        resp = client.post(
+            "/micropub",
+            data={"name": "Token Post", "content": "Via personal token."},
+            headers={"Authorization": f"Bearer {token}"},
+            base_url=BASE,
+        )
+        assert resp.status_code == 201
+        assert "/token-post" in resp.headers["Location"]
+
+    def test_revoke_personal_token(self, client):
+        _, site = make_site(client)
+        with app.app_context():
+            token = create_personal_token(site["id"])
+            revoke_personal_token(site["id"])
+            assert get_personal_token(site["id"]) is None
+
+        resp = client.post(
+            "/micropub",
+            data={"content": "Should fail."},
+            headers={"Authorization": f"Bearer {token}"},
+            base_url=BASE,
+        )
+        assert resp.status_code == 401
+
+    def test_create_replaces_existing_token(self, client):
+        _, site = make_site(client)
+        with app.app_context():
+            token1 = create_personal_token(site["id"])
+            token2 = create_personal_token(site["id"])
+            assert token1 != token2
+            assert get_personal_token(site["id"])["token"] == token2
+
+    def test_account_token_route(self, client):
+        user, site = make_site(client)
+        with client.session_transaction() as sess:
+            sess["user_id"] = user["id"]
+        resp = client.post("/account/token", base_url=BASE)
+        assert resp.status_code == 200
+        assert b"Token created" in resp.data
+        with app.app_context():
+            assert get_personal_token(site["id"]) is not None
+
+    def test_account_token_revoke_route(self, client):
+        user, site = make_site(client)
+        with app.app_context():
+            create_personal_token(site["id"])
+        with client.session_transaction() as sess:
+            sess["user_id"] = user["id"]
+        resp = client.post("/account/token/revoke", base_url=BASE, follow_redirects=True)
+        assert resp.status_code == 200
+        with app.app_context():
+            assert get_personal_token(site["id"]) is None

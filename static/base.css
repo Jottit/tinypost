@@ -582,12 +582,12 @@ p.panel-notice {
 }
 
 .export-zone h3 {
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .export-zone p {
   font-size: var(--text-sm);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .danger-zone {
@@ -600,12 +600,12 @@ p.panel-notice {
 
 .danger-zone h3 {
   color: #c0392b;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .danger-zone p {
   font-size: var(--text-sm);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .btn--danger {

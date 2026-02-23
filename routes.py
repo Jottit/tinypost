@@ -119,7 +119,12 @@ def render_settings(site, **kwargs):
 
 
 def render_account(site, user, **kwargs):
-    return render_template("account.html", site=site, user=user, is_owner=True, **kwargs)
+    from indieauth_db import get_personal_token
+
+    token = get_personal_token(site["id"])
+    return render_template(
+        "account.html", site=site, user=user, is_owner=True, personal_token=token, **kwargs
+    )
 
 
 def require_owner():
@@ -576,6 +581,25 @@ def account_import():
 
     results["images_rehosted"] = rehost_images(site["id"], site["subdomain"])
     return render_account(site, user, import_results=results)
+
+
+@app.route("/account/token", methods=["POST"])
+def account_token():
+    site = require_owner()
+    user = get_user_by_id(session["user_id"])
+    from indieauth_db import create_personal_token
+
+    token = create_personal_token(site["id"])
+    return render_account(site, user, new_token=token)
+
+
+@app.route("/account/token/revoke", methods=["POST"])
+def account_token_revoke():
+    site = require_owner()
+    from indieauth_db import revoke_personal_token
+
+    revoke_personal_token(site["id"])
+    return redirect("/account")
 
 
 @app.route("/design", methods=["GET", "POST"])
