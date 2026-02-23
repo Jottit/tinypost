@@ -20,7 +20,7 @@ def setup_site(client):
     return user, site
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_subscribe(mock_send, client):
     setup_site(client)
     response = client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
@@ -33,7 +33,7 @@ def test_subscribe(mock_send, client):
     assert "confirm-subscriber@jottit.pub" in mock_send.call_args.kwargs["from_addr"]
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_subscribe_creates_subscriber(mock_send, client):
     _, site = setup_site(client)
     client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
@@ -43,7 +43,7 @@ def test_subscribe_creates_subscriber(mock_send, client):
     assert sub["confirmed"] is False
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_subscribe_duplicate_resends_confirmation(mock_send, client):
     _, site = setup_site(client)
     client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
@@ -51,7 +51,7 @@ def test_subscribe_duplicate_resends_confirmation(mock_send, client):
     assert mock_send.call_count == 2
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_subscribe_already_confirmed_no_email(mock_send, client):
     _, site = setup_site(client)
     with app.app_context():
@@ -62,7 +62,7 @@ def test_subscribe_already_confirmed_no_email(mock_send, client):
     mock_send.assert_not_called()
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_honeypot_rejects(mock_send, client):
     setup_site(client)
     response = client.post(
@@ -74,7 +74,7 @@ def test_honeypot_rejects(mock_send, client):
     mock_send.assert_not_called()
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_confirm_subscription(mock_send, client):
     _, site = setup_site(client)
     with app.app_context():
@@ -94,7 +94,7 @@ def test_confirm_invalid_token(client):
     assert response.status_code == 404
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_unsubscribe(mock_send, client):
     _, site = setup_site(client)
     with app.app_context():
@@ -116,7 +116,7 @@ def test_unsubscribe_invalid_token(client):
 # ── Phase 2: Send to subscribers ─────────────────
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_post_to_subscribers(mock_send, client):
     user, site = setup_site(client)
     with app.app_context():
@@ -134,7 +134,7 @@ def test_send_post_to_subscribers(mock_send, client):
     assert recipients == {"a@example.com", "b@example.com"}
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_skips_unconfirmed(mock_send, client):
     user, site = setup_site(client)
     with app.app_context():
@@ -149,7 +149,7 @@ def test_send_skips_unconfirmed(mock_send, client):
     assert mock_send.call_args.kwargs["to"] == "confirmed@example.com"
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_marks_post_sent(mock_send, client):
     user, site = setup_site(client)
     with app.app_context():
@@ -164,7 +164,7 @@ def test_send_marks_post_sent(mock_send, client):
     assert post["sent_at"] is not None
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_prevents_double_send(mock_send, client):
     user, site = setup_site(client)
     with app.app_context():
@@ -179,7 +179,7 @@ def test_send_prevents_double_send(mock_send, client):
     mock_send.assert_not_called()
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_draft_not_allowed(mock_send, client):
     user, site = setup_site(client)
     with app.app_context():

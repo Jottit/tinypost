@@ -62,8 +62,8 @@ def test_export_markdown_has_title_and_body(client):
     assert content == "# My Title\n\nBody text here."
 
 
-@patch("routes.list_images", return_value=["myblog/photo.png"])
-@patch("routes.download_image", return_value=b"\x89PNG fake image data")
+@patch("routes.settings.list_images", return_value=["myblog/photo.png"])
+@patch("routes.settings.download_image", return_value=b"\x89PNG fake image data")
 def test_export_contains_images(mock_download, mock_list, client):
     _login(client)
     response = client.get("/settings/export", headers={"Host": SITE_HOST})

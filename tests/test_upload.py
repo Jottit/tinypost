@@ -27,7 +27,7 @@ def _post_upload(client, **data):
     )
 
 
-@patch("routes.upload_image", return_value="https://example.com/bucket/myblog/img.png")
+@patch("routes.uploads.upload_image", return_value="https://example.com/bucket/myblog/img.png")
 def test_upload_success(mock_upload, client):
     _login(client)
     data, filename, content_type = _make_image()
@@ -46,7 +46,7 @@ def test_upload_requires_auth(client):
     assert response.json["error"] == "Unauthorized"
 
 
-@patch("routes.upload_image")
+@patch("routes.uploads.upload_image")
 def test_upload_rejects_oversized(mock_upload, client):
     _login(client)
     data, filename, content_type = _make_image(size=6 * 1024 * 1024)
@@ -56,7 +56,7 @@ def test_upload_rejects_oversized(mock_upload, client):
     mock_upload.assert_not_called()
 
 
-@patch("routes.upload_image")
+@patch("routes.uploads.upload_image")
 def test_upload_rejects_bad_type(mock_upload, client):
     _login(client)
     response = _post_upload(
@@ -67,7 +67,7 @@ def test_upload_rejects_bad_type(mock_upload, client):
     mock_upload.assert_not_called()
 
 
-@patch("routes.upload_image")
+@patch("routes.uploads.upload_image")
 def test_upload_rejects_no_file(mock_upload, client):
     _login(client)
     response = _post_upload(client)

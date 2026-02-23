@@ -97,7 +97,7 @@ def test_verify_with_correct_txt_record(client):
 
     mock_answer = MagicMock()
     mock_answer.__str__ = lambda self: '"jottit-site-verification=mytoken123"'
-    with patch("routes.dns.resolver.resolve", return_value=[mock_answer]):
+    with patch("routes.settings.dns.resolver.resolve", return_value=[mock_answer]):
         response = client.post(
             "/settings/domain/verify",
             headers={"Host": SITE_HOST},
@@ -116,7 +116,7 @@ def test_verify_with_missing_txt_record(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
 
-    with patch("routes.dns.resolver.resolve", side_effect=Exception("NXDOMAIN")):
+    with patch("routes.settings.dns.resolver.resolve", side_effect=Exception("NXDOMAIN")):
         response = client.post(
             "/settings/domain/verify",
             headers={"Host": SITE_HOST},
@@ -145,7 +145,7 @@ def test_tls_ask_returns_200_for_verified_domain(client):
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
         verify_custom_domain(site["id"])
-    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=example.com")
     assert response.status_code == 200
 
@@ -154,21 +154,21 @@ def test_tls_ask_returns_403_for_unverified_domain(client):
     _, site = _setup_site()
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
-    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=example.com")
     assert response.status_code == 403
 
 
 def test_tls_ask_returns_200_for_valid_subdomain(client):
     _setup_site()
-    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=myblog.jottit.localhost")
     assert response.status_code == 200
 
 
 def test_tls_ask_returns_403_for_unknown_subdomain(client):
     _setup_site()
-    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=nonexistent.jottit.localhost")
     assert response.status_code == 403
 
@@ -178,7 +178,7 @@ def test_tls_ask_returns_403_for_wrong_token(client):
     with app.app_context():
         set_custom_domain(site["id"], "example.com", "tok")
         verify_custom_domain(site["id"])
-    with patch("routes.CADDY_ASK_TOKEN", "secret"):
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=wrong&domain=example.com")
     assert response.status_code == 403
 

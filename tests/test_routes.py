@@ -60,7 +60,7 @@ def test_home_post_valid_subdomain(client):
 # ── Signup ──────────────────────────────────────
 
 
-@patch("routes.send_passcode")
+@patch("routes.auth.send_passcode")
 def test_signup_post(mock_send, client):
     response = client.post("/signup", data={"subdomain": "fresh", "email": "u@example.com"})
     assert response.status_code == 200
@@ -98,7 +98,7 @@ def test_signin_get(client):
     assert response.status_code == 200
 
 
-@patch("routes.send_passcode")
+@patch("routes.auth.send_passcode")
 def test_signin_post_success(mock_send, client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
@@ -240,14 +240,14 @@ def test_delete_post_not_found(client):
 # ── Send post ───────────────────────────────────
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_post_not_found(mock_send, client):
     _setup(client)
     response = client.post("/send/nonexistent", headers=HOST)
     assert response.status_code == 404
 
 
-@patch("routes.send_email")
+@patch("routes.posts.send_email")
 def test_send_post_no_subscribers(mock_send, client):
     _, site = _setup(client)
     with app.app_context():
@@ -288,7 +288,7 @@ def test_settings_avatar_no_file(client):
     assert "/settings" in response.headers["Location"]
 
 
-@patch("routes.delete_image")
+@patch("routes.settings.delete_image")
 def test_settings_avatar_delete_external_url(mock_delete, client):
     _, site = _setup(client)
     with app.app_context():
@@ -481,7 +481,7 @@ def test_subscribe_no_site(client):
     assert response.status_code == 404
 
 
-@patch("routes.send_email")
+@patch("routes.subscribers.send_email")
 def test_subscribe_empty_email(mock_send, client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")

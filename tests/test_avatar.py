@@ -21,8 +21,8 @@ def _make_image(content_type="image/png", size=1024, filename="test.png"):
     return (BytesIO(b"\x89PNG" + b"\x00" * size), filename, content_type)
 
 
-@patch("routes.crop_square")
-@patch("routes.upload_image", return_value="https://example.com/myblog/avatar.png")
+@patch("routes.settings.crop_square")
+@patch("routes.settings.upload_image", return_value="https://example.com/myblog/avatar.png")
 def test_upload_avatar(mock_upload, mock_crop, client):
     mock_crop.return_value = BytesIO(b"cropped")
     _login(client)
@@ -39,8 +39,8 @@ def test_upload_avatar(mock_upload, mock_crop, client):
     mock_upload.assert_called_once()
 
 
-@patch("routes.crop_square")
-@patch("routes.upload_image")
+@patch("routes.settings.crop_square")
+@patch("routes.settings.upload_image")
 def test_upload_avatar_rejects_bad_type(mock_upload, mock_crop, client):
     _login(client)
     response = client.post(
@@ -54,8 +54,8 @@ def test_upload_avatar_rejects_bad_type(mock_upload, mock_crop, client):
     mock_upload.assert_not_called()
 
 
-@patch("routes.crop_square")
-@patch("routes.upload_image")
+@patch("routes.settings.crop_square")
+@patch("routes.settings.upload_image")
 def test_upload_avatar_rejects_oversized(mock_upload, mock_crop, client):
     _login(client)
     data, filename, content_type = _make_image(size=6 * 1024 * 1024)
@@ -70,7 +70,7 @@ def test_upload_avatar_rejects_oversized(mock_upload, mock_crop, client):
     mock_upload.assert_not_called()
 
 
-@patch("routes.delete_image")
+@patch("routes.settings.delete_image")
 def test_remove_avatar(mock_delete, client):
     site = _login(client)
     with app.app_context():
