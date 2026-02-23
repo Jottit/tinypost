@@ -1,4 +1,4 @@
-import random
+import secrets
 import string
 
 from flask import current_app
@@ -7,7 +7,7 @@ from mailer import send_email
 
 
 def generate_passcode():
-    return "".join(random.choices(string.digits, k=6))
+    return "".join(secrets.choice(string.digits) for _ in range(6))
 
 
 def send_passcode(email, passcode):

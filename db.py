@@ -1,6 +1,31 @@
+import os
+
+import psycopg
+from flask import current_app, g
+from psycopg.rows import dict_row
 from psycopg.types.json import Json
 
-from models import get_db, query
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
+
+
+def get_db():
+    if "db" not in g:
+        db_name = current_app.config.get("DATABASE")
+        dsn = f"dbname={db_name}" if db_name else DATABASE_URL
+        g.db = psycopg.connect(dsn, row_factory=dict_row)
+    return g.db
+
+
+def close_db(e=None):
+    db = g.pop("db", None)
+    if db is not None:
+        db.close()
+
+
+def query(sql, args=(), one=False):
+    cur = get_db().execute(sql, args)
+    rows = cur.fetchall()
+    return (rows[0] if rows else None) if one else rows
 
 
 def subdomain_taken(subdomain):
@@ -355,13 +380,29 @@ def get_blogroll(site_id):
 
 def update_blogroll(site_id, items):
     db = get_db()
-    db.execute("DELETE FROM blogroll WHERE site_id = %s", (site_id,))
+    existing = {
+        row["url"]: row for row in query("SELECT * FROM blogroll WHERE site_id = %s", (site_id,))
+    }
+    new_urls = {item["url"] for item in items}
+
+    # Delete removed entries
+    for url in existing:
+        if url not in new_urls:
+            db.execute("DELETE FROM blogroll WHERE id = %s", (existing[url]["id"],))
+
+    # Update or insert entries
     for i, item in enumerate(items):
-        db.execute(
-            "INSERT INTO blogroll (site_id, name, url, feed_url, sort_order)"
-            " VALUES (%s, %s, %s, %s, %s)",
-            (site_id, item["name"], item["url"], item.get("feed_url") or None, i),
-        )
+        if item["url"] in existing:
+            db.execute(
+                "UPDATE blogroll SET name = %s, sort_order = %s WHERE id = %s",
+                (item["name"], i, existing[item["url"]]["id"]),
+            )
+        else:
+            db.execute(
+                "INSERT INTO blogroll (site_id, name, url, feed_url, sort_order)"
+                " VALUES (%s, %s, %s, %s, %s)",
+                (site_id, item["name"], item["url"], item.get("feed_url") or None, i),
+            )
     db.commit()
 
 

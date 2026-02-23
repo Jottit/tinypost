@@ -92,7 +92,7 @@ def rehost_images(site_id, subdomain):
                 body = body.replace(url, url_map[url])
                 continue
             try:
-                with urlopen(url) as resp:
+                with urlopen(url, timeout=30) as resp:
                     content_type = resp.headers.get("Content-Type", "image/jpeg")
                     ext = ALLOWED_IMAGE_TYPES.get(content_type, "jpg")
                     key = f"{subdomain}/{uuid.uuid4()}.{ext}"

@@ -6,7 +6,7 @@ import markdown
 from flask import Flask
 from markupsafe import Markup
 
-from models import close_db
+from db import close_db
 
 app = Flask(__name__)
 app.secret_key = "change-me-later"

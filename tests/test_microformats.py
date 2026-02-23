@@ -59,7 +59,7 @@ def test_social_links_have_rel_me(client):
 def test_custom_domain_in_u_url(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
-        from models import get_db
+        from db import get_db
 
         db = get_db()
         db.execute(

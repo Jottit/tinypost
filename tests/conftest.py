@@ -51,6 +51,20 @@ def client():
         yield client
 
 
+SITE_HOST = "myblog.jottit.localhost:8000"
+
+
+@pytest.fixture
+def owner(client):
+    from db import create_user_and_site
+
+    with app.app_context():
+        user, site = create_user_and_site("owner@example.com", "myblog")
+    with client.session_transaction() as sess:
+        sess["user_id"] = user["id"]
+    return user, site
+
+
 @pytest.fixture
 def taken_subdomain(client):
     from db import create_user_and_site

@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from models import get_db, query
+from db import get_db, query
 
 
 def create_auth_code(

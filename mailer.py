@@ -3,10 +3,9 @@ import logging
 import os
 import urllib.request
 
+from flask import current_app
+
 logger = logging.getLogger(__name__)
-
-
-BASE_DOMAIN = os.environ.get("BASE_DOMAIN", "jottit.pub")
 
 
 def send_email(to, subject, text, html=None, from_addr=None):
@@ -15,8 +14,12 @@ def send_email(to, subject, text, html=None, from_addr=None):
         print(f"[DEV] To: {to} | Subject: {subject}\n{text}")
         return
 
+    if not from_addr:
+        domain = current_app.config["BASE_DOMAIN"]
+        from_addr = f"Jottit <noreply@{domain}>"
+
     payload = {
-        "from": from_addr or f"Jottit <noreply@{BASE_DOMAIN}>",
+        "from": from_addr,
         "to": [to],
         "subject": subject,
         "text": text,

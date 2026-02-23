@@ -53,9 +53,10 @@ def delete_all_images(subdomain):
     bucket = os.environ.get("BUCKET_NAME")
     if bucket:
         client = _s3_client()
-        response = client.list_objects_v2(Bucket=bucket, Prefix=f"{subdomain}/")
-        for obj in response.get("Contents", []):
-            client.delete_object(Bucket=bucket, Key=obj["Key"])
+        paginator = client.get_paginator("list_objects_v2")
+        for page in paginator.paginate(Bucket=bucket, Prefix=f"{subdomain}/"):
+            for obj in page.get("Contents", []):
+                client.delete_object(Bucket=bucket, Key=obj["Key"])
         return
 
     uploads_dir = Path(current_app.instance_path) / "uploads" / subdomain
@@ -63,13 +64,19 @@ def delete_all_images(subdomain):
         shutil.rmtree(uploads_dir)
 
 
+_client = None
+
+
 def _s3_client():
-    return boto3.client(
-        "s3",
-        endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"),
-        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-    )
+    global _client
+    if _client is None:
+        _client = boto3.client(
+            "s3",
+            endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"),
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        )
+    return _client
 
 
 def _upload_to_s3(bucket, key, file, content_type):
