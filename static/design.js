@@ -54,7 +54,6 @@
     var text = textInput.value.trim();
 
     if (bg) {
-      textField.style.display = "";
       if (!text) {
         text = autoTextColor(bg);
         textPicker.value = text;
@@ -62,16 +61,17 @@
       }
       preview.style.setProperty("--site-bg", bg);
       layout.style.setProperty("--site-bg", bg);
+      document.body.style.background = bg;
       preview.style.setProperty("--site-text", text);
       preview.style.setProperty("--site-text-bright", text);
       preview.style.setProperty("--site-text-muted", "color-mix(in srgb, " + text + " 50%, " + bg + ")");
       preview.style.setProperty("--site-divider", "color-mix(in srgb, " + text + " 15%, " + bg + ")");
       preview.style.setProperty("--site-code-bg", "color-mix(in srgb, " + text + " 8%, " + bg + ")");
     } else {
-      textField.style.display = "none";
       textInput.value = "";
       preview.style.removeProperty("--site-bg");
       layout.style.removeProperty("--site-bg");
+      document.body.style.background = "";
       preview.style.removeProperty("--site-text");
       preview.style.removeProperty("--site-text-bright");
       preview.style.removeProperty("--site-text-muted");
@@ -97,7 +97,6 @@
     var hex = resolveColor(accentPicker.getAttribute("data-default"));
     if (hex) {
       accentPicker.value = hex;
-      accentText.value = hex;
     }
   }
 
@@ -105,6 +104,13 @@
     var bgHex = resolveColor(bgPicker.getAttribute("data-default"));
     if (bgHex) {
       bgPicker.value = bgHex;
+    }
+  }
+
+  if (!textInput.value) {
+    var textHex = resolveColor(textPicker.getAttribute("data-default"));
+    if (textHex) {
+      textPicker.value = textHex;
     }
   }
 

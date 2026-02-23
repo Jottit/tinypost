@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Jottit{% endblock %}</title>
   <link rel="stylesheet" href="/static/base.css">
-  {% block theme_css %}<link rel="stylesheet" href="/static/theme.css">{% endblock %}
+  <link rel="stylesheet" href="/static/ui.css">
+  {% block theme_css %}{% endblock %}
   {% block head_extra %}{% endblock %}
 </head>
 <body{% block body_attrs %}{% endblock %}>
