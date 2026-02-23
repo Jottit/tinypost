@@ -2,9 +2,11 @@ from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import feedparser as _feedparser
+import pytest
 
 from app import app
 from db import create_user_and_site, get_blogroll, update_blogroll
+from feed_fetcher import fetch_feed, refresh_all_feeds
 
 HOST = {"Host": "myblog.jottit.localhost:8000"}
 
@@ -48,16 +50,18 @@ def _setup():
     return user, site
 
 
+def _mock_favicon_response(mock_urlopen, content_type="image/x-icon"):
+    mock_resp = MagicMock()
+    mock_resp.status = 200
+    mock_resp.headers = {"Content-Type": content_type}
+    mock_urlopen.return_value = mock_resp
+
+
 @patch("feed_fetcher.urllib.request.urlopen")
 @patch("feed_fetcher.feedparser.parse")
 def test_fetch_feed_rss(mock_parse, mock_urlopen):
     mock_parse.return_value = PARSED_RSS
-    mock_resp = MagicMock()
-    mock_resp.status = 200
-    mock_resp.headers = {"Content-Type": "image/x-icon"}
-    mock_urlopen.return_value = mock_resp
-
-    from feed_fetcher import fetch_feed
+    _mock_favicon_response(mock_urlopen)
 
     result = fetch_feed("https://example.com/feed.xml")
     assert result["feed_title"] == "Test Blog"
@@ -70,12 +74,7 @@ def test_fetch_feed_rss(mock_parse, mock_urlopen):
 @patch("feed_fetcher.feedparser.parse")
 def test_fetch_feed_atom(mock_parse, mock_urlopen):
     mock_parse.return_value = PARSED_ATOM
-    mock_resp = MagicMock()
-    mock_resp.status = 200
-    mock_resp.headers = {"Content-Type": "image/x-icon"}
-    mock_urlopen.return_value = mock_resp
-
-    from feed_fetcher import fetch_feed
+    _mock_favicon_response(mock_urlopen)
 
     result = fetch_feed("https://example.com/atom.xml")
     assert result["feed_title"] == "Atom Blog"
@@ -91,13 +90,8 @@ def test_fetch_feed_parse_error(mock_parse):
     mock_result.entries = []
     mock_parse.return_value = mock_result
 
-    from feed_fetcher import fetch_feed
-
-    try:
+    with pytest.raises(ValueError):
         fetch_feed("https://example.com/bad.xml")
-        assert False, "Should have raised"
-    except ValueError:
-        pass
 
 
 @patch("feed_fetcher.urllib.request.urlopen")
@@ -106,8 +100,6 @@ def test_favicon_fallback_to_feed_image(mock_parse, mock_urlopen):
     mock_urlopen.side_effect = Exception("Connection refused")
     mock_parse.return_value = PARSED_IMAGE_FEED
 
-    from feed_fetcher import fetch_feed
-
     result = fetch_feed("https://example.com/feed.xml")
     assert result["feed_icon_url"] is None or "example.com" in result["feed_icon_url"]
 
@@ -115,13 +107,8 @@ def test_favicon_fallback_to_feed_image(mock_parse, mock_urlopen):
 @patch("feed_fetcher.urllib.request.urlopen")
 @patch("feed_fetcher.feedparser.parse")
 def test_favicon_head_non_image(mock_parse, mock_urlopen):
-    mock_resp = MagicMock()
-    mock_resp.status = 200
-    mock_resp.headers = {"Content-Type": "text/html"}
-    mock_urlopen.return_value = mock_resp
+    _mock_favicon_response(mock_urlopen, content_type="text/html")
     mock_parse.return_value = PARSED_RSS
-
-    from feed_fetcher import fetch_feed
 
     result = fetch_feed("https://example.com/feed.xml")
     assert result["feed_icon_url"] is None
@@ -149,8 +136,6 @@ def test_refresh_all_feeds_updates_db(mock_fetch, client):
         "latest_post_title": "Latest Post",
         "last_updated": datetime(2024, 1, 1, tzinfo=timezone.utc),
     }
-
-    from feed_fetcher import refresh_all_feeds
 
     refresh_all_feeds()
 

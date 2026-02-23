@@ -53,18 +53,15 @@ def _find_favicon(feed_url, feed):
         pass
 
     image = getattr(feed.feed, "image", None)
-    if image:
-        href = getattr(image, "href", None)
-        if href:
-            return href
+    if image and getattr(image, "href", None):
+        return image.href
 
     return None
 
 
 def refresh_all_feeds():
     database_url = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
-    conn = psycopg.connect(database_url, row_factory=dict_row)
-    try:
+    with psycopg.connect(database_url, row_factory=dict_row) as conn:
         rows = conn.execute(
             "SELECT id, feed_url FROM blogroll WHERE feed_url IS NOT NULL"
         ).fetchall()
@@ -94,5 +91,3 @@ def refresh_all_feeds():
                     (now, row["id"]),
                 )
                 conn.commit()
-    finally:
-        conn.close()

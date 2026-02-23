@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timezone
 
+import click
 import markdown
 from flask import Flask
 from markupsafe import Markup
@@ -36,8 +37,6 @@ def truncatewords_filter(text, n=50):
 from utils import site_url
 
 app.jinja_env.globals["site_url"] = site_url
-
-import click
 
 from indieauth import *
 from micropub import *
