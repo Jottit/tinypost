@@ -4,13 +4,12 @@ from flask import redirect, render_template, request, session
 
 from app import app
 from db import get_user_by_id, update_user_email
+from indieauth_db import create_personal_token, get_personal_token, revoke_personal_token
 from routes import require_owner
 from substack import import_posts, import_subscribers, rehost_images
 
 
 def render_account(site, user, **kwargs):
-    from indieauth_db import get_personal_token
-
     token = get_personal_token(site["id"])
     return render_template(
         "account.html", site=site, user=user, is_owner=True, personal_token=token, **kwargs
@@ -59,8 +58,6 @@ def account_import():
 def account_token():
     site = require_owner()
     user = get_user_by_id(session["user_id"])
-    from indieauth_db import create_personal_token
-
     token = create_personal_token(site["id"])
     return render_account(site, user, new_token=token)
 
@@ -68,7 +65,5 @@ def account_token():
 @app.route("/account/token/revoke", methods=["POST"])
 def account_token_revoke():
     site = require_owner()
-    from indieauth_db import revoke_personal_token
-
     revoke_personal_token(site["id"])
     return redirect("/account")
