@@ -68,7 +68,6 @@
       preview.style.setProperty("--site-divider", "color-mix(in srgb, " + text + " 15%, " + bg + ")");
       preview.style.setProperty("--site-code-bg", "color-mix(in srgb, " + text + " 8%, " + bg + ")");
     } else {
-      textInput.value = "";
       preview.style.removeProperty("--site-bg");
       layout.style.removeProperty("--site-bg");
       document.body.style.background = "";
