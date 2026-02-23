@@ -32,6 +32,7 @@ RSS_FEED = """<?xml version="1.0" encoding="UTF-8"?>
     <title>Test Blog</title>
     <item>
       <title>My Latest Post</title>
+      <link>https://example.com/my-latest-post</link>
       <pubDate>Mon, 01 Jan 2024 12:00:00 GMT</pubDate>
     </item>
   </channel>
@@ -42,6 +43,7 @@ ATOM_FEED = """<?xml version="1.0" encoding="UTF-8"?>
   <title>Atom Blog</title>
   <entry>
     <title>Atom Post</title>
+    <link href="https://example.com/atom-post"/>
     <updated>2024-01-15T10:00:00Z</updated>
   </entry>
 </feed>"""
@@ -127,6 +129,7 @@ def test_fetch_feed_rss(mock_parse, mock_urlopen):
     result = fetch_feed("https://example.com/feed.xml")
     assert result["feed_title"] == "Test Blog"
     assert result["latest_post_title"] == "My Latest Post"
+    assert result["latest_post_url"] == "https://example.com/my-latest-post"
     assert result["last_updated"] is not None
     assert result["feed_icon_url"] == "https://example.com/favicon.ico"
 
@@ -140,6 +143,7 @@ def test_fetch_feed_atom(mock_parse, mock_urlopen):
     result = fetch_feed("https://example.com/atom.xml")
     assert result["feed_title"] == "Atom Blog"
     assert result["latest_post_title"] == "Atom Post"
+    assert result["latest_post_url"] == "https://example.com/atom-post"
     assert result["last_updated"] is not None
 
 
@@ -195,6 +199,7 @@ def test_refresh_all_feeds_updates_db(mock_fetch, client):
         "feed_title": "Test Blog Title",
         "feed_icon_url": "https://example.com/favicon.ico",
         "latest_post_title": "Latest Post",
+        "latest_post_url": "https://example.com/latest-post",
         "last_updated": datetime(2024, 1, 1, tzinfo=timezone.utc),
     }
 
@@ -205,6 +210,7 @@ def test_refresh_all_feeds_updates_db(mock_fetch, client):
         assert len(items) == 1
         assert items[0]["feed_title"] == "Test Blog Title"
         assert items[0]["latest_post_title"] == "Latest Post"
+        assert items[0]["latest_post_url"] == "https://example.com/latest-post"
         assert items[0]["feed_icon_url"] == "https://example.com/favicon.ico"
         assert items[0]["last_fetched"] is not None
 
@@ -225,6 +231,7 @@ def test_refresh_all_feeds_discovers_missing_feed_url(mock_discover, mock_fetch,
         "feed_title": "Discovered Blog",
         "feed_icon_url": None,
         "latest_post_title": "First Post",
+        "latest_post_url": "https://nofeed.example.com/first-post",
         "last_updated": datetime(2024, 1, 1, tzinfo=timezone.utc),
     }
 
@@ -281,3 +288,75 @@ def test_sidebar_renders_initial_fallback(client):
     assert response.status_code == 200
     assert b"blogroll-icon-fallback" in response.data
     assert b">N<" in response.data
+
+
+def test_sidebar_links_latest_post(client):
+    _, site = _setup()
+
+    with app.app_context():
+        update_blogroll(
+            site["id"],
+            [
+                {
+                    "name": "Linked Blog",
+                    "url": "https://linked.example.com",
+                    "feed_url": "https://linked.example.com/feed",
+                },
+            ],
+        )
+        from db import get_db
+
+        db = get_db()
+        db.execute(
+            "UPDATE blogroll SET latest_post_title = %s, latest_post_url = %s WHERE site_id = %s",
+            ("Great Article", "https://linked.example.com/great-article", site["id"]),
+        )
+        db.commit()
+
+    response = client.get("/", headers=HOST)
+    assert response.status_code == 200
+    assert b"https://linked.example.com/great-article" in response.data
+    assert b"Great Article" in response.data
+
+
+def test_sidebar_limits_to_five(client):
+    _, site = _setup()
+
+    with app.app_context():
+        items = [{"name": f"Blog {i}", "url": f"https://blog{i}.example.com"} for i in range(8)]
+        update_blogroll(site["id"], items)
+
+    response = client.get("/", headers=HOST)
+    assert response.status_code == 200
+    assert b"Blog 0" in response.data
+    assert b"Blog 4" in response.data
+    assert b"Blog 5" not in response.data
+    assert b"See all (8)" in response.data
+
+
+def test_blogroll_page_public(client):
+    _, site = _setup()
+
+    with app.app_context():
+        update_blogroll(
+            site["id"],
+            [
+                {"name": "Public Blog", "url": "https://public.example.com"},
+            ],
+        )
+
+    response = client.get("/blogroll", headers=HOST)
+    assert response.status_code == 200
+    assert b"Public Blog" in response.data
+    assert b"Blogroll" in response.data
+
+
+def test_timeago_filter():
+
+    with app.app_context():
+        env = app.jinja_env
+        timeago = env.filters["timeago"]
+        now = datetime.now(timezone.utc)
+        assert timeago(None) == ""
+        assert timeago(now) == "just now"
+        assert timeago(now.replace(year=now.year - 2)) == "2y"

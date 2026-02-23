@@ -61,6 +61,7 @@ def fetch_feed(feed_url):
     result = {
         "feed_title": getattr(feed.feed, "title", None),
         "latest_post_title": None,
+        "latest_post_url": None,
         "last_updated": None,
         "feed_icon_url": None,
     }
@@ -68,6 +69,7 @@ def fetch_feed(feed_url):
     if feed.entries:
         entry = feed.entries[0]
         result["latest_post_title"] = getattr(entry, "title", None)
+        result["latest_post_url"] = getattr(entry, "link", None)
 
         time_struct = getattr(entry, "published_parsed", None) or getattr(
             entry, "updated_parsed", None
@@ -126,12 +128,14 @@ def refresh_all_feeds():
                 data = fetch_feed(row["feed_url"])
                 conn.execute(
                     "UPDATE blogroll SET feed_title = %s, feed_icon_url = %s,"
-                    " latest_post_title = %s, last_updated = %s, last_fetched = %s"
+                    " latest_post_title = %s, latest_post_url = %s,"
+                    " last_updated = %s, last_fetched = %s"
                     " WHERE id = %s",
                     (
                         data["feed_title"],
                         data["feed_icon_url"],
                         data["latest_post_title"],
+                        data["latest_post_url"],
                         data["last_updated"],
                         now,
                         row["id"],

@@ -71,6 +71,7 @@ CREATE TABLE blogroll (
     feed_title TEXT,
     feed_icon_url TEXT,
     latest_post_title TEXT,
+    latest_post_url TEXT,
     last_fetched TIMESTAMPTZ,
     last_updated TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()

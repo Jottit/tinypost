@@ -513,11 +513,6 @@ input.page-nav-add-input.active {
   gap: var(--space-2);
   font-size: var(--text-sm);
   color: var(--site-text-muted);
-  text-decoration: none;
-}
-
-.blogroll-item:hover {
-  color: var(--site-text-bright);
 }
 
 .blogroll-icon {
@@ -544,12 +539,57 @@ input.page-nav-add-input.active {
   min-width: 0;
 }
 
+.blogroll-item-name {
+  text-decoration: none;
+  color: var(--site-text);
+}
+
+.blogroll-item-name:hover {
+  color: var(--site-text-bright);
+}
+
+.blogroll-item-meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
 .blogroll-item-post {
   font-size: var(--text-xs);
   color: var(--site-text-muted);
+  text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+a.blogroll-item-post:hover {
+  color: var(--site-text-bright);
+}
+
+.blogroll-item-time {
+  font-size: var(--text-xs);
+  color: var(--site-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.blogroll-see-all {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--site-text-muted);
+}
+
+.blogroll-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.blogroll-list li {
+  margin-bottom: var(--space-3);
 }
 
 /* ── Empty state ────────────────────── */

@@ -9,10 +9,21 @@ def login(client, user_id):
         sess["user_id"] = user_id
 
 
-def test_blogroll_requires_auth(client):
+def test_blogroll_get_public(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
     response = client.get("/blogroll", headers=HOST)
+    assert response.status_code == 200
+
+
+def test_blogroll_post_requires_auth(client):
+    with app.app_context():
+        create_user_and_site("owner@example.com", "myblog")
+    response = client.post(
+        "/blogroll",
+        data={"blogroll[0][name]": "Blog", "blogroll[0][url]": "https://example.com"},
+        headers=HOST,
+    )
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 

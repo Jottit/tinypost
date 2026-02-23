@@ -1,26 +1,16 @@
-<aside class="site-sidebar">
-  {% if site.avatar %}
-    <a href="/"><img class="u-photo sidebar-avatar" src="{{ site.avatar }}" alt="avatar"></a>
-  {% endif %}
-  {% if site.avatar %}<p class="sidebar-title">{{ site.title }}</p>{% endif %}
-  {% if site.bio %}
-    <p class="sidebar-bio">{{ site.bio }}</p>
-  {% endif %}
-  <div class="sidebar-section">
-    <h3>Subscribe by email</h3>
-    <form action="/subscribe" method="post" class="subscribe-form">
-      <div class="pill-input">
-        <input type="email" name="email" placeholder="Your email" required>
-        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-        <button type="submit">Subscribe</button>
-      </div>
-    </form>
-  </div>
-  {% if blogroll %}
-    <div class="sidebar-section">
-      <h3>Blogroll</h3>
-      <ul>
-        {% for item in blogroll[:5] %}
+{% extends "base.html" %}
+{% block title %}Blogroll — {{ site.title }}{% endblock %}
+{% block theme_css %}{% include "theme_css.html" %}{% endblock %}
+{% block head_extra %}{% include "site_design.html" %}{% endblock %}
+{% block body %}
+  <main>
+    <header class="site-header">
+      <h1><a href="{{ site_url(site) }}">{{ site.title }}</a></h1>
+    </header>
+    <div class="panel panel--narrow">
+      <h2>Blogroll</h2>
+      <ul class="blogroll-list">
+        {% for item in blogroll %}
           <li>
             <div class="blogroll-item">
               {% if item.feed_icon_url %}
@@ -47,9 +37,7 @@
           </li>
         {% endfor %}
       </ul>
-      {% if blogroll|length > 5 %}
-        <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
-      {% endif %}
     </div>
-  {% endif %}
-</aside>
+  </main>
+  {% include "site_footer.html" %}
+{% endblock %}
