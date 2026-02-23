@@ -477,6 +477,10 @@ input.page-nav-add-input.active {
   margin-bottom: var(--space-5);
 }
 
+.site-sidebar .pill-input {
+  max-width: 100%;
+}
+
 .site-sidebar .social-links {
   margin-bottom: var(--space-5);
 }
