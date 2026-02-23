@@ -11,3 +11,4 @@ psycopg[binary]
 pytest
 ruff
 black
+sentry-sdk[flask]

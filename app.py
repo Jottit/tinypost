@@ -1,6 +1,10 @@
 import os
 
+import sentry_sdk
 from flask import Flask
+
+if os.environ.get("SENTRY_DSN"):
+    sentry_sdk.init(dsn=os.environ["SENTRY_DSN"])
 
 from cli import init_cli
 from db import close_db
