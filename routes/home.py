@@ -22,7 +22,7 @@ def _user_menu_context():
     sites = get_sites_by_user(user_id) if user else []
     site = sites[0] if sites else None
     return {
-        "user_email": mask_email(user["email"]) if user and sites else None,
+        "user_email": mask_email(user["email"]) if sites else None,
         "sites": [
             {
                 "title": s["title"],

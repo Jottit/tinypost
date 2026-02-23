@@ -202,11 +202,6 @@ body:has(.public-page) {
   line-height: 1.7;
 }
 
-.public-page .home-footer {
-  position: static;
-  padding: var(--space-8) 0;
-}
-
 .home-footer {
   position: fixed;
   bottom: var(--space-6);
@@ -239,6 +234,11 @@ body:has(.public-page) {
 
 .home-footer-nav a {
   margin: 0 var(--space-2);
+}
+
+.public-page .home-footer {
+  position: static;
+  padding: var(--space-8) 0;
 }
 
 .logo {
