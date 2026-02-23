@@ -119,14 +119,15 @@ def refresh_all_feeds(url=None):
     database_url = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
     with psycopg.connect(database_url, row_factory=dict_row) as conn:
         if url:
-            url_filter = " AND url = %s"
+            url_filter = " AND f.url = %s"
             url_params = (url,)
         else:
             url_filter = ""
             url_params = ()
 
         missing = conn.execute(
-            "SELECT id, url FROM blogroll WHERE (feed_url IS NULL OR feed_url = '')" + url_filter,
+            "SELECT f.id, f.url FROM feeds f"
+            " WHERE (f.feed_url IS NULL OR f.feed_url = '')" + url_filter,
             url_params,
         ).fetchall()
 
@@ -134,14 +135,15 @@ def refresh_all_feeds(url=None):
             feed_url = discover_feed_url(row["url"])
             if feed_url:
                 conn.execute(
-                    "UPDATE blogroll SET feed_url = %s WHERE id = %s",
+                    "UPDATE feeds SET feed_url = %s WHERE id = %s",
                     (feed_url, row["id"]),
                 )
                 conn.commit()
 
         rows = conn.execute(
-            "SELECT id, feed_url FROM blogroll"
-            " WHERE feed_url IS NOT NULL AND feed_url != ''" + url_filter,
+            "SELECT DISTINCT f.id, f.feed_url FROM feeds f"
+            " JOIN blogroll b ON b.feed_id = f.id"
+            " WHERE f.feed_url IS NOT NULL AND f.feed_url != ''" + url_filter,
             url_params,
         ).fetchall()
 
@@ -150,7 +152,7 @@ def refresh_all_feeds(url=None):
             try:
                 data = fetch_feed(row["feed_url"])
                 conn.execute(
-                    "UPDATE blogroll SET feed_title = %s, feed_icon_url = %s,"
+                    "UPDATE feeds SET feed_title = %s, feed_icon_url = %s,"
                     " latest_post_title = %s, latest_post_url = %s,"
                     " last_updated = %s, last_fetched = %s"
                     " WHERE id = %s",
@@ -168,7 +170,7 @@ def refresh_all_feeds(url=None):
             except Exception:
                 logger.exception("Failed to fetch feed %s", row["feed_url"])
                 conn.execute(
-                    "UPDATE blogroll SET last_fetched = %s WHERE id = %s",
+                    "UPDATE feeds SET last_fetched = %s WHERE id = %s",
                     (now, row["id"]),
                 )
                 conn.commit()

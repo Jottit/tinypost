@@ -376,8 +376,12 @@ def get_subscriber_count(site_id):
 
 def get_blogroll(site_id):
     return query(
-        "SELECT * FROM blogroll WHERE site_id = %s"
-        " ORDER BY last_updated DESC NULLS LAST, sort_order",
+        "SELECT b.id, b.site_id, b.name, b.sort_order, b.created_at,"
+        " f.url, f.feed_url, f.feed_title, f.feed_icon_url,"
+        " f.latest_post_title, f.latest_post_url, f.last_updated, f.last_fetched"
+        " FROM blogroll b JOIN feeds f ON b.feed_id = f.id"
+        " WHERE b.site_id = %s"
+        " ORDER BY f.last_updated DESC NULLS LAST, b.sort_order",
         (site_id,),
     )
 
@@ -385,29 +389,42 @@ def get_blogroll(site_id):
 def update_blogroll(site_id, items):
     db = get_db()
     existing = {
-        row["url"]: row for row in query("SELECT * FROM blogroll WHERE site_id = %s", (site_id,))
+        row["url"]: row
+        for row in query(
+            "SELECT b.id, f.url FROM blogroll b JOIN feeds f ON b.feed_id = f.id"
+            " WHERE b.site_id = %s",
+            (site_id,),
+        )
     }
     new_urls = {item["url"] for item in items}
 
-    # Delete removed entries
     for url in existing:
         if url not in new_urls:
             db.execute("DELETE FROM blogroll WHERE id = %s", (existing[url]["id"],))
 
-    # Update or insert entries
     for i, item in enumerate(items):
+        feed_id = _find_or_create_feed(db, item["url"], item.get("feed_url"))
         if item["url"] in existing:
             db.execute(
-                "UPDATE blogroll SET name = %s, sort_order = %s WHERE id = %s",
-                (item["name"], i, existing[item["url"]]["id"]),
+                "UPDATE blogroll SET name = %s, sort_order = %s, feed_id = %s WHERE id = %s",
+                (item["name"], i, feed_id, existing[item["url"]]["id"]),
             )
         else:
             db.execute(
-                "INSERT INTO blogroll (site_id, name, url, feed_url, sort_order)"
-                " VALUES (%s, %s, %s, %s, %s)",
-                (site_id, item["name"], item["url"], item.get("feed_url") or None, i),
+                "INSERT INTO blogroll (site_id, name, feed_id, sort_order)"
+                " VALUES (%s, %s, %s, %s)",
+                (site_id, item["name"], feed_id, i),
             )
     db.commit()
+
+
+def _find_or_create_feed(db, url, feed_url=None):
+    db.execute(
+        "INSERT INTO feeds (url, feed_url) VALUES (%s, %s) ON CONFLICT (url) DO NOTHING",
+        (url, feed_url or None),
+    )
+    row = db.execute("SELECT id FROM feeds WHERE url = %s", (url,)).fetchone()
+    return row["id"]
 
 
 def mark_post_sent(post_id):

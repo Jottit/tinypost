@@ -147,8 +147,13 @@ def test_fetch_feed_atom(mock_parse, mock_urlopen):
     assert result["last_updated"] is not None
 
 
+@patch("feed_fetcher.urllib.request.urlopen")
 @patch("feed_fetcher.feedparser.parse")
-def test_fetch_feed_parse_error(mock_parse):
+def test_fetch_feed_parse_error(mock_parse, mock_urlopen):
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = b""
+    mock_urlopen.return_value = mock_resp
+
     mock_result = MagicMock()
     mock_result.bozo = True
     mock_result.bozo_exception = Exception("bad xml")
@@ -162,11 +167,13 @@ def test_fetch_feed_parse_error(mock_parse):
 @patch("feed_fetcher.urllib.request.urlopen")
 @patch("feed_fetcher.feedparser.parse")
 def test_favicon_fallback_to_feed_image(mock_parse, mock_urlopen):
-    mock_urlopen.side_effect = Exception("Connection refused")
+    feed_resp = MagicMock()
+    feed_resp.read.return_value = IMAGE_FEED_XML.encode()
+    mock_urlopen.side_effect = [feed_resp, Exception("Connection refused")]
     mock_parse.return_value = PARSED_IMAGE_FEED
 
     result = fetch_feed("https://example.com/feed.xml")
-    assert result["feed_icon_url"] is None or "example.com" in result["feed_icon_url"]
+    assert result["feed_icon_url"] == "https://example.com/logo.png"
 
 
 @patch("feed_fetcher.urllib.request.urlopen")
@@ -259,8 +266,8 @@ def test_sidebar_renders_feed_metadata(client):
         )
         db = get_db()
         db.execute(
-            "UPDATE blogroll SET latest_post_title = %s, feed_icon_url = %s WHERE site_id = %s",
-            ("A Great Post", "https://cool.example.com/favicon.ico", site["id"]),
+            "UPDATE feeds SET latest_post_title = %s, feed_icon_url = %s WHERE url = %s",
+            ("A Great Post", "https://cool.example.com/favicon.ico", "https://cool.example.com"),
         )
         db.commit()
 
@@ -304,8 +311,12 @@ def test_sidebar_links_latest_post(client):
         )
         db = get_db()
         db.execute(
-            "UPDATE blogroll SET latest_post_title = %s, latest_post_url = %s WHERE site_id = %s",
-            ("Great Article", "https://linked.example.com/great-article", site["id"]),
+            "UPDATE feeds SET latest_post_title = %s, latest_post_url = %s WHERE url = %s",
+            (
+                "Great Article",
+                "https://linked.example.com/great-article",
+                "https://linked.example.com",
+            ),
         )
         db.commit()
 
@@ -345,6 +356,51 @@ def test_blogroll_page_public(client):
     assert response.status_code == 200
     assert b"Public Blog" in response.data
     assert b"Blogroll" in response.data
+
+
+@patch("feed_fetcher.fetch_feed")
+def test_refresh_deduplicates_shared_feed(mock_fetch, client):
+    _, site1 = _setup()
+    with app.app_context():
+        user2, site2 = create_user_and_site("other@example.com", "otherblog")
+        update_blogroll(
+            site1["id"],
+            [
+                {
+                    "name": "Shared",
+                    "url": "https://shared.example.com",
+                    "feed_url": "https://shared.example.com/rss",
+                }
+            ],
+        )
+        update_blogroll(
+            site2["id"],
+            [
+                {
+                    "name": "Shared Too",
+                    "url": "https://shared.example.com",
+                    "feed_url": "https://shared.example.com/rss",
+                }
+            ],
+        )
+
+    mock_fetch.return_value = {
+        "feed_title": "Shared Blog",
+        "feed_icon_url": None,
+        "latest_post_title": "Post",
+        "latest_post_url": "https://shared.example.com/post",
+        "last_updated": datetime(2024, 1, 1, tzinfo=timezone.utc),
+    }
+
+    refresh_all_feeds()
+
+    mock_fetch.assert_called_once_with("https://shared.example.com/rss")
+
+    with app.app_context():
+        items1 = get_blogroll(site1["id"])
+        items2 = get_blogroll(site2["id"])
+        assert items1[0]["latest_post_title"] == "Post"
+        assert items2[0]["latest_post_title"] == "Post"
 
 
 def test_timeago_filter():
