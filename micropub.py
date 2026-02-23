@@ -97,7 +97,7 @@ def micropub_post():
     post = create_post(site["id"], slug, title, body, is_draft=is_draft)
 
     location = f"{subdomain_url(site)}/{post['slug']}"
-    return "", 201, {"Location": location}
+    return jsonify({"url": location}), 201, {"Location": location}
 
 
 @app.route("/micropub", methods=["GET"])
