@@ -91,7 +91,9 @@ def home():
 def about():
     host, base = host_and_base()
     if host != base:
-        abort(404)
+        from routes.posts import post
+
+        return post("about")
     return render_template("about.html", **_user_menu_context())
 
 
@@ -99,7 +101,9 @@ def about():
 def contact():
     host, base = host_and_base()
     if host != base:
-        abort(404)
+        from routes.posts import post
+
+        return post("contact")
     return render_template("contact.html", **_user_menu_context())
 
 
