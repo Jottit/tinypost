@@ -34,9 +34,10 @@ def truncatewords_filter(text, n=50):
     return " ".join(words[:n]) + "…"
 
 
-from utils import site_url
+from utils import site_url, subdomain_url
 
 app.jinja_env.globals["site_url"] = site_url
+app.jinja_env.globals["subdomain_url"] = subdomain_url
 
 from indieauth import *
 from micropub import *

@@ -57,13 +57,13 @@
       {% if new_token %}
         <p class="success">Token created. Copy it now — it won't be shown again.</p>
         <pre class="api-token">{{ new_token }}</pre>
-        <p>Micropub endpoint: <code>{{ site_url(site) }}/micropub</code></p>
+        <p>Micropub endpoint: <code>{{ subdomain_url(site) }}/micropub</code></p>
         <form method="POST" action="/account/token/revoke">
           <button type="submit" class="btn btn--danger">Revoke token</button>
         </form>
       {% elif personal_token %}
         <p>You have an active API token. Use it with Micropub clients like <code>mpcli</code>.</p>
-        <p>Micropub endpoint: <code>{{ site_url(site) }}/micropub</code></p>
+        <p>Micropub endpoint: <code>{{ subdomain_url(site) }}/micropub</code></p>
         <form method="POST" action="/account/token/revoke">
           <button type="submit" class="btn btn--danger">Revoke token</button>
         </form>
