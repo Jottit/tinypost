@@ -423,6 +423,11 @@ input.page-nav-add-input.active {
   grid-template-columns: 1fr 260px;
   gap: var(--space-10);
   align-items: start;
+  min-width: 0;
+}
+
+.site-layout > * {
+  min-width: 0;
 }
 
 @media (max-width: 864px) {
