@@ -816,12 +816,12 @@ input[type="checkbox"]:checked {
 
 .admin-dropdown form button {
   padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
+  padding-bottom: 0;
 }
 
 .admin-dropdown-email {
   display: block;
-  padding: var(--space-2) var(--space-5);
+  padding: 0 var(--space-5) var(--space-2);
   font-size: var(--text-xs);
   color: var(--text-muted);
 }

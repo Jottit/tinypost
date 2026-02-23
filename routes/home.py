@@ -8,7 +8,7 @@ from db import (
     get_posts_for_site,
     get_site_by_custom_domain,
     get_site_by_subdomain,
-    get_site_by_user,
+    get_sites_by_user,
     get_subscriber_count,
     get_user_by_id,
     subdomain_taken,
@@ -40,11 +40,21 @@ def home():
 
         user_id = session.get("user_id")
         user = get_user_by_id(user_id) if user_id else None
-        site = get_site_by_user(user_id) if user else None
+        sites = get_sites_by_user(user_id) if user else []
+        site = sites[0] if sites else None
         return render_template(
             "home.html",
-            user_email=mask_email(user["email"]) if user and site else None,
-            user_site_url=subdomain_url(site) if user and site else None,
+            user_email=mask_email(user["email"]) if user and sites else None,
+            sites=[
+                {
+                    "title": s["title"],
+                    "url": subdomain_url(s),
+                    "avatar": s.get("avatar"),
+                    "address": s.get("custom_domain") or f"{s['subdomain']}.jottit.pub",
+                }
+                for s in sites
+            ],
+            site=site,
         )
 
     site = get_current_site()
@@ -72,6 +82,22 @@ def home():
         subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
         blogroll=get_blogroll(site["id"]),
     )
+
+
+@app.route("/about")
+def about():
+    host, base = host_and_base()
+    if host != base:
+        abort(404)
+    return render_template("about.html")
+
+
+@app.route("/contact")
+def contact():
+    host, base = host_and_base()
+    if host != base:
+        abort(404)
+    return render_template("contact.html")
 
 
 @app.route("/check-subdomain")

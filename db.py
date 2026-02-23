@@ -83,6 +83,10 @@ def get_site_by_user(user_id):
     return query("SELECT * FROM sites WHERE user_id = %s", (user_id,), one=True)
 
 
+def get_sites_by_user(user_id):
+    return query("SELECT * FROM sites WHERE user_id = %s ORDER BY created_at", (user_id,))
+
+
 def get_post_by_slug(site_id, slug):
     return query("SELECT * FROM posts WHERE site_id = %s AND slug = %s", (site_id, slug), one=True)
 
