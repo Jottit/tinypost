@@ -6,9 +6,25 @@ import pytest
 
 from app import app
 from db import create_user_and_site, get_blogroll, update_blogroll
-from feed_fetcher import fetch_feed, refresh_all_feeds
+from feed_fetcher import discover_feed_url, fetch_feed, refresh_all_feeds
 
 HOST = {"Host": "myblog.jottit.localhost:8000"}
+
+HTML_WITH_RSS = """<html><head>
+<link rel="alternate" type="application/rss+xml" href="https://example.com/feed.xml">
+</head><body></body></html>"""
+
+HTML_WITH_ATOM = """<html><head>
+<link rel="alternate" type="application/atom+xml" href="/atom.xml">
+</head><body></body></html>"""
+
+HTML_NO_FEED = """<html><head>
+<link rel="stylesheet" href="/style.css">
+</head><body></body></html>"""
+
+HTML_RELATIVE_HREF = """<html><head>
+<link rel="alternate" type="application/rss+xml" href="/blog/feed">
+</head><body></body></html>"""
 
 RSS_FEED = """<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
@@ -42,6 +58,51 @@ IMAGE_FEED_XML = """<?xml version="1.0"?>
   </channel>
 </rss>"""
 PARSED_IMAGE_FEED = _feedparser.parse(IMAGE_FEED_XML)
+
+
+@patch("feed_fetcher.urllib.request.urlopen")
+def test_discover_feed_url_rss(mock_urlopen):
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = HTML_WITH_RSS.encode()
+    mock_urlopen.return_value = mock_resp
+
+    result = discover_feed_url("https://example.com")
+    assert result == "https://example.com/feed.xml"
+
+
+@patch("feed_fetcher.urllib.request.urlopen")
+def test_discover_feed_url_atom(mock_urlopen):
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = HTML_WITH_ATOM.encode()
+    mock_urlopen.return_value = mock_resp
+
+    result = discover_feed_url("https://example.com")
+    assert result == "https://example.com/atom.xml"
+
+
+@patch("feed_fetcher.urllib.request.urlopen")
+def test_discover_feed_url_no_feed(mock_urlopen):
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = HTML_NO_FEED.encode()
+    mock_urlopen.return_value = mock_resp
+
+    result = discover_feed_url("https://example.com")
+    assert result is None
+
+
+@patch("feed_fetcher.urllib.request.urlopen")
+def test_discover_feed_url_relative_href(mock_urlopen):
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = HTML_RELATIVE_HREF.encode()
+    mock_urlopen.return_value = mock_resp
+
+    result = discover_feed_url("https://example.com")
+    assert result == "https://example.com/blog/feed"
+
+
+def test_discover_feed_url_network_error():
+    result = discover_feed_url("https://nonexistent.invalid")
+    assert result is None
 
 
 def _setup():
@@ -148,6 +209,33 @@ def test_refresh_all_feeds_updates_db(mock_fetch, client):
         assert items[0]["last_fetched"] is not None
 
 
+@patch("feed_fetcher.fetch_feed")
+@patch("feed_fetcher.discover_feed_url")
+def test_refresh_all_feeds_discovers_missing_feed_url(mock_discover, mock_fetch, client):
+    _, site = _setup()
+
+    with app.app_context():
+        update_blogroll(
+            site["id"],
+            [{"name": "No Feed Blog", "url": "https://nofeed.example.com"}],
+        )
+
+    mock_discover.return_value = "https://nofeed.example.com/rss"
+    mock_fetch.return_value = {
+        "feed_title": "Discovered Blog",
+        "feed_icon_url": None,
+        "latest_post_title": "First Post",
+        "last_updated": datetime(2024, 1, 1, tzinfo=timezone.utc),
+    }
+
+    refresh_all_feeds()
+
+    with app.app_context():
+        items = get_blogroll(site["id"])
+        assert items[0]["feed_url"] == "https://nofeed.example.com/rss"
+        assert items[0]["feed_title"] == "Discovered Blog"
+
+
 def test_sidebar_renders_feed_metadata(client):
     _, site = _setup()
 
@@ -162,7 +250,7 @@ def test_sidebar_renders_feed_metadata(client):
                 },
             ],
         )
-        from models import get_db
+        from db import get_db
 
         db = get_db()
         db.execute(

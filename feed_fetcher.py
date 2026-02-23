@@ -2,13 +2,54 @@ import logging
 import os
 import urllib.request
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from html.parser import HTMLParser
+from urllib.parse import urljoin, urlparse
 
 import feedparser
 import psycopg
 from psycopg.rows import dict_row
 
 logger = logging.getLogger(__name__)
+
+
+class _LinkParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.feeds = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "link":
+            return
+        attrs_dict = dict(attrs)
+        rel = attrs_dict.get("rel", "")
+        if rel != "alternate":
+            return
+        feed_type = attrs_dict.get("type", "")
+        if feed_type in ("application/rss+xml", "application/atom+xml"):
+            href = attrs_dict.get("href")
+            if href:
+                self.feeds.append(href)
+
+
+def discover_feed_url(url):
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Jottit/1.0"})
+        resp = urllib.request.urlopen(req, timeout=10)
+        html = resp.read().decode("utf-8", errors="replace")
+    except Exception:
+        return None
+
+    parser = _LinkParser()
+    try:
+        parser.feed(html)
+    except Exception:
+        return None
+
+    if not parser.feeds:
+        return None
+
+    href = parser.feeds[0]
+    return urljoin(url, href)
 
 
 def fetch_feed(feed_url):
@@ -62,8 +103,21 @@ def _find_favicon(feed_url, feed):
 def refresh_all_feeds():
     database_url = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
     with psycopg.connect(database_url, row_factory=dict_row) as conn:
+        missing = conn.execute(
+            "SELECT id, url FROM blogroll WHERE feed_url IS NULL OR feed_url = ''"
+        ).fetchall()
+
+        for row in missing:
+            feed_url = discover_feed_url(row["url"])
+            if feed_url:
+                conn.execute(
+                    "UPDATE blogroll SET feed_url = %s WHERE id = %s",
+                    (feed_url, row["id"]),
+                )
+                conn.commit()
+
         rows = conn.execute(
-            "SELECT id, feed_url FROM blogroll WHERE feed_url IS NOT NULL"
+            "SELECT id, feed_url FROM blogroll" " WHERE feed_url IS NOT NULL AND feed_url != ''"
         ).fetchall()
 
         for row in rows:
