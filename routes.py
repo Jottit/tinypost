@@ -136,6 +136,11 @@ def require_owner():
     return site
 
 
+@app.route("/healthz")
+def healthz():
+    return "ok"
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     host, base = host_and_base()
