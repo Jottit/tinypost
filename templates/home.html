@@ -2,41 +2,7 @@
 {% block title %}Jottit — self-owned publishing on the web{% endblock %}
 {% block body %}
   <nav class="top-nav">
-    {% if user_email %}
-      <div class="admin-menu">
-        <input type="checkbox" id="admin-toggle" hidden>
-        {% if site and site.avatar %}
-          <label for="admin-toggle" class="admin-avatar">
-            <img src="{{ site.avatar }}" alt="Menu">
-          </label>
-        {% elif site and site.title %}
-          {% set words = site.title.split() %}
-          <label for="admin-toggle" class="admin-initials">
-            {{ words[0][0] | upper }}{% if words | length > 1 %}{{ words[1][0] | upper }}{% endif %}
-          </label>
-        {% else %}
-          <label for="admin-toggle" class="admin-initials">?</label>
-        {% endif %}
-        <div class="admin-dropdown">
-          {% for s in sites %}
-            <a href="{{ s.url }}">{{ s.address }}</a>
-          {% endfor %}
-          <hr class="admin-dropdown-divider">
-          <form method="POST" action="/signout">
-            <button type="submit">Sign out</button>
-          </form>
-          <span class="admin-dropdown-email">{{ user_email }}</span>
-        </div>
-      </div>
-      <script>
-        document.addEventListener('click', function(e) {
-          var toggle = document.getElementById('admin-toggle');
-          if (toggle.checked && !e.target.closest('.admin-menu')) toggle.checked = false;
-        });
-      </script>
-    {% else %}
-      <a href="/signin">sign in</a>
-    {% endif %}
+    {% include "user_menu.html" %}
   </nav>
   <main class="page-centered">
     <header class="mb-4">

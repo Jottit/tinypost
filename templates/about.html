@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}About — Jottit{% endblock %}
+{% block body %}
+  <div class="public-page">
+    <header class="public-header">
+      <a href="/" class="logo logo-sm"><span>Jottit</span></a>
+      <nav class="top-nav top-nav-dark">
+        {% include "user_menu.html" %}
+      </nav>
+    </header>
+    <main class="public-content">
+      <h1>Our story</h1>
+      <div class="panel">
+        <p>In 2005, <a href="https://en.wikipedia.org/wiki/Aaron_Swartz" target="_blank" rel="noopener"><strong>Aaron Swartz</strong></a> and <strong>Simon Carstensen</strong> co-founded Infogami as part of the first Y Combinator batch. They wanted to make it easy for people to create and share their ideas on the web.</p>
+        <p>From that work came <strong>the original Jottit in 2007</strong>, a simple way for anyone to make a website.</p>
+        <p>Nearly twenty years later, Jottit is being rebuilt from scratch with the same idea at heart: a web that stays <strong>easy, open, and personal</strong>.</p>
+        <p>Jottit lets anyone create a website instantly. There is <strong>no tracking, no followers, and no algorithms.</strong> Just your words on a small site that is yours.</p>
+        <p>It's <strong>open source</strong>, built on <strong>web standards</strong>, and <strong>designed to last</strong>. You can see how it works, fork it, or run your own version whenever you like.</p>
+        <p>If you'd like to support its development or help keep it independent, visit the <a href="https://github.com/sponsors/jottit" target="_blank" rel="noopener">sponsor page</a> or email <a href="mailto:hello@jottit.pub">hello@jottit.pub</a>.</p>
+      </div>
+    </main>
+    {% include "home_footer.html" %}
+  </div>
+{% endblock %}

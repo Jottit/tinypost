@@ -16,6 +16,26 @@ from db import (
 from utils import get_current_site, host_and_base, is_valid_subdomain, mask_email, subdomain_url
 
 
+def _user_menu_context():
+    user_id = session.get("user_id")
+    user = get_user_by_id(user_id) if user_id else None
+    sites = get_sites_by_user(user_id) if user else []
+    site = sites[0] if sites else None
+    return {
+        "user_email": mask_email(user["email"]) if user and sites else None,
+        "sites": [
+            {
+                "title": s["title"],
+                "url": subdomain_url(s),
+                "avatar": s.get("avatar"),
+                "address": s.get("custom_domain") or f"{s['subdomain']}.jottit.pub",
+            }
+            for s in sites
+        ],
+        "site": site,
+    }
+
+
 @app.route("/healthz")
 def healthz():
     return "ok"
@@ -38,24 +58,7 @@ def home():
                 )
             return render_template("signup.html", subdomain=subdomain)
 
-        user_id = session.get("user_id")
-        user = get_user_by_id(user_id) if user_id else None
-        sites = get_sites_by_user(user_id) if user else []
-        site = sites[0] if sites else None
-        return render_template(
-            "home.html",
-            user_email=mask_email(user["email"]) if user and sites else None,
-            sites=[
-                {
-                    "title": s["title"],
-                    "url": subdomain_url(s),
-                    "avatar": s.get("avatar"),
-                    "address": s.get("custom_domain") or f"{s['subdomain']}.jottit.pub",
-                }
-                for s in sites
-            ],
-            site=site,
-        )
+        return render_template("home.html", **_user_menu_context())
 
     site = get_current_site()
     if not site:
@@ -89,7 +92,7 @@ def about():
     host, base = host_and_base()
     if host != base:
         abort(404)
-    return render_template("about.html")
+    return render_template("about.html", **_user_menu_context())
 
 
 @app.route("/contact")
@@ -97,7 +100,7 @@ def contact():
     host, base = host_and_base()
     if host != base:
         abort(404)
-    return render_template("contact.html")
+    return render_template("contact.html", **_user_menu_context())
 
 
 @app.route("/check-subdomain")
