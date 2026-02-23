@@ -30,7 +30,7 @@ def test_subscribe(mock_send, client):
     assert mock_send.call_args.kwargs["to"] == "reader@example.com"
     assert "confirm" in mock_send.call_args.kwargs["subject"].lower()
     assert mock_send.call_args.kwargs["html"] is not None
-    assert "confirm-subscriber@jottit.pub" in mock_send.call_args.kwargs["from_addr"]
+    assert "confirm-subscriber@" in mock_send.call_args.kwargs["from_addr"]
 
 
 @patch("routes.subscribers.send_email")

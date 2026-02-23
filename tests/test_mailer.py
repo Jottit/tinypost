@@ -5,8 +5,10 @@ from mailer import send_email
 
 
 def test_send_email_with_api_key():
+    from app import app
+
     mock_response = MagicMock()
-    with patch.dict("os.environ", {"RESEND_API_KEY": "re_test_123"}), patch(
+    with app.app_context(), patch.dict("os.environ", {"RESEND_API_KEY": "re_test_123"}), patch(
         "mailer.urllib.request.urlopen", return_value=mock_response
     ) as mock_urlopen:
         send_email("user@example.com", "Test Subject", "Test body")
@@ -18,7 +20,8 @@ def test_send_email_with_api_key():
     assert req.get_header("User-agent") == "Jottit/1.0"
 
     body = json.loads(req.data)
-    assert body["from"] == "Jottit <noreply@jottit.pub>"  # default BASE_DOMAIN
+    base = app.config["BASE_DOMAIN"]
+    assert body["from"] == f"Jottit <noreply@{base}>"
     assert body["to"] == ["user@example.com"]
     assert body["subject"] == "Test Subject"
     assert body["text"] == "Test body"

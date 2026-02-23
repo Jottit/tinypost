@@ -136,15 +136,17 @@ def test_delete_all_images_local_missing_dir(client):
 @patch("storage._s3_client")
 def test_delete_all_images_s3(mock_client_fn):
     mock_s3 = MagicMock()
-    mock_s3.list_objects_v2.return_value = {
-        "Contents": [{"Key": "site/a.png"}, {"Key": "site/b.png"}]
-    }
+    mock_paginator = MagicMock()
+    mock_paginator.paginate.return_value = [
+        {"Contents": [{"Key": "site/a.png"}, {"Key": "site/b.png"}]}
+    ]
+    mock_s3.get_paginator.return_value = mock_paginator
     mock_client_fn.return_value = mock_s3
 
     with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
         delete_all_images("site")
 
-    mock_s3.list_objects_v2.assert_called_once_with(Bucket="my-bucket", Prefix="site/")
+    mock_paginator.paginate.assert_called_once_with(Bucket="my-bucket", Prefix="site/")
     assert mock_s3.delete_object.call_count == 2
     mock_s3.delete_object.assert_any_call(Bucket="my-bucket", Key="site/a.png")
     mock_s3.delete_object.assert_any_call(Bucket="my-bucket", Key="site/b.png")
@@ -153,7 +155,9 @@ def test_delete_all_images_s3(mock_client_fn):
 @patch("storage._s3_client")
 def test_delete_all_images_s3_empty(mock_client_fn):
     mock_s3 = MagicMock()
-    mock_s3.list_objects_v2.return_value = {}
+    mock_paginator = MagicMock()
+    mock_paginator.paginate.return_value = [{}]
+    mock_s3.get_paginator.return_value = mock_paginator
     mock_client_fn.return_value = mock_s3
 
     with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):

@@ -231,7 +231,7 @@ def test_import_multiple_posts(client):
         assert get_post_by_slug(site["id"], "second") is not None
 
 
-def _mock_urlopen(url):
+def _mock_urlopen(url, timeout=None):
     resp = MagicMock()
     resp.read.return_value = b"\x89PNG fake image"
     resp.headers = {"Content-Type": "image/png"}
