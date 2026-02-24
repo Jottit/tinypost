@@ -614,3 +614,9 @@ a.blogroll-item-post:hover {
   color: var(--site-text-muted);
   margin-bottom: var(--space-5);
 }
+
+.empty-state-alt {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+}
