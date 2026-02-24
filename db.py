@@ -18,6 +18,7 @@ def _get_pool():
             DATABASE_URL,
             min_size=1,
             max_size=10,
+            max_idle=300,
             kwargs={"row_factory": dict_row, "connect_timeout": 5},
         )
     return _pool
