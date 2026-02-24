@@ -7,7 +7,7 @@ if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(dsn=os.environ["SENTRY_DSN"])
 
 from cli import init_cli
-from db import close_db
+from db import close_db, get_site_by_custom_domain
 from template_setup import init_templates
 
 app = Flask(__name__)
@@ -23,10 +23,14 @@ init_cli(app)
 
 @app.before_request
 def redirect_www():
-    host = request.host
-    base = app.config["BASE_DOMAIN"]
-    if host == f"www.{base}" or host == f"www.{base.split(':')[0]}":
+    host = request.host.split(":")[0]
+    base = app.config["BASE_DOMAIN"].split(":")[0]
+    if host == f"www.{base}":
         return redirect(f"https://{base}{request.full_path}", code=301)
+    if host.startswith("www."):
+        bare = host[4:]
+        if get_site_by_custom_domain(bare):
+            return redirect(f"https://{bare}{request.full_path}", code=301)
 
 
 from indieauth import *

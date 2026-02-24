@@ -228,6 +228,27 @@ def test_subdomain_no_redirect_for_authenticated_owner(client):
     assert response.status_code == 200
 
 
+def test_tls_ask_returns_200_for_www_custom_domain(client):
+    _, site = _setup_site()
+    with app.app_context():
+        set_custom_domain(site["id"], "example.com", "tok")
+        verify_custom_domain(site["id"])
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
+        response = client.get("/_tls/ask?token=secret&domain=www.example.com")
+    assert response.status_code == 200
+
+
+def test_www_custom_domain_redirects_to_bare(client):
+    _, site = _setup_site()
+    with app.app_context():
+        set_custom_domain(site["id"], "example.com", "tok")
+        verify_custom_domain(site["id"])
+    response = client.get("/some/path", headers={"Host": "www.example.com"})
+    assert response.status_code == 301
+    assert "https://example.com/some/path" in response.headers["Location"]
+    assert "www" not in response.headers["Location"]
+
+
 def test_drafts_hidden_on_custom_domain(client):
     _, site = _setup_site()
     with app.app_context():
