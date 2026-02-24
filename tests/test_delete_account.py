@@ -84,9 +84,6 @@ def test_deleted_post_returns_404(client):
     assert response.status_code == 404
 
 
-HOST2 = {"Host": "second.jottit.localhost:8000"}
-
-
 def test_delete_account_with_multiple_sites(client):
     with app.app_context():
         user, site1 = create_user_and_site("owner@example.com", "myblog")
@@ -151,8 +148,8 @@ def test_delete_last_site_deletes_account(client):
 
 def test_delete_account_page_lists_all_sites(client):
     with app.app_context():
-        user, site1 = create_user_and_site("owner@example.com", "myblog")
-        _, site2 = create_user_and_site("owner@example.com", "second")
+        user, _ = create_user_and_site("owner@example.com", "myblog")
+        create_user_and_site("owner@example.com", "second")
     login(client, user["id"])
     response = client.get("/-/settings/delete-account", headers=HOST)
     assert response.status_code == 200
