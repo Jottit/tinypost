@@ -19,6 +19,7 @@ def _get_pool():
             min_size=1,
             max_size=10,
             max_idle=300,
+            check=ConnectionPool.check_connection,
             kwargs={"row_factory": dict_row, "connect_timeout": 5},
         )
     return _pool
