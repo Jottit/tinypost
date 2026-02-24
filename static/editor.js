@@ -32,9 +32,16 @@ var jot = new Jot(editorEl, {
 editorEl.querySelector('.ProseMirror').focus();
 
 titleInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' || e.key === 'ArrowDown') {
     e.preventDefault();
     editorEl.querySelector('.ProseMirror').focus();
+  }
+});
+
+editorEl.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowUp' && jot.isAtStart()) {
+    e.preventDefault();
+    titleInput.focus();
   }
 });
 
