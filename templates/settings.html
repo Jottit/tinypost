@@ -104,6 +104,7 @@
               {% if custom_domain_ipv6 %}
                 <p><strong>AAAA</strong> record pointing to <code>{{ custom_domain_ipv6 }}</code></p>
               {% endif %}
+              <p><strong>CNAME</strong> record for <code>www</code> pointing to <code>{{ site.custom_domain }}</code></p>
             </div>
             <div class="domain-actions">
               <form method="POST" action="/-/settings/domain/verify" class="inline">
