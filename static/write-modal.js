@@ -1,5 +1,5 @@
 import { Jot } from '/static/js/jot.js';
-import { bindImageHandlers } from '/static/image-upload.js';
+import { bindImageHandlers, uploadImage } from '/static/image-upload.js';
 
 var modal = document.getElementById('write-modal');
 var form = document.getElementById('write-modal-form');
@@ -55,7 +55,11 @@ function initEditor() {
       saveDraft();
     },
     ui: {
-      bubbleMenu: true
+      bubbleMenu: true,
+      imageBtn: true
+    },
+    onImage: function(file) {
+      uploadImage(jot, file);
     }
   });
   var pm = editorEl.querySelector('.ProseMirror');

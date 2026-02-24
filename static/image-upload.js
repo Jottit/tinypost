@@ -19,7 +19,7 @@ export function uploadImage(jot, file) {
     .then(function(json) {
       if (json.url) {
         var current = jot.getValue();
-        jot.setValue(current + '\n![image](' + json.url + ')\n');
+        jot.setValue(current.replace(/\n*$/, '') + '\n\n![image](' + json.url + ')\n');
       } else {
         alert(json.error || 'Upload failed');
       }

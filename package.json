@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "esbuild src/jot.js --bundle --format=esm --minify --outfile=static/js/jot.js && cp node_modules/@jottit/jot/dist/jot.css static/js/jot.css"
+    "build": "esbuild static/js/jot-entry.js --bundle --format=esm --minify --outfile=static/js/jot.js && cp node_modules/@jottit/jot/dist/jot.css static/js/jot.css"
   },
   "dependencies": {
     "@jottit/jot": "^0.2.4"

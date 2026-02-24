@@ -1,5 +1,5 @@
 import { Jot } from '/static/js/jot.js';
-import { bindImageHandlers } from '/static/image-upload.js';
+import { bindImageHandlers, uploadImage } from '/static/image-upload.js';
 
 var editorEl = document.getElementById('editor');
 var hiddenInput = document.querySelector('input[name="body"]');
@@ -21,13 +21,15 @@ var jot = new Jot(editorEl, {
     hiddenInput.value = markdown;
   },
   ui: {
-    bubbleMenu: true
+    bubbleMenu: true,
+    imageBtn: true
+  },
+  onImage: function(file) {
+    uploadImage(jot, file);
   }
 });
 
-if (editorEl.hasAttribute('autofocus')) {
-  editorEl.querySelector('.ProseMirror').focus();
-}
+editorEl.querySelector('.ProseMirror').focus();
 
 titleInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {

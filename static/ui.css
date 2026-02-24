@@ -619,6 +619,11 @@ main.editor {
   min-height: 60vh;
 }
 
+.editor .editor-body .ProseMirror img {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
 .editor-page .jot-bubble-menu {
   border-radius: 999px;
   padding: 6px 14px;
