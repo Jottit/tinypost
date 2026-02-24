@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ site.title }}{% endblock %}
+{% block theme_css %}{% include "theme_css.html" %}{% endblock %}
+{% block head_extra %}
+  {% include "site_design.html" %}
+{% endblock %}
+{% block body %}
+  <main>
+    {% include "admin_menu.html" %}
+    {% include "site_header.html" %}
+    <div class="mv-10">
+      <h2 class="text-center">Page not found</h2>
+      <p class="text-center mt-4">The page you're looking for doesn't exist.</p>
+    </div>
+  </main>
+  {% include "site_footer.html" %}
+{% endblock %}

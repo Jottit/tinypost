@@ -516,6 +516,25 @@ def test_uploaded_file(client):
     dest.unlink()
 
 
+# ── 404 error pages ──────────────────────
+
+
+def test_404_site_page(client):
+    with app.app_context():
+        create_user_and_site("owner@example.com", "myblog")
+    response = client.get("/nonexistent-path", headers=HOST)
+    assert response.status_code == 404
+    assert b"Page not found" in response.data
+    assert b"myblog" in response.data
+
+
+def test_404_jottit_page(client):
+    response = client.get("/nonexistent-path")
+    assert response.status_code == 404
+    assert b"Page not found" in response.data
+    assert b"Jottit" in response.data
+
+
 # ── 500 error page ───────────────────────
 
 

@@ -272,6 +272,11 @@ input[type="submit"] {
   margin-top: var(--space-6);
 }
 
+.mv-10 {
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-10);
+}
+
 .ml-auto {
   margin-left: auto;
 }
