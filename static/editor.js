@@ -9,7 +9,8 @@ var saveTimer = null;
 
 var formAction = form.getAttribute('action');
 var slug = formAction.replace('/-/edit', '').replace(/^\//, '');
-var STORAGE_KEY = slug ? 'jottit-edit-' + slug : 'jottit-write-draft';
+var STORAGE_KEY = slug ? 'jottit-draft-' + slug : 'jottit-write-draft';
+var CURSOR_KEY = slug ? 'jottit-cursor-' + slug : 'jottit-cursor-new';
 
 var draftRestored = false;
 try {
@@ -20,6 +21,8 @@ try {
     draftRestored = true;
   }
 } catch (e) {}
+
+var savedCursor = parseInt(localStorage.getItem(CURSOR_KEY), 10) || 0;
 
 var origTitle = titleInput.value;
 var origBody = hiddenInput.value;
@@ -40,6 +43,10 @@ var jot = new Jot(editorEl, {
 });
 
 editorEl.querySelector('.ProseMirror').focus();
+
+if (savedCursor) {
+  jot.setCursor(savedCursor);
+}
 
 if (draftRestored) {
   var toast = document.createElement('div');
@@ -78,6 +85,7 @@ function isDirty() {
 function saveDraft() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(function() {
+    localStorage.setItem(CURSOR_KEY, jot.getCursor());
     if (isDirty()) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         title: titleInput.value,
