@@ -29,7 +29,7 @@ def test_menu_not_visible_on_editor(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
-    response = client.get("/edit", headers=HOST)
+    response = client.get("/-/edit", headers=HOST)
     assert b"admin-menu" not in response.data
 
 
@@ -38,10 +38,10 @@ def test_dropdown_links_present(client):
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/", headers=HOST)
-    assert b"/settings" in response.data
-    assert b"/design" in response.data
-    assert b"/blogroll" in response.data
-    assert b"/account" in response.data
+    assert b"/-/settings" in response.data
+    assert b"/-/design" in response.data
+    assert b"/-/blogroll" in response.data
+    assert b"/-/account" in response.data
     assert b"/signout" in response.data
 
 

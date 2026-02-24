@@ -24,7 +24,7 @@ def _setup(client):
 def test_add_page_json(client):
     _, site = _setup(client)
     response = client.post(
-        "/settings/navigation/add",
+        "/-/navigation/add",
         data=json.dumps({"title": "About"}),
         content_type="application/json",
         headers={"Host": SITE_HOST},
@@ -42,7 +42,7 @@ def test_add_page_json(client):
 def test_add_page_empty_title_json(client):
     _setup(client)
     response = client.post(
-        "/settings/navigation/add",
+        "/-/navigation/add",
         data=json.dumps({"title": ""}),
         content_type="application/json",
         headers={"Host": SITE_HOST},
@@ -57,7 +57,7 @@ def test_add_page_slug_conflict_with_post_json(client):
     with app.app_context():
         create_post(site["id"], "about", "About", "About me")
     response = client.post(
-        "/settings/navigation/add",
+        "/-/navigation/add",
         data=json.dumps({"title": "About"}),
         content_type="application/json",
         headers={"Host": SITE_HOST},
@@ -70,12 +70,12 @@ def test_add_page_slug_conflict_with_post_json(client):
 def test_add_page_form_redirects_to_edit(client):
     _setup(client)
     response = client.post(
-        "/settings/navigation/add",
+        "/-/navigation/add",
         data={"title": "About"},
         headers={"Host": SITE_HOST},
     )
     assert response.status_code == 302
-    assert "/edit-page/about" in response.headers["Location"]
+    assert "/-/edit-page/about" in response.headers["Location"]
 
 
 def test_create_post_slug_conflict_with_page(client):
@@ -83,7 +83,7 @@ def test_create_post_slug_conflict_with_page(client):
     with app.app_context():
         create_page(site["id"], "about", "About")
     response = client.post(
-        "/edit",
+        "/-/edit",
         data={"title": "About", "body": "Some content"},
         headers={"Host": SITE_HOST},
     )
@@ -158,7 +158,7 @@ def test_edit_page_body_and_publish(client):
         page = create_page(site["id"], "about", "About")
         page_id = page["id"]
     response = client.post(
-        "/edit-page/about",
+        "/-/edit-page/about",
         data={"title": "About", "body": "Updated body"},
         headers={"Host": SITE_HOST},
     )
@@ -174,7 +174,7 @@ def test_delete_page_json(client):
     with app.app_context():
         page = create_page(site["id"], "about", "About")
     response = client.post(
-        f"/settings/navigation/delete/{page['id']}",
+        f"/-/navigation/delete/{page['id']}",
         content_type="application/json",
         headers={"Host": SITE_HOST},
     )
@@ -192,7 +192,7 @@ def test_reorder_pages(client):
         p2 = create_page(site["id"], "now", "Now")
         p3 = create_page(site["id"], "uses", "Uses")
     response = client.post(
-        "/settings/navigation/reorder",
+        "/-/navigation/reorder",
         data=json.dumps({"order": [p3["id"], p1["id"], p2["id"]]}),
         content_type="application/json",
         headers={"Host": SITE_HOST},
@@ -261,7 +261,7 @@ def test_edit_page_title_required(client):
     with app.app_context():
         create_page(site["id"], "about", "About")
     response = client.post(
-        "/edit-page/about",
+        "/-/edit-page/about",
         data={"title": "", "body": "Some body"},
         headers={"Host": SITE_HOST},
     )

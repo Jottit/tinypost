@@ -18,7 +18,7 @@ from routes import require_owner
 from utils import get_current_site, site_url, slugify
 
 
-@app.route("/edit", methods=["GET", "POST"])
+@app.route("/-/edit", methods=["GET", "POST"])
 def edit():
     site = require_owner()
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
@@ -44,7 +44,7 @@ def edit():
     return redirect(f"/{slug}")
 
 
-@app.route("/edit/<slug>", methods=["GET", "POST"])
+@app.route("/-/edit/<slug>", methods=["GET", "POST"])
 def edit_post(slug):
     site = require_owner()
     post = get_post_by_slug(site["id"], slug)
@@ -80,7 +80,7 @@ def edit_post(slug):
     return redirect(f"/{new_slug}")
 
 
-@app.route("/delete/<slug>", methods=["POST"])
+@app.route("/-/delete/<slug>", methods=["POST"])
 def delete_post_route(slug):
     site = require_owner()
     post = get_post_by_slug(site["id"], slug)
@@ -90,18 +90,18 @@ def delete_post_route(slug):
     return redirect("/")
 
 
-@app.route("/send/<slug>", methods=["POST"])
+@app.route("/-/send/<slug>", methods=["POST"])
 def send_post(slug):
     site = require_owner()
     post = get_post_by_slug(site["id"], slug)
     if not post:
         abort(404)
     if post["is_draft"] or post.get("sent_at"):
-        return redirect(f"/edit/{slug}")
+        return redirect(f"/-/edit/{slug}")
 
     subscribers = get_confirmed_subscribers(site["id"])
     if not subscribers:
-        return redirect(f"/edit/{slug}")
+        return redirect(f"/-/edit/{slug}")
 
     base_url = site_url(site)
     body_html = md.markdown(post["body"])

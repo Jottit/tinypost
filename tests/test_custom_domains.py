@@ -23,7 +23,7 @@ def test_add_domain_generates_token(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
-        "/settings/domain",
+        "/-/settings/domain",
         data={"domain": "example.com"},
         headers={"Host": SITE_HOST},
     )
@@ -39,11 +39,11 @@ def test_add_domain_shown_in_settings(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
-        "/settings/domain",
+        "/-/settings/domain",
         data={"domain": "example.com"},
         headers={"Host": SITE_HOST},
     )
-    response = client.get("/settings", headers={"Host": SITE_HOST})
+    response = client.get("/-/settings", headers={"Host": SITE_HOST})
     assert b"example.com" in response.data
     assert b"not yet verified" in response.data
 
@@ -53,7 +53,7 @@ def test_add_domain_invalid_format(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/settings/domain",
+        "/-/settings/domain",
         data={"domain": "nodots"},
         headers={"Host": SITE_HOST},
     )
@@ -65,7 +65,7 @@ def test_add_domain_rejects_protocol_prefix(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/settings/domain",
+        "/-/settings/domain",
         data={"domain": "https://example.com"},
         headers={"Host": SITE_HOST},
     )
@@ -81,7 +81,7 @@ def test_add_domain_already_claimed(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/settings/domain",
+        "/-/settings/domain",
         data={"domain": "taken.com"},
         headers={"Host": SITE_HOST},
     )
@@ -99,7 +99,7 @@ def test_verify_with_correct_txt_record(client):
     mock_answer.__str__ = lambda self: '"jottit-site-verification=mytoken123"'
     with patch("routes.settings.dns.resolver.resolve", return_value=[mock_answer]):
         response = client.post(
-            "/settings/domain/verify",
+            "/-/settings/domain/verify",
             headers={"Host": SITE_HOST},
         )
 
@@ -118,7 +118,7 @@ def test_verify_with_missing_txt_record(client):
 
     with patch("routes.settings.dns.resolver.resolve", side_effect=Exception("NXDOMAIN")):
         response = client.post(
-            "/settings/domain/verify",
+            "/-/settings/domain/verify",
             headers={"Host": SITE_HOST},
         )
 
@@ -132,7 +132,7 @@ def test_remove_domain(client):
         verify_custom_domain(site["id"])
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    client.post("/settings/domain/remove", headers={"Host": SITE_HOST})
+    client.post("/-/settings/domain/remove", headers={"Host": SITE_HOST})
     with app.app_context():
         updated = get_site_by_subdomain("myblog")
     assert updated["custom_domain"] is None

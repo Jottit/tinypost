@@ -34,7 +34,7 @@
     e.preventDefault();
     var title = addInput.value.trim();
     if (!title) return;
-    fetch("/settings/navigation/add", {
+    fetch("/-/navigation/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: title }),
@@ -91,7 +91,7 @@
     for (var i = 0; i < items.length; i++) {
       order.push(parseInt(items[i].dataset.id, 10));
     }
-    fetch("/settings/navigation/reorder", {
+    fetch("/-/navigation/reorder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ order: order }),

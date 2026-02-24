@@ -12,7 +12,7 @@ def login(client, user_id):
 def test_delete_account_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
-    response = client.get("/settings/delete-account", headers=HOST)
+    response = client.get("/-/settings/delete-account", headers=HOST)
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
@@ -22,7 +22,7 @@ def test_delete_account_rejects_wrong_confirmation(client):
         user, site = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
-        "/settings/delete-account",
+        "/-/settings/delete-account",
         data={"confirmation": "nope"},
         headers=HOST,
     )
@@ -36,7 +36,7 @@ def test_delete_account_success(client):
         create_post(site["id"], "hello", "Hello", "World")
     login(client, user["id"])
     response = client.post(
-        "/settings/delete-account",
+        "/-/settings/delete-account",
         data={"confirmation": "delete"},
         headers=HOST,
     )
@@ -56,7 +56,7 @@ def test_deleted_site_returns_404(client):
         create_post(site["id"], "hello", "Hello", "World")
     login(client, user["id"])
     client.post(
-        "/settings/delete-account",
+        "/-/settings/delete-account",
         data={"confirmation": "delete"},
         headers=HOST,
     )
@@ -70,7 +70,7 @@ def test_deleted_post_returns_404(client):
         create_post(site["id"], "hello", "Hello", "World")
     login(client, user["id"])
     client.post(
-        "/settings/delete-account",
+        "/-/settings/delete-account",
         data={"confirmation": "delete"},
         headers=HOST,
     )

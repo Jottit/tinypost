@@ -5,7 +5,7 @@ from db import create_user_and_site, get_site_by_subdomain, update_site_design
 def test_design_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
-    response = client.get("/design", headers={"Host": "myblog.jottit.localhost:8000"})
+    response = client.get("/-/design", headers={"Host": "myblog.jottit.localhost:8000"})
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
@@ -15,7 +15,7 @@ def test_design_get(client):
         user, site = create_user_and_site("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.get("/design", headers={"Host": "myblog.jottit.localhost:8000"})
+    response = client.get("/-/design", headers={"Host": "myblog.jottit.localhost:8000"})
     assert response.status_code == 200
     assert b"Design" in response.data
 
@@ -26,7 +26,7 @@ def test_design_save(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={
             "font_header": "Georgia, serif",
             "font_body": "Verdana, sans-serif",
@@ -49,7 +49,7 @@ def test_design_rejects_invalid_color(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={"color_accent": "notacolor"},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )
@@ -63,7 +63,7 @@ def test_design_rejects_invalid_font(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={"font_header": "Comic Sans MS"},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )
@@ -92,7 +92,7 @@ def test_design_empty_values_save_as_null(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={"font_header": "", "color_accent": ""},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )
@@ -108,7 +108,7 @@ def test_design_bg_auto_derives_text(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={"color_bg": "#1a1a2e"},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )
@@ -126,7 +126,7 @@ def test_design_bg_with_custom_text(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={"color_bg": "#1a1a2e", "color_text": "#e0e0e0"},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )
@@ -156,7 +156,7 @@ def test_design_clearing_bg_clears_text(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/design",
+        "/-/design",
         data={"color_bg": ""},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )

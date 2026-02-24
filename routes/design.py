@@ -9,7 +9,7 @@ from routes import require_owner
 from utils import auto_text_color, site_url
 
 
-@app.route("/design", methods=["GET", "POST"])
+@app.route("/-/design", methods=["GET", "POST"])
 def design():
     site = require_owner()
     d = site["design"] or {}
@@ -62,7 +62,7 @@ def design():
     return redirect("/")
 
 
-@app.route("/download-theme")
+@app.route("/-/download-theme")
 def download_theme():
     site = require_owner()
     custom_css = site.get("custom_css")
@@ -92,24 +92,24 @@ def download_theme():
     )
 
 
-@app.route("/design/upload-css", methods=["POST"])
+@app.route("/-/design/upload-css", methods=["POST"])
 def upload_css():
     site = require_owner()
 
     css_file = request.files.get("css_file")
     if not css_file:
-        return redirect("/design")
+        return redirect("/-/design")
 
     content = css_file.read().decode("utf-8", errors="replace").strip()
     if not content:
-        return redirect("/design")
+        return redirect("/-/design")
 
     update_site_custom_css(site["id"], content)
-    return redirect("/design")
+    return redirect("/-/design")
 
 
-@app.route("/design/remove-css", methods=["POST"])
+@app.route("/-/design/remove-css", methods=["POST"])
 def remove_css():
     site = require_owner()
     update_site_custom_css(site["id"], None)
-    return redirect("/design")
+    return redirect("/-/design")

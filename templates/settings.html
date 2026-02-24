@@ -29,7 +29,7 @@
             <div class="avatar-actions">
               <a href="#" onclick="document.getElementById('avatar-input').click(); return false;">{{ "Update" if site.avatar else "Upload" }}</a>
               {% if site.avatar %}
-                <form method="POST" action="/settings/avatar/delete">
+                <form method="POST" action="/-/settings/avatar/delete">
                   <button type="submit" class="avatar-remove">Remove</button>
                 </form>
               {% endif %}
@@ -37,11 +37,11 @@
             <p class="text-muted">Recommended: Square JPG, PNG, or GIF</p>
           </div>
         </div>
-        <form id="avatar-form" method="POST" action="/settings/avatar" enctype="multipart/form-data">
+        <form id="avatar-form" method="POST" action="/-/settings/avatar" enctype="multipart/form-data">
           <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" hidden onchange="this.form.submit()">
         </form>
       </div>
-      <form method="POST" action="/settings" class="settings-form">
+      <form method="POST" action="/-/settings" class="settings-form">
         <label for="title">Title</label>
         <input type="text" id="title" name="title" value="{{ site.title or '' }}" autofocus>
         <label for="bio" class="mt-6">Bio</label>
@@ -87,7 +87,7 @@
         {% if site.custom_domain and site.domain_verified_at %}
           <div class="domain-status">
             <span class="domain-verified">{{ site.custom_domain }}</span>
-            <form method="POST" action="/settings/domain/remove" class="inline">
+            <form method="POST" action="/-/settings/domain/remove" class="inline">
               <button type="submit" class="domain-remove">Remove</button>
             </form>
           </div>
@@ -106,16 +106,16 @@
               {% endif %}
             </div>
             <div class="domain-actions">
-              <form method="POST" action="/settings/domain/verify" class="inline">
+              <form method="POST" action="/-/settings/domain/verify" class="inline">
                 <button type="submit" class="btn">Verify</button>
               </form>
-              <form method="POST" action="/settings/domain/remove" class="inline">
+              <form method="POST" action="/-/settings/domain/remove" class="inline">
                 <button type="submit" class="domain-remove">Remove</button>
               </form>
             </div>
           </div>
         {% else %}
-          <form method="POST" action="/settings/domain" class="domain-form">
+          <form method="POST" action="/-/settings/domain" class="domain-form">
             <input type="text" name="domain" placeholder="example.com">
             <button type="submit" class="btn mt-4">Add domain</button>
           </form>

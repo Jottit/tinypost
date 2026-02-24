@@ -19,7 +19,7 @@ from routes import require_owner
 from utils import get_current_site, site_url
 
 
-@app.route("/subscribers")
+@app.route("/-/subscribers")
 def subscribers():
     site = require_owner()
     subs = get_all_subscribers(site["id"])
@@ -36,11 +36,11 @@ def subscribers():
     )
 
 
-@app.route("/subscribers/delete/<int:subscriber_id>", methods=["POST"])
+@app.route("/-/subscribers/delete/<int:subscriber_id>", methods=["POST"])
 def subscribers_delete(subscriber_id):
     site = require_owner()
     delete_subscriber(subscriber_id, site["id"])
-    return redirect("/subscribers")
+    return redirect("/-/subscribers")
 
 
 @app.route("/subscribe", methods=["POST"])

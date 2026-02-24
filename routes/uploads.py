@@ -9,7 +9,7 @@ from storage import file_size, upload_image
 from utils import get_current_site
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/-/upload", methods=["POST"])
 def upload():
     site = get_current_site()
     if not site:

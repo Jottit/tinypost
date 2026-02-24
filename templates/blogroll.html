@@ -10,7 +10,7 @@
       {% endfor %}
       <h2>Blogroll</h2>
       <p class="text-muted">Blogs and sites you recommend.</p>
-      <form method="POST" action="/blogroll">
+      <form method="POST" action="/-/blogroll">
         {% set br = blogroll or [] %}
         <div class="blogroll-editor">
           {% for item in br %}

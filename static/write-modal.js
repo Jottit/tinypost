@@ -111,7 +111,7 @@ window.cancelWriteModal = function() {
 
 window.expandWriteModal = function() {
   saveDraftNow();
-  window.location.href = '/edit';
+  window.location.href = '/-/edit';
 };
 
 document.addEventListener('keydown', function(e) {
@@ -140,7 +140,7 @@ form.addEventListener('submit', function(e) {
   hiddenInput.value = jot ? jot.getValue() : '';
 
   var data = new FormData(form);
-  fetch('/edit', {
+  fetch('/-/edit', {
     method: 'POST',
     headers: { 'X-Requested-With': 'XMLHttpRequest' },
     body: data

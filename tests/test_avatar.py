@@ -28,13 +28,13 @@ def test_upload_avatar(mock_upload, mock_crop, client):
     _login(client)
     data, filename, content_type = _make_image()
     response = client.post(
-        "/settings/avatar",
+        "/-/settings/avatar",
         data={"avatar": (data, filename, content_type)},
         content_type="multipart/form-data",
         headers={"Host": SITE_HOST},
     )
     assert response.status_code == 302
-    assert "/settings" in response.headers["Location"]
+    assert "/-/settings" in response.headers["Location"]
     mock_crop.assert_called_once()
     mock_upload.assert_called_once()
 
@@ -44,7 +44,7 @@ def test_upload_avatar(mock_upload, mock_crop, client):
 def test_upload_avatar_rejects_bad_type(mock_upload, mock_crop, client):
     _login(client)
     response = client.post(
-        "/settings/avatar",
+        "/-/settings/avatar",
         data={"avatar": (BytesIO(b"%PDF"), "doc.pdf", "application/pdf")},
         content_type="multipart/form-data",
         headers={"Host": SITE_HOST},
@@ -60,7 +60,7 @@ def test_upload_avatar_rejects_oversized(mock_upload, mock_crop, client):
     _login(client)
     data, filename, content_type = _make_image(size=6 * 1024 * 1024)
     response = client.post(
-        "/settings/avatar",
+        "/-/settings/avatar",
         data={"avatar": (data, filename, content_type)},
         content_type="multipart/form-data",
         headers={"Host": SITE_HOST},
@@ -76,11 +76,11 @@ def test_remove_avatar(mock_delete, client):
     with app.app_context():
         update_site_avatar(site["id"], "/uploads/myblog/avatar.png")
     response = client.post(
-        "/settings/avatar/delete",
+        "/-/settings/avatar/delete",
         headers={"Host": SITE_HOST},
     )
     assert response.status_code == 302
-    assert "/settings" in response.headers["Location"]
+    assert "/-/settings" in response.headers["Location"]
     mock_delete.assert_called_once_with("myblog/avatar.png")
 
 
@@ -88,7 +88,7 @@ def test_upload_avatar_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
     response = client.post(
-        "/settings/avatar",
+        "/-/settings/avatar",
         data={"avatar": _make_image()},
         content_type="multipart/form-data",
         headers={"Host": SITE_HOST},
@@ -101,7 +101,7 @@ def test_delete_avatar_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
     response = client.post(
-        "/settings/avatar/delete",
+        "/-/settings/avatar/delete",
         headers={"Host": SITE_HOST},
     )
     assert response.status_code == 302

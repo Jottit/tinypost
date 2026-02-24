@@ -66,7 +66,7 @@ def test_import_posts(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -100,7 +100,7 @@ def test_import_skips_existing_slug(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -130,7 +130,7 @@ def test_import_skips_unpublished(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -159,7 +159,7 @@ def test_import_converts_html_to_markdown(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -178,7 +178,7 @@ def test_import_invalid_zip(client):
     login(client, user["id"])
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (io.BytesIO(b"not a zip"), "bad.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -191,7 +191,7 @@ def test_import_no_file(client):
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
 
-    response = client.post("/account/import", headers=HOST)
+    response = client.post("/-/account/import", headers=HOST)
     assert b"No file selected" in response.data
 
 
@@ -219,7 +219,7 @@ def test_import_multiple_posts(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -256,7 +256,7 @@ def test_rehost_substack_images(client):
         patch("substack.upload_image", return_value="/uploads/myblog/new.png"),
     ):
         response = client.post(
-            "/account/import",
+            "/-/account/import",
             data={"archive": (archive, "export.zip")},
             headers=HOST,
             content_type="multipart/form-data",
@@ -286,7 +286,7 @@ def test_rehost_skips_non_substack_urls(client):
         patch("substack.upload_image", return_value="/uploads/myblog/new.png") as mock_upload,
     ):
         client.post(
-            "/account/import",
+            "/-/account/import",
             data={"archive": (archive, "export.zip")},
             headers=HOST,
             content_type="multipart/form-data",
@@ -311,7 +311,7 @@ def test_rehost_deduplicates_same_url(client):
         patch("substack.upload_image", return_value="/uploads/myblog/new.png"),
     ):
         client.post(
-            "/account/import",
+            "/-/account/import",
             data={"archive": (archive, "export.zip")},
             headers=HOST,
             content_type="multipart/form-data",
@@ -338,7 +338,7 @@ def test_import_subscribers(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -366,7 +366,7 @@ def test_import_subscribers_skips_paid(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",
@@ -394,7 +394,7 @@ def test_import_subscribers_skips_duplicates(client):
     )
 
     response = client.post(
-        "/account/import",
+        "/-/account/import",
         data={"archive": (archive, "export.zip")},
         headers=HOST,
         content_type="multipart/form-data",

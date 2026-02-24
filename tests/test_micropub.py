@@ -329,7 +329,7 @@ class TestPersonalToken:
         user, site = make_site(client)
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
-        resp = client.post("/account/token", base_url=BASE)
+        resp = client.post("/-/account/token", base_url=BASE)
         assert resp.status_code == 200
         assert b"Token created" in resp.data
         with app.app_context():
@@ -341,7 +341,7 @@ class TestPersonalToken:
             create_personal_token(site["id"])
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
-        resp = client.post("/account/token/revoke", base_url=BASE, follow_redirects=True)
+        resp = client.post("/-/account/token/revoke", base_url=BASE, follow_redirects=True)
         assert resp.status_code == 200
         with app.app_context():
             assert get_personal_token(site["id"]) is None

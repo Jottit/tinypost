@@ -5,7 +5,7 @@ from db import create_user_and_site, get_site_by_subdomain
 def test_settings_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
-    response = client.get("/settings", headers={"Host": "myblog.jottit.localhost:8000"})
+    response = client.get("/-/settings", headers={"Host": "myblog.jottit.localhost:8000"})
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
@@ -15,7 +15,7 @@ def test_settings_get(client):
         user, site = create_user_and_site("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.get("/settings", headers={"Host": "myblog.jottit.localhost:8000"})
+    response = client.get("/-/settings", headers={"Host": "myblog.jottit.localhost:8000"})
     assert response.status_code == 200
     assert b"Settings" in response.data
 
@@ -26,7 +26,7 @@ def test_settings_update(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/settings",
+        "/-/settings",
         data={"title": "New Title", "bio": "A short bio"},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )
@@ -43,7 +43,7 @@ def test_settings_title_required(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/settings",
+        "/-/settings",
         data={"title": "", "bio": "bio"},
         headers={"Host": "myblog.jottit.localhost:8000"},
     )

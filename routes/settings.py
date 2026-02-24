@@ -46,7 +46,7 @@ def render_settings(site, **kwargs):
     )
 
 
-@app.route("/settings", methods=["GET", "POST"])
+@app.route("/-/settings", methods=["GET", "POST"])
 def settings():
     site = require_owner()
 
@@ -70,16 +70,16 @@ def settings():
 
     update_site(site["id"], title, bio or None, license=license, social_links=social_links)
     flash("Settings updated.")
-    return redirect("/settings")
+    return redirect("/-/settings")
 
 
-@app.route("/settings/avatar", methods=["POST"])
+@app.route("/-/settings/avatar", methods=["POST"])
 def settings_avatar():
     site = require_owner()
 
     file = request.files.get("avatar")
     if not file:
-        return redirect("/settings")
+        return redirect("/-/settings")
 
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         return render_settings(site, error="File type not allowed.")
@@ -93,10 +93,10 @@ def settings_avatar():
     key = f"{site['subdomain']}/avatar.{ext}"
     url = upload_image(key, cropped, file.content_type)
     update_site_avatar(site["id"], url)
-    return redirect("/settings")
+    return redirect("/-/settings")
 
 
-@app.route("/settings/avatar/delete", methods=["POST"])
+@app.route("/-/settings/avatar/delete", methods=["POST"])
 def settings_avatar_delete():
     site = require_owner()
 
@@ -109,10 +109,10 @@ def settings_avatar_delete():
         if key:
             delete_image(key)
         update_site_avatar(site["id"], None)
-    return redirect("/settings")
+    return redirect("/-/settings")
 
 
-@app.route("/settings/export")
+@app.route("/-/settings/export")
 def settings_export():
     site = require_owner()
 
@@ -140,7 +140,7 @@ def settings_export():
     )
 
 
-@app.route("/settings/domain", methods=["POST"])
+@app.route("/-/settings/domain", methods=["POST"])
 def settings_domain():
     site = require_owner()
     domain = request.form.get("domain", "").strip().lower()
@@ -153,15 +153,15 @@ def settings_domain():
 
     token = secrets.token_urlsafe(24)
     set_custom_domain(site["id"], domain, token)
-    return redirect("/settings")
+    return redirect("/-/settings")
 
 
-@app.route("/settings/domain/verify", methods=["POST"])
+@app.route("/-/settings/domain/verify", methods=["POST"])
 def settings_domain_verify():
     site = require_owner()
 
     if not site.get("custom_domain") or not site.get("domain_verification_token"):
-        return redirect("/settings")
+        return redirect("/-/settings")
 
     domain = site["custom_domain"]
     token = site["domain_verification_token"]
@@ -178,17 +178,17 @@ def settings_domain_verify():
         )
 
     verify_custom_domain(site["id"])
-    return redirect("/settings")
+    return redirect("/-/settings")
 
 
-@app.route("/settings/domain/remove", methods=["POST"])
+@app.route("/-/settings/domain/remove", methods=["POST"])
 def settings_domain_remove():
     site = require_owner()
     remove_custom_domain(site["id"])
-    return redirect("/settings")
+    return redirect("/-/settings")
 
 
-@app.route("/settings/delete-account", methods=["GET", "POST"])
+@app.route("/-/settings/delete-account", methods=["GET", "POST"])
 def settings_delete_account():
     site = require_owner()
 

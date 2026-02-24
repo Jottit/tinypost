@@ -90,7 +90,7 @@ def test_toggle_draft_on_hides_from_public(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
-        "/edit/my-post",
+        "/-/edit/my-post",
         data={"title": "My Post", "body": "Post body", "is_draft": "on"},
         headers={"Host": SITE_HOST},
     )
@@ -112,7 +112,7 @@ def test_toggle_draft_off_shows_in_public(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
-        "/edit/my-post",
+        "/-/edit/my-post",
         data={"title": "My Post", "body": "Post body"},
         headers={"Host": SITE_HOST},
     )
@@ -127,7 +127,7 @@ def test_new_post_defaults_to_published(client):
     user, site = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.get("/edit", headers={"Host": SITE_HOST})
+    response = client.get("/-/edit", headers={"Host": SITE_HOST})
     html = response.data.decode()
     assert 'name="is_draft"' in html
     assert "checked" not in html.split('name="is_draft"')[1].split(">")[0]

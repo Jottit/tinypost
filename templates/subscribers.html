@@ -24,7 +24,7 @@
                 <td>{{ "confirmed" if sub.confirmed else "pending" }}</td>
                 <td>{{ sub.created_at.strftime('%B %-d, %Y') }}</td>
                 <td>
-                  <form method="POST" action="/subscribers/delete/{{ sub.id }}" onsubmit="return confirm('Remove {{ sub.email }}?')">
+                  <form method="POST" action="/-/subscribers/delete/{{ sub.id }}" onsubmit="return confirm('Remove {{ sub.email }}?')">
                     <button type="submit" class="btn btn--outline btn--sm">Remove</button>
                   </form>
                 </td>

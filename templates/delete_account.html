@@ -9,12 +9,12 @@
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}
-      <form method="POST" action="/settings/delete-account" class="settings-form">
+      <form method="POST" action="/-/settings/delete-account" class="settings-form">
         <label for="confirmation">Type <strong class="error">delete</strong> to confirm</label>
         <input type="text" id="confirmation" name="confirmation" autocomplete="off">
         <div class="actions mt-6">
           <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete account</button>
-          <a href="/account" class="btn">Cancel</a>
+          <a href="/-/account" class="btn">Cancel</a>
         </div>
       </form>
     </div>

@@ -32,7 +32,7 @@ def _setup(client):
 
 
 def test_require_owner_no_site(client):
-    response = client.get("/edit", headers={"Host": "nosuchsite.jottit.localhost:8000"})
+    response = client.get("/-/edit", headers={"Host": "nosuchsite.jottit.localhost:8000"})
     assert response.status_code == 404
 
 
@@ -154,14 +154,14 @@ def test_signout(client):
 
 def test_edit_new_post_empty_body(client):
     _setup(client)
-    response = client.post("/edit", data={"title": "Hello", "body": ""}, headers=HOST)
+    response = client.post("/-/edit", data={"title": "Hello", "body": ""}, headers=HOST)
     assert response.status_code == 200
     assert b"body is required" in response.data
 
 
 def test_edit_create_post_success(client):
     _, site = _setup(client)
-    response = client.post("/edit", data={"title": "Hello", "body": "World"}, headers=HOST)
+    response = client.post("/-/edit", data={"title": "Hello", "body": "World"}, headers=HOST)
     assert response.status_code == 302
     with app.app_context():
         post = get_post_by_slug(site["id"], "hello")
@@ -172,7 +172,7 @@ def test_edit_create_post_success(client):
 def test_edit_create_draft(client):
     _, site = _setup(client)
     response = client.post(
-        "/edit", data={"title": "Draft", "body": "Content", "is_draft": "on"}, headers=HOST
+        "/-/edit", data={"title": "Draft", "body": "Content", "is_draft": "on"}, headers=HOST
     )
     assert response.status_code == 302
     with app.app_context():
@@ -185,7 +185,7 @@ def test_edit_create_draft(client):
 
 def test_edit_post_not_found(client):
     _setup(client)
-    response = client.get("/edit/nonexistent", headers=HOST)
+    response = client.get("/-/edit/nonexistent", headers=HOST)
     assert response.status_code == 404
 
 
@@ -193,7 +193,7 @@ def test_edit_post_get(client):
     _, site = _setup(client)
     with app.app_context():
         create_post(site["id"], "hello", "Hello", "Body")
-    response = client.get("/edit/hello", headers=HOST)
+    response = client.get("/-/edit/hello", headers=HOST)
     assert response.status_code == 200
     assert b"Hello" in response.data
 
@@ -202,7 +202,7 @@ def test_edit_existing_post_empty_body(client):
     _, site = _setup(client)
     with app.app_context():
         create_post(site["id"], "hello", "Hello", "Body")
-    response = client.post("/edit/hello", data={"title": "Hello", "body": ""}, headers=HOST)
+    response = client.post("/-/edit/hello", data={"title": "Hello", "body": ""}, headers=HOST)
     assert response.status_code == 200
     assert b"body is required" in response.data
 
@@ -213,7 +213,9 @@ def test_edit_post_page_slug_conflict(client):
         create_post(site["id"], "hello", "Hello", "Body")
         page = create_page(site["id"], "about", "About")
         update_page(page["id"], "About", "About body", is_draft=False)
-    response = client.post("/edit/hello", data={"title": "About", "body": "New body"}, headers=HOST)
+    response = client.post(
+        "/-/edit/hello", data={"title": "About", "body": "New body"}, headers=HOST
+    )
     assert response.status_code == 200
     assert b"page already uses" in response.data
 
@@ -225,7 +227,7 @@ def test_delete_post(client):
     _, site = _setup(client)
     with app.app_context():
         create_post(site["id"], "hello", "Hello", "Body")
-    response = client.post("/delete/hello", headers=HOST)
+    response = client.post("/-/delete/hello", headers=HOST)
     assert response.status_code == 302
     with app.app_context():
         assert get_post_by_slug(site["id"], "hello") is None
@@ -233,7 +235,7 @@ def test_delete_post(client):
 
 def test_delete_post_not_found(client):
     _setup(client)
-    response = client.post("/delete/nonexistent", headers=HOST)
+    response = client.post("/-/delete/nonexistent", headers=HOST)
     assert response.status_code == 404
 
 
@@ -243,7 +245,7 @@ def test_delete_post_not_found(client):
 @patch("routes.posts.send_email")
 def test_send_post_not_found(mock_send, client):
     _setup(client)
-    response = client.post("/send/nonexistent", headers=HOST)
+    response = client.post("/-/send/nonexistent", headers=HOST)
     assert response.status_code == 404
 
 
@@ -252,7 +254,7 @@ def test_send_post_no_subscribers(mock_send, client):
     _, site = _setup(client)
     with app.app_context():
         create_post(site["id"], "hello", "Hello", "Body")
-    response = client.post("/send/hello", headers=HOST)
+    response = client.post("/-/send/hello", headers=HOST)
     assert response.status_code == 302
     mock_send.assert_not_called()
 
@@ -264,7 +266,7 @@ def test_subscribers_page(client):
     _, site = _setup(client)
     with app.app_context():
         create_subscriber(site["id"], "a@example.com", "tok-a")
-    response = client.get("/subscribers", headers=HOST)
+    response = client.get("/-/subscribers", headers=HOST)
     assert response.status_code == 200
     assert b"a@example.com" in response.data
 
@@ -274,7 +276,7 @@ def test_subscribers_delete(client):
     with app.app_context():
         create_subscriber(site["id"], "a@example.com", "tok-a")
         sub = get_subscriber(site["id"], "a@example.com")
-    response = client.post(f"/subscribers/delete/{sub['id']}", headers=HOST)
+    response = client.post(f"/-/subscribers/delete/{sub['id']}", headers=HOST)
     assert response.status_code == 302
 
 
@@ -283,9 +285,9 @@ def test_subscribers_delete(client):
 
 def test_settings_avatar_no_file(client):
     _setup(client)
-    response = client.post("/settings/avatar", headers=HOST)
+    response = client.post("/-/settings/avatar", headers=HOST)
     assert response.status_code == 302
-    assert "/settings" in response.headers["Location"]
+    assert "/-/settings" in response.headers["Location"]
 
 
 @patch("routes.settings.delete_image")
@@ -293,7 +295,7 @@ def test_settings_avatar_delete_external_url(mock_delete, client):
     _, site = _setup(client)
     with app.app_context():
         update_site_avatar(site["id"], "https://cdn.example.com/myblog/avatar.png")
-    response = client.post("/settings/avatar/delete", headers=HOST)
+    response = client.post("/-/settings/avatar/delete", headers=HOST)
     assert response.status_code == 302
     mock_delete.assert_called_once_with("myblog/avatar.png")
 
@@ -306,7 +308,7 @@ def test_export_contains_pages(client):
     with app.app_context():
         page = create_page(site["id"], "about", "About")
         update_page(page["id"], "About", "About me", is_draft=False)
-    response = client.get("/settings/export", headers=HOST)
+    response = client.get("/-/settings/export", headers=HOST)
     zf = zipfile.ZipFile(io.BytesIO(response.data))
     assert "pages/about.md" in zf.namelist()
     content = zf.read("pages/about.md").decode()
@@ -318,7 +320,7 @@ def test_export_page_without_body(client):
     _, site = _setup(client)
     with app.app_context():
         create_page(site["id"], "empty", "Empty Page")
-    response = client.get("/settings/export", headers=HOST)
+    response = client.get("/-/settings/export", headers=HOST)
     zf = zipfile.ZipFile(io.BytesIO(response.data))
     content = zf.read("pages/empty.md").decode()
     assert content == "# Empty Page"
@@ -329,9 +331,9 @@ def test_export_page_without_body(client):
 
 def test_domain_verify_no_domain_set(client):
     _setup(client)
-    response = client.post("/settings/domain/verify", headers=HOST)
+    response = client.post("/-/settings/domain/verify", headers=HOST)
     assert response.status_code == 302
-    assert "/settings" in response.headers["Location"]
+    assert "/-/settings" in response.headers["Location"]
 
 
 # ── Design: invalid font_body ───────────────────
@@ -340,7 +342,7 @@ def test_domain_verify_no_domain_set(client):
 def test_design_invalid_font_body(client):
     _setup(client)
     response = client.post(
-        "/design",
+        "/-/design",
         data={"font_header": "", "font_body": "Comic Sans MS"},
         headers=HOST,
     )
@@ -352,9 +354,9 @@ def test_design_invalid_font_body(client):
 
 def test_upload_css_no_file(client):
     _setup(client)
-    response = client.post("/design/upload-css", headers=HOST)
+    response = client.post("/-/design/upload-css", headers=HOST)
     assert response.status_code == 302
-    assert "/design" in response.headers["Location"]
+    assert "/-/design" in response.headers["Location"]
 
 
 # ── Navigation: form (non-JSON) errors ──────────
@@ -362,13 +364,13 @@ def test_upload_css_no_file(client):
 
 def test_nav_add_form_error(client):
     _setup(client)
-    response = client.post("/settings/navigation/add", data={"title": ""}, headers=HOST)
+    response = client.post("/-/navigation/add", data={"title": ""}, headers=HOST)
     assert response.status_code == 200
 
 
 def test_nav_delete_not_found(client):
     _setup(client)
-    response = client.post("/settings/navigation/delete/999999", headers=HOST)
+    response = client.post("/-/navigation/delete/999999", headers=HOST)
     assert response.status_code == 404
 
 
@@ -376,14 +378,14 @@ def test_nav_delete_form_redirect(client):
     _, site = _setup(client)
     with app.app_context():
         page = create_page(site["id"], "about", "About")
-    response = client.post(f"/settings/navigation/delete/{page['id']}", headers=HOST)
+    response = client.post(f"/-/navigation/delete/{page['id']}", headers=HOST)
     assert response.status_code == 302
 
 
 def test_nav_reorder_missing_order(client):
     _setup(client)
     response = client.post(
-        "/settings/navigation/reorder",
+        "/-/navigation/reorder",
         data=json.dumps({}),
         content_type="application/json",
         headers=HOST,
@@ -396,14 +398,14 @@ def test_nav_reorder_missing_order(client):
 
 def test_new_page_get(client):
     _setup(client)
-    response = client.get("/new-page", headers=HOST)
+    response = client.get("/-/new-page", headers=HOST)
     assert response.status_code == 200
 
 
 def test_new_page_success(client):
     _, site = _setup(client)
     response = client.post(
-        "/new-page",
+        "/-/new-page",
         data={"title": "Contact", "body": "Email me"},
         headers=HOST,
     )
@@ -414,7 +416,7 @@ def test_new_page_success(client):
 
 def test_new_page_no_title(client):
     _setup(client)
-    response = client.post("/new-page", data={"title": "", "body": "Body"}, headers=HOST)
+    response = client.post("/-/new-page", data={"title": "", "body": "Body"}, headers=HOST)
     assert response.status_code == 200
     assert b"Title is required" in response.data
 
@@ -424,7 +426,7 @@ def test_new_page_slug_conflict(client):
     with app.app_context():
         create_post(site["id"], "contact", "Contact", "Body")
     response = client.post(
-        "/new-page",
+        "/-/new-page",
         data={"title": "Contact", "body": "Page body"},
         headers=HOST,
     )
@@ -435,7 +437,7 @@ def test_new_page_slug_conflict(client):
 def test_new_page_as_draft(client):
     _, site = _setup(client)
     response = client.post(
-        "/new-page",
+        "/-/new-page",
         data={"title": "Hidden", "body": "Secret", "is_draft": "on"},
         headers=HOST,
     )
@@ -450,7 +452,7 @@ def test_new_page_as_draft(client):
 
 def test_edit_page_not_found(client):
     _setup(client)
-    response = client.get("/edit-page/nonexistent", headers=HOST)
+    response = client.get("/-/edit-page/nonexistent", headers=HOST)
     assert response.status_code == 404
 
 
@@ -458,7 +460,7 @@ def test_edit_page_get(client):
     _, site = _setup(client)
     with app.app_context():
         create_page(site["id"], "about", "About")
-    response = client.get("/edit-page/about", headers=HOST)
+    response = client.get("/-/edit-page/about", headers=HOST)
     assert response.status_code == 200
     assert b"About" in response.data
 
@@ -468,7 +470,7 @@ def test_edit_page_get(client):
 
 def test_delete_account_get(client):
     _setup(client)
-    response = client.get("/settings/delete-account", headers=HOST)
+    response = client.get("/-/settings/delete-account", headers=HOST)
     assert response.status_code == 200
     assert b"delete" in response.data.lower()
 

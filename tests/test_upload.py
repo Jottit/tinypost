@@ -20,7 +20,7 @@ def _make_image(content_type="image/png", size=1024, filename="test.png"):
 
 def _post_upload(client, **data):
     return client.post(
-        "/upload",
+        "/-/upload",
         data=data,
         content_type="multipart/form-data",
         headers={"Host": SITE_HOST},
@@ -78,7 +78,7 @@ def test_upload_rejects_no_file(mock_upload, client):
 
 def test_upload_404_no_site(client):
     response = client.post(
-        "/upload",
+        "/-/upload",
         content_type="multipart/form-data",
     )
     assert response.status_code == 404

@@ -127,7 +127,7 @@ def test_send_post_to_subscribers(mock_send, client):
         confirm_subscriber("tok-b")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.post("/send/hello", headers=HEADERS)
+    response = client.post("/-/send/hello", headers=HEADERS)
     assert response.status_code == 302
     assert mock_send.call_count == 2
     recipients = {call.kwargs["to"] for call in mock_send.call_args_list}
@@ -144,7 +144,7 @@ def test_send_skips_unconfirmed(mock_send, client):
         create_subscriber(site["id"], "unconfirmed@example.com", "tok-u")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    client.post("/send/hello", headers=HEADERS)
+    client.post("/-/send/hello", headers=HEADERS)
     assert mock_send.call_count == 1
     assert mock_send.call_args.kwargs["to"] == "confirmed@example.com"
 
@@ -158,7 +158,7 @@ def test_send_marks_post_sent(mock_send, client):
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    client.post("/send/hello", headers=HEADERS)
+    client.post("/-/send/hello", headers=HEADERS)
     with app.app_context():
         post = get_post_by_slug(site["id"], "hello")
     assert post["sent_at"] is not None
@@ -173,9 +173,9 @@ def test_send_prevents_double_send(mock_send, client):
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    client.post("/send/hello", headers=HEADERS)
+    client.post("/-/send/hello", headers=HEADERS)
     mock_send.reset_mock()
-    client.post("/send/hello", headers=HEADERS)
+    client.post("/-/send/hello", headers=HEADERS)
     mock_send.assert_not_called()
 
 
@@ -188,7 +188,7 @@ def test_send_draft_not_allowed(mock_send, client):
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    response = client.post("/send/hello", headers=HEADERS)
+    response = client.post("/-/send/hello", headers=HEADERS)
     assert response.status_code == 302
     mock_send.assert_not_called()
 
@@ -200,7 +200,7 @@ def test_send_requires_auth(client):
 
         site = get_site_by_subdomain("myblog")
         create_post(site["id"], "hello", "Hello", "Body")
-    response = client.post("/send/hello", headers=HEADERS)
+    response = client.post("/-/send/hello", headers=HEADERS)
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 

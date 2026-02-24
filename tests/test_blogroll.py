@@ -20,7 +20,7 @@ def test_blogroll_post_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
     response = client.post(
-        "/blogroll",
+        "/-/blogroll",
         data={"blogroll[0][name]": "Blog", "blogroll[0][url]": "https://example.com"},
         headers=HOST,
     )
@@ -32,7 +32,7 @@ def test_blogroll_get(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
-    response = client.get("/blogroll", headers=HOST)
+    response = client.get("/-/blogroll", headers=HOST)
     assert response.status_code == 200
     assert b"Blogroll" in response.data
 
@@ -42,7 +42,7 @@ def test_blogroll_post_saves_items(client):
         user, site = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
-        "/blogroll",
+        "/-/blogroll",
         data={
             "blogroll[0][name]": "Example Blog",
             "blogroll[0][url]": "https://example.com",

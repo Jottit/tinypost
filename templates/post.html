@@ -23,15 +23,15 @@
       <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if is_owner %}
         <div class="actions mt-6">
-          <a href="/edit/{{ post.slug }}" class="btn btn--outline">Edit</a>
-          <form method="POST" action="/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
+          <a href="/-/edit/{{ post.slug }}" class="btn btn--outline">Edit</a>
+          <form method="POST" action="/-/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
             <button type="submit" class="btn btn--outline">Delete</button>
           </form>
           {% if not post.is_draft and subscriber_count and subscriber_count > 0 %}
             {% if post.sent_at %}
               <span class="editor-sent">Sent {{ post.sent_at.strftime('%B %-d, %Y') }}</span>
             {% else %}
-              <form method="POST" action="/send/{{ post.slug }}">
+              <form method="POST" action="/-/send/{{ post.slug }}">
                 <button type="submit" class="btn btn--outline">Send to {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}</button>
               </form>
             {% endif %}

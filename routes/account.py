@@ -16,7 +16,7 @@ def render_account(site, user, **kwargs):
     )
 
 
-@app.route("/account", methods=["GET", "POST"])
+@app.route("/-/account", methods=["GET", "POST"])
 def account():
     site = require_owner()
     user = get_user_by_id(session["user_id"])
@@ -32,7 +32,7 @@ def account():
     return render_account(site, user, success="Email updated.")
 
 
-@app.route("/account/import", methods=["POST"])
+@app.route("/-/account/import", methods=["POST"])
 def account_import():
     site = require_owner()
     user = get_user_by_id(session["user_id"])
@@ -54,7 +54,7 @@ def account_import():
     return render_account(site, user, import_results=results)
 
 
-@app.route("/account/token", methods=["POST"])
+@app.route("/-/account/token", methods=["POST"])
 def account_token():
     site = require_owner()
     user = get_user_by_id(session["user_id"])
@@ -62,8 +62,8 @@ def account_token():
     return render_account(site, user, new_token=token)
 
 
-@app.route("/account/token/revoke", methods=["POST"])
+@app.route("/-/account/token/revoke", methods=["POST"])
 def account_token_revoke():
     site = require_owner()
     revoke_personal_token(site["id"])
-    return redirect("/account")
+    return redirect("/-/account")

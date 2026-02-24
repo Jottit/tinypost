@@ -12,7 +12,7 @@ def login(client, user_id):
 def test_account_requires_auth(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
-    response = client.get("/account", headers=HOST)
+    response = client.get("/-/account", headers=HOST)
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
@@ -21,7 +21,7 @@ def test_account_shows_email(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
-    response = client.get("/account", headers=HOST)
+    response = client.get("/-/account", headers=HOST)
     assert response.status_code == 200
     assert b"owner@example.com" in response.data
 
@@ -31,7 +31,7 @@ def test_account_update_email(client):
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
-        "/account",
+        "/-/account",
         data={"email": "new@example.com"},
         headers=HOST,
     )
@@ -47,7 +47,7 @@ def test_account_email_required(client):
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
-        "/account",
+        "/-/account",
         data={"email": ""},
         headers=HOST,
     )
@@ -59,5 +59,5 @@ def test_account_delete_link_present(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
-    response = client.get("/account", headers=HOST)
-    assert b"/settings/delete-account" in response.data
+    response = client.get("/-/account", headers=HOST)
+    assert b"/-/settings/delete-account" in response.data

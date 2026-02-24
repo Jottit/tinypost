@@ -14,7 +14,7 @@ from routes import require_owner
 from utils import slugify
 
 
-@app.route("/new-page", methods=["GET", "POST"])
+@app.route("/-/new-page", methods=["GET", "POST"])
 def new_page():
     site = require_owner()
 
@@ -45,7 +45,7 @@ def new_page():
     return redirect(f"/{slug}")
 
 
-@app.route("/edit-page/<slug>", methods=["GET", "POST"])
+@app.route("/-/edit-page/<slug>", methods=["GET", "POST"])
 def edit_page(slug):
     site = require_owner()
     page = get_page_by_slug(site["id"], slug)
@@ -64,8 +64,8 @@ def edit_page(slug):
     return redirect(f"/{page['slug']}")
 
 
-@app.route("/settings/navigation/add", methods=["POST"])
-def settings_navigation_add():
+@app.route("/-/navigation/add", methods=["POST"])
+def navigation_add():
     site = require_owner()
     if request.is_json:
         title = (request.get_json().get("title") or "").strip()
@@ -92,11 +92,11 @@ def settings_navigation_add():
     create_page(site["id"], slug, title)
     if request.is_json:
         return jsonify({"slug": slug})
-    return redirect(f"/edit-page/{slug}")
+    return redirect(f"/-/edit-page/{slug}")
 
 
-@app.route("/settings/navigation/delete/<int:page_id>", methods=["POST"])
-def settings_navigation_delete(page_id):
+@app.route("/-/navigation/delete/<int:page_id>", methods=["POST"])
+def navigation_delete(page_id):
     site = require_owner()
     page = get_page_by_id(page_id)
     if not page or page["site_id"] != site["id"]:
@@ -107,8 +107,8 @@ def settings_navigation_delete(page_id):
     return redirect("/")
 
 
-@app.route("/settings/navigation/reorder", methods=["POST"])
-def settings_navigation_reorder():
+@app.route("/-/navigation/reorder", methods=["POST"])
+def navigation_reorder():
     site = require_owner()
     data = request.get_json()
     if not data or "order" not in data:
