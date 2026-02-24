@@ -134,8 +134,7 @@ def tls_ask():
     if domain.endswith(suffix):
         site = get_site_by_subdomain(domain.removesuffix(suffix))
     else:
-        lookup = domain[4:] if domain.startswith("www.") else domain
-        site = get_site_by_custom_domain(lookup)
+        site = get_site_by_custom_domain(domain.removeprefix("www."))
 
     if not site:
         return "", 403
