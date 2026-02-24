@@ -1,6 +1,6 @@
 import hashlib
 
-from flask import abort, jsonify, redirect, render_template, request, session
+from flask import abort, jsonify, make_response, redirect, render_template, request, session
 
 from app import app
 from auth import generate_passcode, send_passcode
@@ -29,6 +29,8 @@ def comment_post(slug):
     post = get_post_by_slug(site["id"], slug)
     if not post:
         abort(404)
+    if not site.get("comments_enabled", True):
+        abort(403)
 
     if request.form.get("website"):
         return jsonify(status="ok")
@@ -59,11 +61,18 @@ def comment_post(slug):
     if not email:
         return jsonify(status="error", message="Email is required."), 400
 
+    email_hash = _hash_email(email)
+
+    if request.cookies.get("comment_verified") == email_hash:
+        comment = create_comment(post["id"], site["id"], name, email_hash, body)
+        _notify_owner(site, post, name, body)
+        return jsonify(status="ok", comment_id=comment["id"])
+
     passcode = generate_passcode()
     session["pending_comment"] = {
         "name": name,
         "email": email,
-        "email_hash": _hash_email(email),
+        "email_hash": email_hash,
         "body": body,
         "slug": slug,
         "site_id": site["id"],
@@ -97,7 +106,15 @@ def comment_verify(slug):
     post = get_post_by_slug(pending["site_id"], slug)
     _notify_owner(site, post, pending["name"], pending["body"])
 
-    return jsonify(status="ok", comment_id=comment["id"])
+    resp = make_response(jsonify(status="ok", comment_id=comment["id"]))
+    resp.set_cookie(
+        "comment_verified",
+        pending["email_hash"],
+        max_age=30 * 24 * 60 * 60,
+        httponly=True,
+        samesite="Lax",
+    )
+    return resp
 
 
 @app.route("/-/comment/<int:comment_id>/delete", methods=["POST"])

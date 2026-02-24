@@ -31,7 +31,11 @@ def upgrade() -> None:
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
     """)
+    op.execute("""
+        ALTER TABLE sites ADD COLUMN IF NOT EXISTS comments_enabled BOOLEAN NOT NULL DEFAULT TRUE
+    """)
 
 
 def downgrade() -> None:
+    op.execute("ALTER TABLE sites DROP COLUMN IF EXISTS comments_enabled")
     op.drop_table("comments")

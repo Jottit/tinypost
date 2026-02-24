@@ -70,7 +70,11 @@ def settings():
             social_links.append({"label": label, "url": url})
         i += 1
 
-    update_site(site["id"], title, bio or None, license=license, social_links=social_links)
+    comments_enabled = request.form.get("comments_enabled") == "on"
+    update_site(
+        site["id"], title, bio or None,
+        license=license, social_links=social_links, comments_enabled=comments_enabled,
+    )
     flash("Settings updated.")
     return redirect("/-/settings")
 

@@ -150,11 +150,13 @@ def post(slug):
         comments = get_comments_for_post(post["id"])
         comment_count = get_comment_count(post["id"])
         user = None
+        user_site = None
         user_id = session.get("user_id")
         if user_id:
-            from db import get_user_by_id
+            from db import get_site_by_user, get_user_by_id
 
             user = get_user_by_id(user_id)
+            user_site = get_site_by_user(user_id)
         return render_template(
             "post.html",
             site=site,
@@ -165,6 +167,7 @@ def post(slug):
             comments=comments,
             comment_count=comment_count,
             user=user,
+            user_site=user_site,
         )
 
     page = get_page_by_slug(site["id"], slug)

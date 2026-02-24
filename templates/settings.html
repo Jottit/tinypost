@@ -71,6 +71,10 @@
           </div>
           <button type="button" class="btn mt-2" onclick="addSocialLink()">Add link</button>
         </fieldset>
+        <label class="mt-6 checkbox-label">
+          <input type="checkbox" name="comments_enabled"{{ ' checked' if site.comments_enabled }}>
+          Enable comments on posts
+        </label>
         <div class="actions mt-6">
           <button type="submit" class="btn">Save</button>
           <a href="/" class="btn">Cancel</a>

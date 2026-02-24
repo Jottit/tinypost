@@ -4,17 +4,58 @@ if (form) {
   const loggedIn = form.dataset.loggedIn === 'true';
   const fields = form.querySelector('.comment-fields');
   const textarea = form.querySelector('textarea');
-  const submitBtn = form.querySelector('button[type="submit"]');
+  const submitBtn = form.querySelector('.comment-submit');
+  const footer = form.querySelector('.comment-form-footer');
+  const identity = form.querySelector('.comment-identity');
+  const identityName = form.querySelector('.comment-identity-name');
+  const notYouLink = form.querySelector('.comment-not-you');
   const passcodeSection = form.querySelector('.comment-passcode');
   const verifyMsg = form.querySelector('.comment-verify-msg');
   const errorMsg = form.querySelector('.comment-error');
   const passcodeInputs = passcodeSection.querySelectorAll('.passcode-inputs input');
 
-  // Progressive disclosure: show name/email fields on focus
-  if (!loggedIn) {
-    textarea.addEventListener('focus', () => {
+  const nameInput = fields.querySelector('input[name="name"]');
+  const emailInput = fields.querySelector('input[name="email"]');
+  const savedName = localStorage.getItem('jottit_comment_name');
+  const savedEmail = localStorage.getItem('jottit_comment_email');
+  if (savedName) nameInput.value = savedName;
+  if (savedEmail && emailInput) emailInput.value = savedEmail;
+
+  const hasSavedIdentity = !!(savedName && (loggedIn || savedEmail));
+
+  // "Not you?" link clears saved identity and shows fields
+  notYouLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    identity.hidden = true;
+    fields.classList.add('comment-fields--visible');
+    nameInput.focus();
+  });
+
+  // Progressive disclosure on textarea focus
+  let fieldsRevealed = false;
+  textarea.addEventListener('focus', () => {
+    if (fieldsRevealed) return;
+    fieldsRevealed = true;
+    footer.classList.add('comment-form-footer--visible');
+    submitBtn.classList.add('comment-submit--visible');
+    updateSubmit();
+    if (hasSavedIdentity) {
+      identityName.textContent = savedName;
+      identity.hidden = false;
+    } else {
       fields.classList.add('comment-fields--visible');
-    });
+      if (!nameInput.value.trim()) {
+        nameInput.focus();
+      } else if (emailInput && !emailInput.value.trim()) {
+        emailInput.focus();
+      }
+    }
+  });
+
+  textarea.addEventListener('input', updateSubmit);
+
+  function updateSubmit() {
+    submitBtn.disabled = !textarea.value.trim();
   }
 
   form.addEventListener('submit', async (e) => {
@@ -27,15 +68,18 @@ if (form) {
     const json = await res.json();
 
     if (json.status === 'ok') {
+      localStorage.setItem('jottit_comment_name', nameInput.value.trim());
+      if (emailInput) localStorage.setItem('jottit_comment_email', emailInput.value.trim());
       window.location.reload();
     } else if (json.status === 'verify') {
-      // Show passcode UI
       verifyMsg.textContent = `Enter the code sent to ${json.email}`;
       passcodeSection.hidden = false;
-      submitBtn.hidden = true;
+      submitBtn.classList.remove('comment-submit--visible');
+      identity.hidden = true;
       textarea.disabled = true;
       fields.querySelectorAll('input').forEach(i => i.disabled = true);
       passcodeInputs[0].focus();
+      passcodeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       errorMsg.textContent = json.message;
       errorMsg.hidden = false;
@@ -43,7 +87,7 @@ if (form) {
     }
   });
 
-  // Passcode input behavior (reuse pattern from passcode.js)
+  // Passcode input behavior
   function tryVerify() {
     const code = Array.from(passcodeInputs).map(el => el.value).join('');
     if (code.length === 6) {
@@ -61,6 +105,8 @@ if (form) {
     const json = await res.json();
 
     if (json.status === 'ok') {
+      localStorage.setItem('jottit_comment_name', nameInput.value.trim());
+      if (emailInput) localStorage.setItem('jottit_comment_email', emailInput.value.trim());
       window.location.reload();
     } else {
       errorMsg.textContent = json.message;

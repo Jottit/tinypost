@@ -22,6 +22,7 @@ CREATE TABLE sites (
     custom_css TEXT,
     license TEXT,
     social_links JSONB DEFAULT '[]',
+    comments_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

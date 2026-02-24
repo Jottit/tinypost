@@ -669,7 +669,8 @@ main.editor {
   padding: var(--space-4) max(var(--space-4), calc((100vw - var(--editor-measure)) / 2));
 }
 
-.editor-draft {
+.editor-draft,
+.checkbox-label {
   display: flex;
   align-items: center;
   gap: var(--space-2);
