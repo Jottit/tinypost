@@ -5,25 +5,30 @@ var editorEl = document.getElementById('editor');
 var hiddenInput = document.querySelector('input[name="body"]');
 var titleInput = document.querySelector('.editor-title');
 var form = document.querySelector('form');
-var STORAGE_KEY = 'jottit-write-draft';
-var isNewPost = !titleInput.value && !hiddenInput.value;
 var saveTimer = null;
 
-if (isNewPost) {
-  try {
-    var draft = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (draft) {
-      if (draft.title) titleInput.value = draft.title;
-      if (draft.body) hiddenInput.value = draft.body;
-    }
-  } catch (e) {}
-}
+var formAction = form.getAttribute('action');
+var slug = formAction.replace('/-/edit', '').replace(/^\//, '');
+var STORAGE_KEY = slug ? 'jottit-edit-' + slug : 'jottit-write-draft';
+
+var draftRestored = false;
+try {
+  var draft = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (draft) {
+    if (draft.title) titleInput.value = draft.title;
+    if (draft.body) hiddenInput.value = draft.body;
+    draftRestored = true;
+  }
+} catch (e) {}
+
+var origTitle = titleInput.value;
+var origBody = hiddenInput.value;
 
 var jot = new Jot(editorEl, {
   initialValue: hiddenInput.value,
   onChange: function(markdown) {
     hiddenInput.value = markdown;
-    if (isNewPost) saveDraft();
+    saveDraft();
   },
   ui: {
     bubbleMenu: true,
@@ -35,6 +40,20 @@ var jot = new Jot(editorEl, {
 });
 
 editorEl.querySelector('.ProseMirror').focus();
+
+if (draftRestored) {
+  var toast = document.createElement('div');
+  toast.className = 'editor-toast';
+  toast.textContent = 'Unsaved changes restored';
+  document.body.appendChild(toast);
+  requestAnimationFrame(function() {
+    toast.classList.add('editor-toast-visible');
+  });
+  setTimeout(function() {
+    toast.classList.remove('editor-toast-visible');
+    toast.addEventListener('transitionend', function() { toast.remove(); });
+  }, 3000);
+}
 
 titleInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' || e.key === 'ArrowDown') {
@@ -50,17 +69,20 @@ editorEl.addEventListener('keydown', function(e) {
   }
 });
 
-if (isNewPost) {
-  titleInput.addEventListener('input', saveDraft);
+titleInput.addEventListener('input', saveDraft);
+
+function isDirty() {
+  return titleInput.value !== origTitle || jot.getValue() !== origBody;
 }
 
 function saveDraft() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(function() {
-    var title = titleInput.value;
-    var body = jot.getValue();
-    if (title.trim() || body.trim()) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ title: title, body: body }));
+    if (isDirty()) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        title: titleInput.value,
+        body: jot.getValue()
+      }));
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }
@@ -74,9 +96,7 @@ function clearDraft() {
 
 var cancelLink = form.querySelector('a.btn');
 cancelLink.addEventListener('click', function(e) {
-  var title = titleInput.value;
-  var body = jot.getValue();
-  if (title.trim() || body.trim()) {
+  if (isDirty()) {
     e.preventDefault();
     if (confirm('You have unsaved changes. Discard them?')) {
       clearDraft();
