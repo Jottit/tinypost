@@ -1,5 +1,5 @@
 import { Jot } from '/static/js/jot.js';
-import { bindImageHandlers, uploadImage } from '/static/image-upload.js';
+import { bindImageHandlers } from '/static/image-upload.js';
 
 var modal = document.getElementById('write-modal');
 var form = document.getElementById('write-modal-form');
@@ -55,11 +55,7 @@ function initEditor() {
       saveDraft();
     },
     ui: {
-      bubbleMenu: true,
-      imageBtn: true
-    },
-    onImage: function(file) {
-      uploadImage(jot, file);
+      bubbleMenu: true
     }
   });
   var pm = editorEl.querySelector('.ProseMirror');
@@ -81,7 +77,7 @@ function resetForm() {
 }
 
 function isDirty() {
-  return titleInput.value.trim() !== '' || (jot && jot.getValue().trim() !== '');
+  return titleInput.value.trim() || (jot && jot.getValue().trim());
 }
 
 window.openWriteModal = function() {
@@ -100,17 +96,18 @@ window.openWriteModal = function() {
   editorEl.querySelector('.ProseMirror').focus();
 };
 
-window.closeWriteModal = function() {
+function hideModal() {
   modal.hidden = true;
   document.body.style.overflow = '';
-};
+}
+
+window.closeWriteModal = hideModal;
 
 window.cancelWriteModal = function() {
   if (isDirty() && !confirm('You have unsaved changes. Discard them?')) return;
   clearDraft();
   resetForm();
-  modal.hidden = true;
-  document.body.style.overflow = '';
+  hideModal();
 };
 
 window.expandWriteModal = function() {
@@ -156,14 +153,15 @@ form.addEventListener('submit', function(e) {
     headers: { 'X-Requested-With': 'XMLHttpRequest' },
     body: data
   })
-    .then(function(res) { return res.json().then(function(json) { return { ok: res.ok, json: json }; }); })
-    .then(function(result) {
-      if (result.ok && result.json.slug) {
-        clearDraft();
-        window.location.href = '/' + result.json.slug;
-      } else {
-        showError(result.json.error || 'Something went wrong.');
-      }
+    .then(function(res) {
+      return res.json().then(function(json) {
+        if (res.ok && json.slug) {
+          clearDraft();
+          window.location.href = '/' + json.slug;
+        } else {
+          showError(json.error || 'Something went wrong.');
+        }
+      });
     })
     .catch(function() {
       showError('Something went wrong.');

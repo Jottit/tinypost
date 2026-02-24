@@ -49,9 +49,13 @@ if (savedCursor) {
 }
 
 if (draftRestored) {
+  showToast('Unsaved changes restored');
+}
+
+function showToast(message) {
   var toast = document.createElement('div');
   toast.className = 'editor-toast';
-  toast.textContent = 'Unsaved changes restored';
+  toast.textContent = message;
   document.body.appendChild(toast);
   requestAnimationFrame(function() {
     toast.classList.add('editor-toast-visible');
@@ -104,12 +108,11 @@ function clearDraft() {
 
 var cancelLink = form.querySelector('a.btn');
 cancelLink.addEventListener('click', function(e) {
-  if (isDirty()) {
-    e.preventDefault();
-    if (confirm('You have unsaved changes. Discard them?')) {
-      clearDraft();
-      window.location.href = cancelLink.href;
-    }
+  if (!isDirty()) return;
+  e.preventDefault();
+  if (confirm('You have unsaved changes. Discard them?')) {
+    clearDraft();
+    window.location.href = cancelLink.href;
   }
 });
 

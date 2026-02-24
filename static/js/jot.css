@@ -50,32 +50,6 @@
   font-size: 13px;
   font-weight: 700;
 }
-
-/* Image button */
-.jot-image-btn {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: inherit;
-  z-index: 10;
-  opacity: 0;
-  transform: scale(0.8);
-  pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.jot-image-btn-visible {
-  opacity: 0.35;
-  transform: scale(1);
-  pointer-events: auto;
-}
-.jot-image-btn-visible:hover { opacity: 0.7; }
 .jot-bubble-divider {
   width: 1px;
   height: 16px;

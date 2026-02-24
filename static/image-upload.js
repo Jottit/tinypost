@@ -2,7 +2,7 @@ var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 var maxSize = 5 * 1024 * 1024;
 
 export function uploadImage(jot, file) {
-  if (allowedTypes.indexOf(file.type) === -1) {
+  if (!allowedTypes.includes(file.type)) {
     alert('Only jpg, png, gif, and webp images are allowed.');
     return;
   }
@@ -40,21 +40,20 @@ export function bindImageHandlers(el, jot) {
   el.addEventListener('drop', function(e) {
     e.preventDefault();
     el.classList.remove('drag-over');
-    var files = e.dataTransfer.files;
-    for (var i = 0; i < files.length; i++) {
-      if (files[i].type.startsWith('image/')) {
-        uploadImage(jot, files[i]);
+    Array.from(e.dataTransfer.files).forEach(function(file) {
+      if (file.type.startsWith('image/')) {
+        uploadImage(jot, file);
       }
-    }
+    });
   });
   el.addEventListener('paste', function(e) {
     var items = e.clipboardData && e.clipboardData.items;
     if (!items) return;
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].type.startsWith('image/')) {
-        var file = items[i].getAsFile();
+    Array.from(items).forEach(function(item) {
+      if (item.type.startsWith('image/')) {
+        var file = item.getAsFile();
         if (file) uploadImage(jot, file);
       }
-    }
+    });
   });
 }
