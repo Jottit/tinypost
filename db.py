@@ -4,22 +4,44 @@ import psycopg
 from flask import current_app, g
 from psycopg.rows import dict_row
 from psycopg.types.json import Json
+from psycopg_pool import ConnectionPool
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
+
+_pool = None
+
+
+def _get_pool():
+    global _pool
+    if _pool is None:
+        _pool = ConnectionPool(
+            DATABASE_URL,
+            min_size=1,
+            max_size=10,
+            kwargs={"row_factory": dict_row, "connect_timeout": 5},
+        )
+    return _pool
 
 
 def get_db():
     if "db" not in g:
         db_name = current_app.config.get("DATABASE")
-        dsn = f"dbname={db_name}" if db_name else DATABASE_URL
-        g.db = psycopg.connect(dsn, row_factory=dict_row)
+        if db_name:
+            g.db = psycopg.connect(f"dbname={db_name}", row_factory=dict_row)
+        else:
+            g.db = _get_pool().getconn()
+            g._db_pooled = True
     return g.db
 
 
 def close_db(e=None):
+    pooled = g.pop("_db_pooled", False)
     db = g.pop("db", None)
     if db is not None:
-        db.close()
+        if pooled:
+            _get_pool().putconn(db)
+        else:
+            db.close()
 
 
 def query(sql, args=(), one=False):

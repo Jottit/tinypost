@@ -7,7 +7,7 @@ gunicorn
 markdown
 markdownify
 Pillow
-psycopg[binary]
+psycopg[binary,pool]
 pytest
 ruff
 black
