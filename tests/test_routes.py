@@ -514,3 +514,21 @@ def test_uploaded_file(client):
     assert response.status_code == 200
     assert response.data == b"\x89PNG fake"
     dest.unlink()
+
+
+# ── 500 error page ───────────────────────
+
+
+def test_500_error_page(client):
+    with app.app_context():
+        create_user_and_site("owner@example.com", "myblog")
+
+    app.config["TESTING"] = False
+    try:
+        with patch("routes.home.get_current_site", side_effect=RuntimeError("boom")):
+            response = client.get("/", headers=HOST)
+    finally:
+        app.config["TESTING"] = True
+    assert response.status_code == 500
+    assert b"Something went wrong" in response.data
+    assert b"support@jottit.pub" in response.data

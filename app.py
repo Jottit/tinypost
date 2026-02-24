@@ -1,7 +1,7 @@
 import os
 
 import sentry_sdk
-from flask import Flask, redirect, request
+from flask import Flask, redirect, render_template, request
 
 if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(dsn=os.environ["SENTRY_DSN"])
@@ -31,6 +31,11 @@ def redirect_www():
         bare = host[4:]
         if get_site_by_custom_domain(bare):
             return redirect(f"https://{bare}{request.full_path}", code=301)
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template("500.html"), 500
 
 
 from indieauth import *
