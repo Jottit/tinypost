@@ -302,16 +302,21 @@ def reorder_pages(site_id, page_ids):
     db.commit()
 
 
+def delete_site(site_id):
+    db = get_db()
+    db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site_id,))
+    db.execute("DELETE FROM blogroll WHERE site_id = %s", (site_id,))
+    db.execute("DELETE FROM subscribers WHERE site_id = %s", (site_id,))
+    db.execute("DELETE FROM pages WHERE site_id = %s", (site_id,))
+    db.execute("DELETE FROM posts WHERE site_id = %s", (site_id,))
+    db.execute("DELETE FROM sites WHERE id = %s", (site_id,))
+    db.commit()
+
+
 def delete_account(user_id):
     db = get_db()
-    site = get_site_by_user(user_id)
-    if site:
-        db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site["id"],))
-        db.execute("DELETE FROM blogroll WHERE site_id = %s", (site["id"],))
-        db.execute("DELETE FROM subscribers WHERE site_id = %s", (site["id"],))
-        db.execute("DELETE FROM pages WHERE site_id = %s", (site["id"],))
-        db.execute("DELETE FROM posts WHERE site_id = %s", (site["id"],))
-        db.execute("DELETE FROM sites WHERE id = %s", (site["id"],))
+    for site in get_sites_by_user(user_id):
+        delete_site(site["id"])
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))
     db.commit()
 

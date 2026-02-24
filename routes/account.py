@@ -3,7 +3,7 @@ import zipfile
 from flask import redirect, render_template, request, session
 
 from app import app
-from db import get_user_by_id, update_user_email
+from db import get_sites_by_user, get_user_by_id, update_user_email
 from indieauth_db import create_personal_token, get_personal_token, revoke_personal_token
 from routes import require_owner
 from substack import import_posts, import_subscribers, rehost_images
@@ -11,8 +11,15 @@ from substack import import_posts, import_subscribers, rehost_images
 
 def render_account(site, user, **kwargs):
     token = get_personal_token(site["id"])
+    sites = get_sites_by_user(user["id"])
     return render_template(
-        "account.html", site=site, user=user, is_owner=True, personal_token=token, **kwargs
+        "account.html",
+        site=site,
+        user=user,
+        sites=sites,
+        is_owner=True,
+        personal_token=token,
+        **kwargs,
     )
 
 

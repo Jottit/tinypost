@@ -1,26 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Delete account — {{ site.title }}{% endblock %}
+{% block title %}Delete site — {{ site.title }}{% endblock %}
 {% block body %}
   {% include "admin_menu.html" %}
   <main>
     <div class="settings-card">
-      <h2>Delete account</h2>
-      <p>This will permanently delete your account, all your sites, posts, and images. This cannot be undone.</p>
-      {% if sites|length > 1 %}
-      <ul>
-        {% for s in sites %}
-          <li>{{ s.subdomain }}.jottit.pub</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+      <h2>Delete site</h2>
+      <p>This will permanently delete <strong>{{ site.subdomain }}.jottit.pub</strong> and all its posts and images. This cannot be undone.</p>
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}
-      <form method="POST" action="/-/settings/delete-account" class="settings-form">
+      <form method="POST" action="/-/settings/delete-site" class="settings-form">
         <label for="confirmation">Type <strong class="error">delete</strong> to confirm</label>
         <input type="text" id="confirmation" name="confirmation" autocomplete="off">
         <div class="actions mt-6">
-          <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete account</button>
+          <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete site</button>
           <a href="/-/account" class="btn">Cancel</a>
         </div>
       </form>

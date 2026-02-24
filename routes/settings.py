@@ -14,8 +14,10 @@ from config import (
 )
 from db import (
     delete_account,
+    delete_site,
     get_all_posts_for_site,
     get_pages_for_site,
+    get_sites_by_user,
     is_domain_taken,
     remove_custom_domain,
     set_custom_domain,
@@ -188,19 +190,49 @@ def settings_domain_remove():
     return redirect("/-/settings")
 
 
-@app.route("/-/settings/delete-account", methods=["GET", "POST"])
-def settings_delete_account():
+@app.route("/-/settings/delete-site", methods=["GET", "POST"])
+def settings_delete_site():
     site = require_owner()
 
     if request.method == "GET":
-        return render_template("delete_account.html", site=site, is_owner=True)
+        return render_template("delete_site.html", site=site, is_owner=True)
 
     if request.form.get("confirmation") != "delete":
         return render_template(
-            "delete_account.html", site=site, is_owner=True, error="Type 'delete' to confirm."
+            "delete_site.html", site=site, is_owner=True, error="Type 'delete' to confirm."
         )
 
     delete_all_images(site["subdomain"])
+    user_id = session["user_id"]
+    delete_site(site["id"])
+
+    remaining = get_sites_by_user(user_id)
+    if not remaining:
+        delete_account(user_id)
+        session.clear()
+
+    return redirect(f"http://{app.config['BASE_DOMAIN']}")
+
+
+@app.route("/-/settings/delete-account", methods=["GET", "POST"])
+def settings_delete_account():
+    site = require_owner()
+    sites = get_sites_by_user(session["user_id"])
+
+    if request.method == "GET":
+        return render_template("delete_account.html", site=site, sites=sites, is_owner=True)
+
+    if request.form.get("confirmation") != "delete":
+        return render_template(
+            "delete_account.html",
+            site=site,
+            sites=sites,
+            is_owner=True,
+            error="Type 'delete' to confirm.",
+        )
+
+    for s in sites:
+        delete_all_images(s["subdomain"])
     delete_account(session["user_id"])
     session.clear()
     return redirect(f"http://{app.config['BASE_DOMAIN']}")

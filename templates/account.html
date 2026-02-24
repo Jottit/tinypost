@@ -75,8 +75,13 @@
       {% endif %}
     </div>
     <div class="danger-zone">
+      <h3>Delete site</h3>
+      <p>Permanently delete {{ site.title }} and all its posts and images.</p>
+      <a href="/-/settings/delete-site" class="btn btn--danger">Delete site</a>
+    </div>
+    <div class="danger-zone">
       <h3>Delete account</h3>
-      <p>Permanently delete your account, your site, and all your posts and images.</p>
+      <p>Permanently delete your account{% if sites|length > 1 %}, all {{ sites|length }} sites,{% else %}, your site,{% endif %} and all your posts and images.</p>
       <a href="/-/settings/delete-account" class="btn btn--danger">Delete account</a>
     </div>
   </main>
