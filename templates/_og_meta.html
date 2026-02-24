@@ -1,0 +1,12 @@
+{% macro og_tags(title, url, type="website", description="", image="", site_name="") %}
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:url" content="{{ url }}">
+  <meta property="og:type" content="{{ type }}">
+  {% if site_name %}<meta property="og:site_name" content="{{ site_name }}">{% endif %}
+  {% if description %}<meta property="og:description" content="{{ description }}">{% endif %}
+  {% if image %}<meta property="og:image" content="{{ image }}">{% endif %}
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ title }}">
+  {% if description %}<meta name="twitter:description" content="{{ description }}">{% endif %}
+  {% if image %}<meta name="twitter:image" content="{{ image }}">{% endif %}
+{% endmacro %}

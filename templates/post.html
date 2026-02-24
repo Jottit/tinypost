@@ -1,5 +1,16 @@
 {% extends "base.html" %}
+{% from "_og_meta.html" import og_tags %}
 {% block title %}{{ post.title or site.title }} — Jottit{% endblock %}
+{% block og_meta %}
+  {{ og_tags(
+    title=post.title or site.title,
+    description=post.body|plain_text|truncate(160, False, '…') or site.bio|plain_text|truncate(160, False, '…'),
+    url=site_url(site) ~ '/' ~ post.slug,
+    type="article",
+    image=site.avatar,
+    site_name=site.title
+  ) }}
+{% endblock %}
 {% block theme_css %}{% include "theme_css.html" %}{% endblock %}
 {% block head_extra %}
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="/feed.xml">

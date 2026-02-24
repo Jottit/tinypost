@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone
 
 import markdown
@@ -49,6 +50,14 @@ def init_templates(app):
         if len(words) <= n:
             return text
         return " ".join(words[:n]) + "…"
+
+    @app.template_filter("plain_text")
+    def plain_text_filter(text):
+        if not text:
+            return ""
+        html = markdown.markdown(text)
+        clean = re.sub(r"<[^>]+>", "", html)
+        return re.sub(r"\s+", " ", clean).strip()
 
     app.jinja_env.globals["site_url"] = site_url
     app.jinja_env.globals["subdomain_url"] = subdomain_url
