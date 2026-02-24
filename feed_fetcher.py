@@ -88,7 +88,8 @@ def fetch_feed(feed_url):
             entry, "updated_parsed", None
         )
         if time_struct:
-            result["last_updated"] = datetime(*time_struct[:6], tzinfo=timezone.utc)
+            dt = datetime(*time_struct[:6], tzinfo=timezone.utc)
+            result["last_updated"] = min(dt, datetime.now(timezone.utc))
 
     result["feed_icon_url"] = _find_favicon(feed_url, feed)
 

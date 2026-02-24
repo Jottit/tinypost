@@ -38,6 +38,18 @@ RSS_FEED = """<?xml version="1.0" encoding="UTF-8"?>
   </channel>
 </rss>"""
 
+RSS_FEED_FUTURE = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Future Blog</title>
+    <item>
+      <title>Scheduled Post</title>
+      <link>https://example.com/scheduled</link>
+      <pubDate>Mon, 01 Jan 2035 12:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>"""
+
 ATOM_FEED = """<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Atom Blog</title>
@@ -49,6 +61,7 @@ ATOM_FEED = """<?xml version="1.0" encoding="UTF-8"?>
 </feed>"""
 
 PARSED_RSS = _feedparser.parse(RSS_FEED)
+PARSED_RSS_FUTURE = _feedparser.parse(RSS_FEED_FUTURE)
 PARSED_ATOM = _feedparser.parse(ATOM_FEED)
 
 IMAGE_FEED_XML = """<?xml version="1.0"?>
@@ -145,6 +158,20 @@ def test_fetch_feed_atom(mock_parse, mock_urlopen):
     assert result["latest_post_title"] == "Atom Post"
     assert result["latest_post_url"] == "https://example.com/atom-post"
     assert result["last_updated"] is not None
+
+
+@patch("feed_fetcher.urllib.request.urlopen")
+@patch("feed_fetcher.feedparser.parse")
+def test_fetch_feed_caps_future_dates(mock_parse, mock_urlopen):
+    mock_parse.return_value = PARSED_RSS_FUTURE
+    _mock_favicon_response(mock_urlopen)
+
+    before = datetime.now(timezone.utc)
+    result = fetch_feed("https://example.com/feed.xml")
+    after = datetime.now(timezone.utc)
+
+    assert result["last_updated"] >= before
+    assert result["last_updated"] <= after
 
 
 @patch("feed_fetcher.urllib.request.urlopen")
