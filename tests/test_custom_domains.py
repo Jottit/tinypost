@@ -159,6 +159,19 @@ def test_tls_ask_returns_403_for_unverified_domain(client):
     assert response.status_code == 403
 
 
+def test_tls_ask_returns_200_for_www_base_domain(client):
+    with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
+        response = client.get("/_tls/ask?token=secret&domain=www.jottit.localhost")
+    assert response.status_code == 200
+
+
+def test_www_redirects_to_base_domain(client):
+    response = client.get("/", headers={"Host": "www.jottit.localhost"})
+    assert response.status_code == 301
+    assert "jottit.localhost" in response.headers["Location"]
+    assert "www" not in response.headers["Location"]
+
+
 def test_tls_ask_returns_200_for_valid_subdomain(client):
     _setup_site()
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):

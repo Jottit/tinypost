@@ -8,6 +8,8 @@ def test_valid_subdomain():
     assert not is_valid_subdomain("-bad")
     assert not is_valid_subdomain("no spaces")
     assert not is_valid_subdomain("AB")
+    assert not is_valid_subdomain("www")
+    assert not is_valid_subdomain("admin")
 
 
 def test_slugify():

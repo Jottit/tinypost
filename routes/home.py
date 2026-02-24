@@ -126,6 +126,10 @@ def tls_ask():
         return "", 403
 
     base = app.config["BASE_DOMAIN"].split(":")[0]
+
+    if domain == base or domain == f"www.{base}":
+        return "", 200
+
     suffix = "." + base
     if domain.endswith(suffix):
         site = get_site_by_subdomain(domain.removesuffix(suffix))

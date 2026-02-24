@@ -1,7 +1,7 @@
 import os
 
 import sentry_sdk
-from flask import Flask
+from flask import Flask, redirect, request
 
 if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(dsn=os.environ["SENTRY_DSN"])
@@ -19,6 +19,15 @@ app.teardown_appcontext(close_db)
 
 init_templates(app)
 init_cli(app)
+
+
+@app.before_request
+def redirect_www():
+    host = request.host
+    base = app.config["BASE_DOMAIN"]
+    if host == f"www.{base}" or host == f"www.{base.split(':')[0]}":
+        return redirect(f"https://{base}{request.full_path}", code=301)
+
 
 from indieauth import *
 from micropub import *
