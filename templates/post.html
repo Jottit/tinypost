@@ -60,6 +60,28 @@
         <button type="submit">Subscribe</button>
       </div>
     </form>
+    <section class="comments-section">
+      <h3>Comments{% if comment_count %} ({{ comment_count }}){% endif %}</h3>
+      {% for comment in comments %}
+        <div class="comment" id="comment-{{ comment.id }}">
+          <div class="comment-meta">
+            {% if comment.author_url %}
+              <a href="{{ comment.author_url }}">{{ comment.name }}</a>
+            {% else %}
+              <span>{{ comment.name }}</span>
+            {% endif %}
+            <time datetime="{{ comment.created_at.isoformat() }}">{{ comment.created_at | timeago }}</time>
+            {% if is_owner %}
+              <form method="POST" action="/-/comment/{{ comment.id }}/delete" class="comment-delete">
+                <button type="submit">delete</button>
+              </form>
+            {% endif %}
+          </div>
+          <div class="comment-body">{{ comment.body | nl2br }}</div>
+        </div>
+      {% endfor %}
+      {% include "comment_form.html" %}
+    </section>
   </main>
   {% include "site_footer.html" %}
 {% endblock %}

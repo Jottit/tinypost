@@ -306,6 +306,7 @@ def reorder_pages(site_id, page_ids):
 
 def delete_site(site_id):
     db = get_db()
+    db.execute("DELETE FROM comments WHERE site_id = %s", (site_id,))
     db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site_id,))
     db.execute("DELETE FROM blogroll WHERE site_id = %s", (site_id,))
     db.execute("DELETE FROM subscribers WHERE site_id = %s", (site_id,))
@@ -319,6 +320,7 @@ def delete_account(user_id):
     db = get_db()
     for site in get_sites_by_user(user_id):
         delete_site(site["id"])
+    db.execute("UPDATE comments SET user_id = NULL WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))
     db.commit()
 
@@ -464,3 +466,43 @@ def mark_post_sent(post_id):
     ).fetchone()
     db.commit()
     return post
+
+
+def get_comments_for_post(post_id):
+    return query(
+        "SELECT * FROM comments WHERE post_id = %s ORDER BY created_at ASC",
+        (post_id,),
+    )
+
+
+def get_comment_count(post_id):
+    row = query(
+        "SELECT COUNT(*) AS count FROM comments WHERE post_id = %s",
+        (post_id,),
+        one=True,
+    )
+    return row["count"]
+
+
+def create_comment(post_id, site_id, name, email_hash, body, user_id=None, author_url=None):
+    db = get_db()
+    comment = db.execute(
+        "INSERT INTO comments (post_id, site_id, name, email_hash, body, user_id, author_url)"
+        " VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *",
+        (post_id, site_id, name, email_hash, body, user_id, author_url),
+    ).fetchone()
+    db.commit()
+    return comment
+
+
+def get_comment_by_id(comment_id):
+    return query("SELECT * FROM comments WHERE id = %s", (comment_id,), one=True)
+
+
+def delete_comment(comment_id, site_id):
+    db = get_db()
+    db.execute(
+        "DELETE FROM comments WHERE id = %s AND site_id = %s",
+        (comment_id, site_id),
+    )
+    db.commit()

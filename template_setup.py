@@ -44,6 +44,10 @@ def init_templates(app):
         years = days // 365
         return f"{years}y"
 
+    @app.template_filter("nl2br")
+    def nl2br_filter(text):
+        return Markup(Markup.escape(text).replace("\n", Markup("<br>")))
+
     @app.template_filter("truncatewords")
     def truncatewords_filter(text, n=50):
         words = text.split()

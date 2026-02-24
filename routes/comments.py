@@ -1,0 +1,133 @@
+import hashlib
+
+from flask import abort, jsonify, redirect, render_template, request, session
+
+from app import app
+from auth import generate_passcode, send_passcode
+from db import (
+    create_comment,
+    delete_comment,
+    get_post_by_slug,
+    get_site_by_id,
+    get_site_by_user,
+    get_user_by_id,
+)
+from mailer import send_email
+from routes import require_owner
+from utils import get_current_site, mask_email, site_url
+
+
+def _hash_email(email):
+    return hashlib.sha256(email.strip().lower().encode()).hexdigest()
+
+
+@app.route("/-/comment/<slug>", methods=["POST"])
+def comment_post(slug):
+    site = get_current_site()
+    if not site:
+        abort(404)
+    post = get_post_by_slug(site["id"], slug)
+    if not post:
+        abort(404)
+
+    if request.form.get("website"):
+        return jsonify(status="ok")
+
+    body = request.form.get("body", "").strip()
+    name = request.form.get("name", "").strip()
+    if not body or not name:
+        return jsonify(status="error", message="Name and comment are required."), 400
+    if len(body) > 5000:
+        return jsonify(status="error", message="Comment is too long."), 400
+    if len(name) > 100:
+        return jsonify(status="error", message="Name is too long."), 400
+
+    user_id = session.get("user_id")
+    if user_id:
+        user = get_user_by_id(user_id)
+        email_hash = _hash_email(user["email"])
+        commenter_site = get_site_by_user(user_id)
+        author_url = site_url(commenter_site) if commenter_site else None
+        comment = create_comment(
+            post["id"], site["id"], name, email_hash, body,
+            user_id=user_id, author_url=author_url,
+        )
+        _notify_owner(site, post, name, body)
+        return jsonify(status="ok", comment_id=comment["id"])
+
+    email = request.form.get("email", "").strip().lower()
+    if not email:
+        return jsonify(status="error", message="Email is required."), 400
+
+    passcode = generate_passcode()
+    session["pending_comment"] = {
+        "name": name,
+        "email": email,
+        "email_hash": _hash_email(email),
+        "body": body,
+        "slug": slug,
+        "site_id": site["id"],
+        "post_id": post["id"],
+        "passcode": passcode,
+    }
+    send_passcode(email, passcode)
+    return jsonify(status="verify", email=mask_email(email))
+
+
+@app.route("/-/comment/<slug>/verify", methods=["POST"])
+def comment_verify(slug):
+    pending = session.get("pending_comment")
+    if not pending or pending["slug"] != slug:
+        return jsonify(status="error", message="No pending comment."), 400
+
+    code = request.form.get("passcode", "").strip()
+    if code != pending["passcode"]:
+        return jsonify(status="error", message="Wrong passcode.")
+
+    comment = create_comment(
+        pending["post_id"],
+        pending["site_id"],
+        pending["name"],
+        pending["email_hash"],
+        pending["body"],
+    )
+    session.pop("pending_comment")
+
+    site = get_site_by_id(pending["site_id"])
+    post = get_post_by_slug(pending["site_id"], slug)
+    _notify_owner(site, post, pending["name"], pending["body"])
+
+    return jsonify(status="ok", comment_id=comment["id"])
+
+
+@app.route("/-/comment/<int:comment_id>/delete", methods=["POST"])
+def comment_delete(comment_id):
+    site = require_owner()
+    delete_comment(comment_id, site["id"])
+    return redirect(request.referrer or "/")
+
+
+def _notify_owner(site, post, commenter_name, comment_body):
+    owner = get_user_by_id(site["user_id"])
+    if not owner:
+        return
+    post_url = f"{site_url(site)}/{post['slug']}"
+    send_email(
+        to=owner["email"],
+        subject=f"New comment on \"{post['title'] or 'your post'}\"",
+        text=(
+            f"{commenter_name} commented on {post['title'] or 'your post'}:\n\n"
+            f"{comment_body}\n\n"
+            f"View: {post_url}\n\n"
+            f"---\n"
+            f"Jottit"
+        ),
+        html=render_template(
+            "email_comment_notification.html",
+            site=site,
+            post=post,
+            commenter_name=commenter_name,
+            comment_body=comment_body,
+            post_url=post_url,
+        ),
+    )

@@ -1,0 +1,24 @@
+<form class="comment-form" data-slug="{{ post.slug }}" data-logged-in="{{ 'true' if user else 'false' }}">
+  <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+  <div class="comment-fields{% if user %} comment-fields--visible{% endif %}">
+    <input type="text" name="name" placeholder="Your name" required{% if user %} value="{{ user.email.split('@')[0] }}"{% endif %}>
+    {% if not user %}
+      <input type="email" name="email" placeholder="Your email" required>
+    {% endif %}
+  </div>
+  <textarea name="body" placeholder="Write a comment…" required></textarea>
+  <button type="submit" class="btn btn--outline">Post comment</button>
+  <div class="comment-passcode" hidden>
+    <p class="comment-verify-msg"></p>
+    <div class="passcode-inputs">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+    </div>
+    <p class="comment-error" hidden></p>
+  </div>
+</form>
+<script src="/static/comments.js"></script>

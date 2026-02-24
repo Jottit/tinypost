@@ -620,3 +620,105 @@ a.blogroll-item-post:hover {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
 }
+
+/* ── Comments ───────────────────────── */
+.comments-section {
+  border-top: 1px solid var(--site-divider);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+}
+
+.comments-section h3 {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-5);
+}
+
+.comment {
+  margin-bottom: var(--space-5);
+}
+
+.comment-meta {
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  margin-bottom: var(--space-1);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.comment-meta a {
+  color: var(--site-text-bright);
+}
+
+.comment-meta span,
+.comment-meta a {
+  font-weight: var(--weight-semibold);
+}
+
+.comment-meta time {
+  font-size: var(--text-xs);
+  display: inline;
+}
+
+.comment-delete {
+  display: inline;
+}
+
+.comment-delete button {
+  font-size: var(--text-xs);
+  color: var(--site-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.comment-delete button:hover {
+  color: var(--site-text-bright);
+}
+
+.comment-body {
+  font-size: var(--text-base);
+  line-height: var(--site-leading);
+}
+
+.comment-form {
+  margin-top: var(--space-6);
+}
+
+.comment-fields {
+  display: none;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.comment-fields--visible {
+  display: flex;
+}
+
+.comment-fields input {
+  flex: 1;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  margin-bottom: var(--space-3);
+}
+
+.comment-passcode {
+  margin-top: var(--space-4);
+}
+
+.comment-verify-msg {
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.comment-error {
+  font-size: var(--text-sm);
+  color: #c0392b;
+  margin-top: var(--space-2);
+}

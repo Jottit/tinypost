@@ -16,6 +16,7 @@ from routes import (  # noqa: E402, F401
     account,
     auth,
     blogroll,
+    comments,
     design,
     errors,
     feeds,

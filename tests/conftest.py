@@ -31,6 +31,7 @@ def create_test_db():
 @pytest.fixture(autouse=True)
 def clean_tables():
     conn = psycopg.connect(f"dbname={TEST_DB}")
+    conn.execute("DELETE FROM comments")
     conn.execute("DELETE FROM indieauth_codes")
     conn.execute("DELETE FROM blogroll")
     conn.execute("DELETE FROM feeds")
