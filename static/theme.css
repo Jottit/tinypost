@@ -247,7 +247,16 @@ article:last-child {
 article time {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
-  display: block;
+}
+
+.post-comment-count {
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+}
+
+.post-comment-count::before {
+  content: "·";
+  margin: 0 var(--space-1);
 }
 
 article h2 {

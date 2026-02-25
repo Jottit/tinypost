@@ -4,6 +4,7 @@ from app import app
 from config import CADDY_ASK_TOKEN
 from db import (
     get_blogroll,
+    get_comment_counts,
     get_pages_for_site,
     get_posts_for_site,
     get_site_by_custom_domain,
@@ -76,6 +77,7 @@ def home():
 
     posts = get_posts_for_site(site["id"], include_drafts=is_owner)
     pages = get_pages_for_site(site["id"], include_drafts=is_owner)
+    comment_counts = get_comment_counts([p["id"] for p in posts])
     return render_template(
         "site.html",
         site=site,
@@ -84,6 +86,7 @@ def home():
         is_owner=is_owner,
         subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
         blogroll=get_blogroll(site["id"]),
+        comment_counts=comment_counts,
     )
 
 

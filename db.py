@@ -476,6 +476,17 @@ def get_comments_for_post(post_id):
     )
 
 
+def get_comment_counts(post_ids):
+    if not post_ids:
+        return {}
+    rows = query(
+        "SELECT post_id, COUNT(*) AS count FROM comments"
+        " WHERE post_id = ANY(%s) GROUP BY post_id",
+        (list(post_ids),),
+    )
+    return {row["post_id"]: row["count"] for row in rows}
+
+
 def get_comment_count(post_id):
     row = query(
         "SELECT COUNT(*) AS count FROM comments WHERE post_id = %s",

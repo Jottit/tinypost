@@ -71,7 +71,8 @@
           </div>
           <button type="button" class="btn mt-2" onclick="addSocialLink()">Add link</button>
         </fieldset>
-        <label class="mt-6 checkbox-label">
+        <label class="mt-6">Comments</label>
+        <label class="checkbox-label">
           <input type="checkbox" name="comments_enabled"{{ ' checked' if site.comments_enabled }}>
           Enable comments on posts
         </label>
@@ -80,52 +81,52 @@
           <a href="/" class="btn">Cancel</a>
         </div>
       </form>
-      <div class="panel-divider">
-        <label>Custom domain</label>
-        {% if domain_error %}
-          <p class="error">{{ domain_error }}</p>
-        {% endif %}
-        {% if domain_success %}
-          <p class="success">{{ domain_success }}</p>
-        {% endif %}
-        {% if site.custom_domain and site.domain_verified_at %}
-          <div class="domain-status">
-            <span class="domain-verified">{{ site.custom_domain }}</span>
+    </div>
+    <div class="panel panel--narrow">
+      <h2>Custom domain</h2>
+      {% if domain_error %}
+        <p class="error">{{ domain_error }}</p>
+      {% endif %}
+      {% if domain_success %}
+        <p class="success">{{ domain_success }}</p>
+      {% endif %}
+      {% if site.custom_domain and site.domain_verified_at %}
+        <div class="domain-status">
+          <span class="domain-verified">{{ site.custom_domain }}</span>
+          <form method="POST" action="/-/settings/domain/remove" class="inline">
+            <button type="submit" class="domain-remove">Remove</button>
+          </form>
+        </div>
+      {% elif site.custom_domain %}
+        <div class="domain-status">
+          <p><strong>{{ site.custom_domain }}</strong> — not yet verified</p>
+          <div class="domain-instructions">
+            <p>Add these DNS records to verify ownership:</p>
+            <p><strong>TXT</strong> record for <code>_jottit.{{ site.custom_domain }}</code>:</p>
+            <pre><code>jottit-site-verification={{ site.domain_verification_token }}</code></pre>
+            {% if custom_domain_ipv4 %}
+              <p><strong>A</strong> record pointing to <code>{{ custom_domain_ipv4 }}</code></p>
+            {% endif %}
+            {% if custom_domain_ipv6 %}
+              <p><strong>AAAA</strong> record pointing to <code>{{ custom_domain_ipv6 }}</code></p>
+            {% endif %}
+            <p><strong>CNAME</strong> record for <code>www</code> pointing to <code>{{ site.custom_domain }}</code></p>
+          </div>
+          <div class="domain-actions">
+            <form method="POST" action="/-/settings/domain/verify" class="inline">
+              <button type="submit" class="btn">Verify</button>
+            </form>
             <form method="POST" action="/-/settings/domain/remove" class="inline">
               <button type="submit" class="domain-remove">Remove</button>
             </form>
           </div>
-        {% elif site.custom_domain %}
-          <div class="domain-status">
-            <p><strong>{{ site.custom_domain }}</strong> — not yet verified</p>
-            <div class="domain-instructions">
-              <p>Add these DNS records to verify ownership:</p>
-              <p><strong>TXT</strong> record for <code>_jottit.{{ site.custom_domain }}</code>:</p>
-              <pre><code>jottit-site-verification={{ site.domain_verification_token }}</code></pre>
-              {% if custom_domain_ipv4 %}
-                <p><strong>A</strong> record pointing to <code>{{ custom_domain_ipv4 }}</code></p>
-              {% endif %}
-              {% if custom_domain_ipv6 %}
-                <p><strong>AAAA</strong> record pointing to <code>{{ custom_domain_ipv6 }}</code></p>
-              {% endif %}
-              <p><strong>CNAME</strong> record for <code>www</code> pointing to <code>{{ site.custom_domain }}</code></p>
-            </div>
-            <div class="domain-actions">
-              <form method="POST" action="/-/settings/domain/verify" class="inline">
-                <button type="submit" class="btn">Verify</button>
-              </form>
-              <form method="POST" action="/-/settings/domain/remove" class="inline">
-                <button type="submit" class="domain-remove">Remove</button>
-              </form>
-            </div>
-          </div>
-        {% else %}
-          <form method="POST" action="/-/settings/domain" class="domain-form">
-            <input type="text" name="domain" placeholder="example.com">
-            <button type="submit" class="btn mt-4">Add domain</button>
-          </form>
-        {% endif %}
-      </div>
+        </div>
+      {% else %}
+        <form method="POST" action="/-/settings/domain" class="domain-form">
+          <input type="text" name="domain" placeholder="example.com">
+          <button type="submit" class="btn mt-4">Add domain</button>
+        </form>
+      {% endif %}
     </div>
   </main>
   <script>
