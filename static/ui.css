@@ -642,7 +642,7 @@ main.editor {
 }
 
 .editor-page .jot-bubble-menu {
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 6px 14px;
   gap: 6px;
 }

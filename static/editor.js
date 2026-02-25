@@ -104,6 +104,7 @@ function saveDraft() {
 function clearDraft() {
   clearTimeout(saveTimer);
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(CURSOR_KEY);
 }
 
 var cancelLink = form.querySelector('a.btn');
