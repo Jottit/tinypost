@@ -32,7 +32,7 @@ def upgrade() -> None:
         )
     """)
     op.execute("""
-        ALTER TABLE sites ADD COLUMN IF NOT EXISTS comments_enabled BOOLEAN NOT NULL DEFAULT TRUE
+        ALTER TABLE sites ADD COLUMN IF NOT EXISTS comments_enabled BOOLEAN NOT NULL DEFAULT FALSE
     """)
 
 

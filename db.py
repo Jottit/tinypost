@@ -138,7 +138,7 @@ def update_post(post_id, slug, title, body, is_draft=False):
     return post
 
 
-def update_site(site_id, title, bio, license=None, social_links=None, comments_enabled=True):
+def update_site(site_id, title, bio, license=None, social_links=None, comments_enabled=False):
     db = get_db()
     site = db.execute(
         "UPDATE sites SET title = %s, bio = %s, license = %s, social_links = %s,"

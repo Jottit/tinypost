@@ -29,7 +29,7 @@ def comment_post(slug):
     post = get_post_by_slug(site["id"], slug)
     if not post:
         abort(404)
-    if not site.get("comments_enabled", True):
+    if not site.get("comments_enabled", False):
         abort(403)
 
     if request.form.get("website"):
