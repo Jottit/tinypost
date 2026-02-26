@@ -37,11 +37,11 @@
         .then(function(data) {
           if (input.value.toLowerCase().trim() !== name) return;
           if (data.available) {
-            hint.textContent = name + '.jottit.pub is available';
+            hint.textContent = name + '.tinypost.blog is available';
             hint.className = 'success';
           } else {
             available = false;
-            hint.textContent = name + '.jottit.pub is not available';
+            hint.textContent = name + '.tinypost.blog is not available';
             hint.className = 'error';
           }
         });

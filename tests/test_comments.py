@@ -1,14 +1,25 @@
 from unittest.mock import patch
 
 from app import app
-from db import create_comment, create_post, create_user_and_site, get_comment_by_id
+from db import (
+    create_comment,
+    create_post,
+    create_user_and_site,
+    get_comment_by_id,
+    get_db,
+    get_site_by_id,
+)
 
-HEADERS = {"Host": "myblog.jottit.localhost:8000"}
+HEADERS = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def setup_site_and_post(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
+        db = get_db()
+        db.execute("UPDATE sites SET comments_enabled = TRUE WHERE id = %s", (site["id"],))
+        db.commit()
+        site = get_site_by_id(site["id"])
         post = create_post(site["id"], "hello", "Hello", "Post body here")
     return user, site, post
 

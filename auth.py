@@ -14,7 +14,7 @@ def send_passcode(email, passcode):
     domain = current_app.config["BASE_DOMAIN"]
     send_email(
         to=email,
-        subject="Your Jottit sign-in code",
+        subject="Your Tinypost sign-in code",
         text=(
             f"Your sign-in code is: {passcode}\n"
             "\n"
@@ -23,7 +23,7 @@ def send_passcode(email, passcode):
             "If you didn't request this code, you can safely ignore it.\n"
             "\n"
             "\u2014\n"
-            "Jottit\n"
+            "Tinypost\n"
             f"https://{domain}"
         ),
     )

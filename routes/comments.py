@@ -51,8 +51,13 @@ def comment_post(slug):
         commenter_site = get_site_by_user(user_id)
         author_url = site_url(commenter_site) if commenter_site else None
         comment = create_comment(
-            post["id"], site["id"], name, email_hash, body,
-            user_id=user_id, author_url=author_url,
+            post["id"],
+            site["id"],
+            name,
+            email_hash,
+            body,
+            user_id=user_id,
+            author_url=author_url,
         )
         _notify_owner(site, post, name, body)
         return jsonify(status="ok", comment_id=comment["id"])
@@ -137,7 +142,7 @@ def _notify_owner(site, post, commenter_name, comment_body):
             f"{comment_body}\n\n"
             f"View: {post_url}\n\n"
             f"---\n"
-            f"Jottit"
+            f"Tinypost"
         ),
         html=render_template(
             "email_comment_notification.html",

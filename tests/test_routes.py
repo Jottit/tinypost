@@ -17,7 +17,7 @@ from db import (
     update_site_avatar,
 )
 
-HOST = {"Host": "myblog.jottit.localhost:8000"}
+HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def _setup(client):
@@ -32,7 +32,7 @@ def _setup(client):
 
 
 def test_require_owner_no_site(client):
-    response = client.get("/-/edit", headers={"Host": "nosuchsite.jottit.localhost:8000"})
+    response = client.get("/-/edit", headers={"Host": "nosuchsite.tinypost.localhost:8000"})
     assert response.status_code == 404
 
 
@@ -528,11 +528,11 @@ def test_404_site_page(client):
     assert b"myblog" in response.data
 
 
-def test_404_jottit_page(client):
+def test_404_tinypost_page(client):
     response = client.get("/nonexistent-path")
     assert response.status_code == 404
     assert b"Page not found" in response.data
-    assert b"Jottit" in response.data
+    assert b"Tinypost" in response.data
 
 
 # ── 500 error page ───────────────────────
@@ -550,4 +550,4 @@ def test_500_error_page(client):
         app.config["TESTING"] = True
     assert response.status_code == 500
     assert b"Something went wrong" in response.data
-    assert b"support@jottit.pub" in response.data
+    assert b"support@tinypost.blog" in response.data

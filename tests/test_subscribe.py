@@ -11,7 +11,7 @@ from db import (
     get_subscriber_by_token,
 )
 
-HEADERS = {"Host": "myblog.jottit.localhost:8000"}
+HEADERS = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def setup_site(client):

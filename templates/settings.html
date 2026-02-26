@@ -102,8 +102,8 @@
           <p><strong>{{ site.custom_domain }}</strong> — not yet verified</p>
           <div class="domain-instructions">
             <p>Add these DNS records to verify ownership:</p>
-            <p><strong>TXT</strong> record for <code>_jottit.{{ site.custom_domain }}</code>:</p>
-            <pre><code>jottit-site-verification={{ site.domain_verification_token }}</code></pre>
+            <p><strong>TXT</strong> record for <code>_tinypost.{{ site.custom_domain }}</code>:</p>
+            <pre><code>tinypost-site-verification={{ site.domain_verification_token }}</code></pre>
             {% if custom_domain_ipv4 %}
               <p><strong>A</strong> record pointing to <code>{{ custom_domain_ipv4 }}</code></p>
             {% endif %}

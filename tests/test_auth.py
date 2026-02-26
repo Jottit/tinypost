@@ -11,7 +11,7 @@ def test_send_passcode(mock_send_email):
 
     mock_send_email.assert_called_once_with(
         to="user@example.com",
-        subject="Your Jottit sign-in code",
+        subject="Your Tinypost sign-in code",
         text=(
             "Your sign-in code is: 123456\n"
             "\n"
@@ -20,7 +20,7 @@ def test_send_passcode(mock_send_email):
             "If you didn't request this code, you can safely ignore it.\n"
             "\n"
             "\u2014\n"
-            "Jottit\n"
+            "Tinypost\n"
             f"https://{app.config['BASE_DOMAIN']}"
         ),
     )

@@ -6,7 +6,7 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Json
 from psycopg_pool import ConnectionPool
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/tinypost")
 
 _pool = None
 

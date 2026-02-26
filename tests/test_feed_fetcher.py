@@ -8,7 +8,7 @@ from app import app
 from db import create_user_and_site, get_blogroll, get_db, update_blogroll
 from feed_fetcher import discover_feed_url, fetch_feed, refresh_all_feeds
 
-HOST = {"Host": "myblog.jottit.localhost:8000"}
+HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 HTML_WITH_RSS = """<html><head>
 <link rel="alternate" type="application/rss+xml" href="https://example.com/feed.xml">

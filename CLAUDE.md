@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-## What is Jottit?
+## What is Tinypost?
 
 Blogging without the blogging software. Write a post, it's published. No themes, no plugins, no settings to fiddle with.
 
-Jottit is a radically simple blogging platform. You sign up, you get a blog at yourname.jottit.pub, and you start writing. That's it.
+Tinypost is a radically simple blogging platform. You sign up, you get a blog at yourname.tinypost.blog, and you start writing. That's it.
 
 Originally co-created with Aaron Swartz in 2007. Now being rebuilt as open infrastructure for web publishing.
 

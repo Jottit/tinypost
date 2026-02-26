@@ -43,7 +43,7 @@ class TestMetadata:
         make_site(client)
         resp = client.get(
             "/.well-known/oauth-authorization-server",
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         data = resp.get_json()
@@ -54,7 +54,7 @@ class TestMetadata:
     def test_metadata_404_no_site(self, client):
         resp = client.get(
             "/.well-known/oauth-authorization-server",
-            base_url="http://nonexistent.jottit.localhost:8000",
+            base_url="http://nonexistent.tinypost.localhost:8000",
         )
         assert resp.status_code == 404
 
@@ -64,7 +64,7 @@ class TestAuthorizeGet:
         make_site(client)
         resp = client.get(
             "/auth?client_id=https://example.com&redirect_uri=https://example.com/cb&code_challenge=test",
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 400
 
@@ -72,7 +72,7 @@ class TestAuthorizeGet:
         make_site(client)
         resp = client.get(
             "/auth?response_type=code&client_id=https://example.com&redirect_uri=https://example.com/cb",
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
 
@@ -82,7 +82,7 @@ class TestAuthorizeGet:
         resp = client.get(
             "/auth",
             query_string=auth_params(challenge),
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"Send code to" in resp.data
@@ -95,7 +95,7 @@ class TestAuthorizeGet:
         resp = client.get(
             "/auth",
             query_string=auth_params(challenge),
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"Approve" in resp.data
@@ -109,7 +109,7 @@ class TestPasscodeFlow:
         resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "send_passcode"},
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"6-digit code" in resp.data
@@ -123,7 +123,7 @@ class TestPasscodeFlow:
         resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "send_passcode"},
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         html = resp.data.decode()
         passcode_token = extract_hidden(html, "passcode_token")
@@ -136,7 +136,7 @@ class TestPasscodeFlow:
                 "passcode": passcode,
                 "passcode_token": passcode_token,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"Approve" in resp.data
@@ -149,7 +149,7 @@ class TestPasscodeFlow:
         resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "send_passcode"},
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         html = resp.data.decode()
         passcode_token = extract_hidden(html, "passcode_token")
@@ -161,7 +161,7 @@ class TestPasscodeFlow:
                 "passcode": "000000",
                 "passcode_token": passcode_token,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"Wrong passcode" in resp.data
@@ -174,7 +174,7 @@ class TestApproveAndDeny:
         resp = client.get(
             "/auth",
             query_string=auth_params(challenge),
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         return extract_hidden(resp.data.decode(), "auth_token")
 
@@ -185,7 +185,7 @@ class TestApproveAndDeny:
         resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "approve", "auth_token": auth_token},
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 302
         location = resp.headers["Location"]
@@ -200,7 +200,7 @@ class TestApproveAndDeny:
         resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "deny"},
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 302
         location = resp.headers["Location"]
@@ -212,7 +212,7 @@ class TestApproveAndDeny:
         resp = client.post(
             "/auth",
             data={**auth_params(challenge), "action": "approve"},
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         assert b"Not authenticated" in resp.data
@@ -225,7 +225,7 @@ class TestTokenExchange:
         resp = client.get(
             "/auth",
             query_string=auth_params(challenge),
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         return extract_hidden(resp.data.decode(), "auth_token")
 
@@ -239,7 +239,7 @@ class TestTokenExchange:
                 "scope": "create",
                 "auth_token": auth_token,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         from urllib.parse import parse_qs, urlparse
 
@@ -259,7 +259,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://example.com/callback",
                 "code_verifier": verifier,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         data = resp.get_json()
@@ -281,7 +281,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://example.com/callback",
                 "code_verifier": "wrong-verifier",
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 400
 
@@ -298,7 +298,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://example.com/callback",
                 "code_verifier": verifier,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 400
 
@@ -315,7 +315,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://evil.com/callback",
                 "code_verifier": verifier,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 400
 
@@ -333,7 +333,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://example.com/callback",
                 "code_verifier": verifier,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         # Second exchange fails
@@ -346,7 +346,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://example.com/callback",
                 "code_verifier": verifier,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 400
 
@@ -362,7 +362,7 @@ class TestTokenExchange:
                 "scope": "",
                 "auth_token": auth_token,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         from urllib.parse import parse_qs, urlparse
 
@@ -377,7 +377,7 @@ class TestTokenExchange:
                 "redirect_uri": "https://example.com/callback",
                 "code_verifier": verifier,
             },
-            base_url="http://myblog.jottit.localhost:8000",
+            base_url="http://myblog.tinypost.localhost:8000",
         )
         assert resp.status_code == 200
         data = resp.get_json()
@@ -388,15 +388,15 @@ class TestTokenExchange:
 class TestLinkTags:
     def test_homepage_has_indieauth_links(self, client):
         make_site(client)
-        resp = client.get("/", base_url="http://myblog.jottit.localhost:8000")
+        resp = client.get("/", base_url="http://myblog.tinypost.localhost:8000")
         html = resp.data.decode()
         assert 'rel="indieauth-metadata"' in html
-        base = "http://myblog.jottit.localhost:8000"
+        base = "http://myblog.tinypost.localhost:8000"
         assert f'href="{base}/.well-known/oauth-authorization-server"' in html
         assert 'rel="authorization_endpoint"' in html
-        assert 'href="http://myblog.jottit.localhost:8000/auth"' in html
+        assert 'href="http://myblog.tinypost.localhost:8000/auth"' in html
         assert 'rel="token_endpoint"' in html
-        assert 'href="http://myblog.jottit.localhost:8000/auth/token"' in html
+        assert 'href="http://myblog.tinypost.localhost:8000/auth/token"' in html
 
     def test_post_page_has_indieauth_links(self, client):
         user, site = make_site(client)
@@ -404,7 +404,7 @@ class TestLinkTags:
 
         with app.app_context():
             create_post(site["id"], "hello", "Hello", "World")
-        resp = client.get("/hello", base_url="http://myblog.jottit.localhost:8000")
+        resp = client.get("/hello", base_url="http://myblog.tinypost.localhost:8000")
         html = resp.data.decode()
         assert 'rel="indieauth-metadata"' in html
-        assert 'href="http://myblog.jottit.localhost:8000/auth"' in html
+        assert 'href="http://myblog.tinypost.localhost:8000/auth"' in html

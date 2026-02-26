@@ -33,7 +33,7 @@ def make_token(site, scope="create"):
     return "test-access-token"
 
 
-BASE = "http://myblog.jottit.localhost:8000"
+BASE = "http://myblog.tinypost.localhost:8000"
 
 
 class TestMicropubCreate:

@@ -34,7 +34,7 @@ class _LinkParser(HTMLParser):
 
 def discover_feed_url(url):
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Jottit/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "Tinypost/1.0"})
         resp = urllib.request.urlopen(req, timeout=10)
         html = resp.read().decode("utf-8", errors="replace")
     except Exception:
@@ -54,7 +54,7 @@ def discover_feed_url(url):
 
 
 def fetch_feed(feed_url):
-    req = urllib.request.Request(feed_url, headers={"User-Agent": "Jottit/1.0"})
+    req = urllib.request.Request(feed_url, headers={"User-Agent": "Tinypost/1.0"})
     resp = urllib.request.urlopen(req, timeout=15)
     content = resp.read()
     feed = feedparser.parse(content)
@@ -117,7 +117,7 @@ def _find_favicon(feed_url, feed):
 
 
 def refresh_all_feeds(url=None):
-    database_url = os.environ.get("DATABASE_URL", "postgresql://localhost/jottit")
+    database_url = os.environ.get("DATABASE_URL", "postgresql://localhost/tinypost")
     with psycopg.connect(database_url, row_factory=dict_row) as conn:
         if url:
             url_filter = " AND f.url = %s"

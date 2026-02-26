@@ -1,7 +1,7 @@
 from app import app
 from db import create_user_and_site, get_blogroll
 
-HOST = {"Host": "myblog.jottit.localhost:8000"}
+HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def login(client, user_id):

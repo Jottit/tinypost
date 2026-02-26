@@ -70,7 +70,7 @@ def subscribe():
     send_email(
         to=email,
         subject=f"Please confirm your subscription to {site['title']}",
-        from_addr=f"Jottit <confirm-subscriber@{app.config['BASE_DOMAIN']}>",
+        from_addr=f"Tinypost <confirm-subscriber@{app.config['BASE_DOMAIN']}>",
         text=(
             f"You're almost subscribed to updates from {site['title']}.\n\n"
             f"Confirm your subscription below to get future posts in your inbox.\n\n"

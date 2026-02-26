@@ -12,7 +12,7 @@ from db import (
     get_subscriber,
 )
 
-HOST = {"Host": "myblog.jottit.localhost:8000"}
+HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def login(client, user_id):

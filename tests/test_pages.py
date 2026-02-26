@@ -10,7 +10,7 @@ from db import (
     update_page,
 )
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _setup(client):

@@ -7,7 +7,7 @@ from db import (
     get_user_by_id,
 )
 
-HOST = {"Host": "myblog.jottit.localhost:8000"}
+HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def login(client, user_id):
@@ -153,5 +153,5 @@ def test_delete_account_page_lists_all_sites(client):
     login(client, user["id"])
     response = client.get("/-/settings/delete-account", headers=HOST)
     assert response.status_code == 200
-    assert b"myblog.jottit.pub" in response.data
-    assert b"second.jottit.pub" in response.data
+    assert b"myblog.tinypost.blog" in response.data
+    assert b"second.tinypost.blog" in response.data

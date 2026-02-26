@@ -1,1 +1,1 @@
-export { Jot, schema } from '@jottit/jot'
+export { Jot, schema } from '@tinypost/jot'

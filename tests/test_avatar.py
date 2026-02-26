@@ -6,7 +6,7 @@ from unittest.mock import patch
 from app import app
 from db import create_user_and_site, update_site_avatar
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _login(client):

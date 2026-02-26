@@ -29,7 +29,7 @@ def _user_menu_context():
                 "title": s["title"],
                 "url": subdomain_url(s),
                 "avatar": s.get("avatar"),
-                "address": s.get("custom_domain") or f"{s['subdomain']}.jottit.pub",
+                "address": s.get("custom_domain") or f"{s['subdomain']}.tinypost.blog",
             }
             for s in sites
         ],
@@ -54,7 +54,7 @@ def home():
             if subdomain_taken(subdomain):
                 return render_template(
                     "home.html",
-                    error=f"{subdomain}.jottit.pub is not available",
+                    error=f"{subdomain}.tinypost.blog is not available",
                     subdomain=subdomain,
                 )
             return render_template("signup.html", subdomain=subdomain)

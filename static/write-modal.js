@@ -8,7 +8,7 @@ var hiddenInput = form.querySelector('input[name="body"]');
 var titleInput = form.querySelector('input[name="title"]');
 var jot = null;
 var saveTimer = null;
-var STORAGE_KEY = 'jottit-write-draft';
+var STORAGE_KEY = 'tinypost-write-draft';
 
 function saveDraftNow() {
   clearTimeout(saveTimer);

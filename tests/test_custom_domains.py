@@ -9,7 +9,7 @@ from db import (
     verify_custom_domain,
 )
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _setup_site():
@@ -96,7 +96,7 @@ def test_verify_with_correct_txt_record(client):
         sess["user_id"] = user["id"]
 
     mock_answer = MagicMock()
-    mock_answer.__str__ = lambda self: '"jottit-site-verification=mytoken123"'
+    mock_answer.__str__ = lambda self: '"tinypost-site-verification=mytoken123"'
     with patch("routes.settings.dns.resolver.resolve", return_value=[mock_answer]):
         response = client.post(
             "/-/settings/domain/verify",
@@ -161,28 +161,28 @@ def test_tls_ask_returns_403_for_unverified_domain(client):
 
 def test_tls_ask_returns_200_for_www_base_domain(client):
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
-        response = client.get("/_tls/ask?token=secret&domain=www.jottit.localhost")
+        response = client.get("/_tls/ask?token=secret&domain=www.tinypost.localhost")
     assert response.status_code == 200
 
 
 def test_www_redirects_to_base_domain(client):
-    response = client.get("/", headers={"Host": "www.jottit.localhost"})
+    response = client.get("/", headers={"Host": "www.tinypost.localhost"})
     assert response.status_code == 301
-    assert "jottit.localhost" in response.headers["Location"]
+    assert "tinypost.localhost" in response.headers["Location"]
     assert "www" not in response.headers["Location"]
 
 
 def test_tls_ask_returns_200_for_valid_subdomain(client):
     _setup_site()
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
-        response = client.get("/_tls/ask?token=secret&domain=myblog.jottit.localhost")
+        response = client.get("/_tls/ask?token=secret&domain=myblog.tinypost.localhost")
     assert response.status_code == 200
 
 
 def test_tls_ask_returns_403_for_unknown_subdomain(client):
     _setup_site()
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
-        response = client.get("/_tls/ask?token=secret&domain=nonexistent.jottit.localhost")
+        response = client.get("/_tls/ask?token=secret&domain=nonexistent.tinypost.localhost")
     assert response.status_code == 403
 
 

@@ -16,8 +16,8 @@ if (form) {
 
   const nameInput = fields.querySelector('input[name="name"]');
   const emailInput = fields.querySelector('input[name="email"]');
-  const savedName = localStorage.getItem('jottit_comment_name');
-  const savedEmail = localStorage.getItem('jottit_comment_email');
+  const savedName = localStorage.getItem('tinypost_comment_name');
+  const savedEmail = localStorage.getItem('tinypost_comment_email');
   if (savedName) nameInput.value = savedName;
   if (savedEmail && emailInput) emailInput.value = savedEmail;
 
@@ -68,8 +68,8 @@ if (form) {
     const json = await res.json();
 
     if (json.status === 'ok') {
-      localStorage.setItem('jottit_comment_name', nameInput.value.trim());
-      if (emailInput) localStorage.setItem('jottit_comment_email', emailInput.value.trim());
+      localStorage.setItem('tinypost_comment_name', nameInput.value.trim());
+      if (emailInput) localStorage.setItem('tinypost_comment_email', emailInput.value.trim());
       window.location.reload();
     } else if (json.status === 'verify') {
       verifyMsg.textContent = `Enter the code sent to ${json.email}`;
@@ -105,8 +105,8 @@ if (form) {
     const json = await res.json();
 
     if (json.status === 'ok') {
-      localStorage.setItem('jottit_comment_name', nameInput.value.trim());
-      if (emailInput) localStorage.setItem('jottit_comment_email', emailInput.value.trim());
+      localStorage.setItem('tinypost_comment_name', nameInput.value.trim());
+      if (emailInput) localStorage.setItem('tinypost_comment_email', emailInput.value.trim());
       window.location.reload();
     } else {
       errorMsg.textContent = json.message;

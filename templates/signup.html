@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Sign up — Jottit{% endblock %}
+{% block title %}Sign up — Tinypost{% endblock %}
 {% block body %}
   <main class="page-centered">
-    <p>Enter your email to claim <strong>{{ subdomain }}.jottit.pub</strong></p>
+    <p>Enter your email to claim <strong>{{ subdomain }}.tinypost.blog</strong></p>
     <form action="/signup" method="post" class="form-narrow">
       <input type="hidden" name="subdomain" value="{{ subdomain }}">
       <div class="pill-input">

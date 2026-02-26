@@ -9,8 +9,8 @@ var saveTimer = null;
 
 var formAction = form.getAttribute('action');
 var slug = formAction.replace('/-/edit', '').replace(/^\//, '');
-var STORAGE_KEY = slug ? 'jottit-draft-' + slug : 'jottit-write-draft';
-var CURSOR_KEY = slug ? 'jottit-cursor-' + slug : 'jottit-cursor-new';
+var STORAGE_KEY = slug ? 'tinypost-draft-' + slug : 'tinypost-write-draft';
+var CURSOR_KEY = slug ? 'tinypost-cursor-' + slug : 'tinypost-cursor-new';
 
 var draftRestored = false;
 try {

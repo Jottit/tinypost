@@ -22,7 +22,7 @@ def test_social_links_saved(client):
             "social_links[1][label]": "GitHub",
             "social_links[1][url]": "https://github.com/test",
         },
-        headers={"Host": "myblog.jottit.localhost:8000"},
+        headers={"Host": "myblog.tinypost.localhost:8000"},
     )
     assert response.status_code == 302
     with app.app_context():
@@ -48,7 +48,7 @@ def test_empty_social_links_skipped(client):
             "social_links[1][label]": "GitHub",
             "social_links[1][url]": "https://github.com/test",
         },
-        headers={"Host": "myblog.jottit.localhost:8000"},
+        headers={"Host": "myblog.tinypost.localhost:8000"},
     )
     assert response.status_code == 302
     with app.app_context():
@@ -69,7 +69,7 @@ def test_social_links_displayed_on_blog(client):
                 {"label": "GitHub", "url": "https://github.com/test"},
             ],
         )
-    response = client.get("/", headers={"Host": "myblog.jottit.localhost:8000"})
+    response = client.get("/", headers={"Host": "myblog.tinypost.localhost:8000"})
     assert response.status_code == 200
     html = response.data.decode()
     assert 'rel="me"' in html
@@ -87,7 +87,7 @@ def test_social_links_in_settings_form(client):
             social_links=[{"label": "GitHub", "url": "https://github.com/test"}],
         )
     login(client, user)
-    response = client.get("/-/settings", headers={"Host": "myblog.jottit.localhost:8000"})
+    response = client.get("/-/settings", headers={"Host": "myblog.tinypost.localhost:8000"})
     html = response.data.decode()
     assert "https://github.com/test" in html
     assert "GitHub" in html

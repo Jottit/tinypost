@@ -8,7 +8,7 @@ from db import (
     update_site_avatar,
 )
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _setup(client):
@@ -42,7 +42,7 @@ def test_post_og_tags(client):
     html = response.data.decode()
     assert '<meta property="og:title" content="Hello World">' in html
     assert '<meta property="og:type" content="article">' in html
-    assert '<meta property="og:url" content="http://myblog.jottit.localhost:8000/hello">' in html
+    assert '<meta property="og:url" content="http://myblog.tinypost.localhost:8000/hello">' in html
     assert '<meta property="og:description" content="This is my first post.">' in html
     assert '<meta property="og:image" content="https://example.com/avatar.jpg">' in html
     assert '<meta name="twitter:card" content="summary">' in html
@@ -58,7 +58,7 @@ def test_page_og_tags(client):
     html = response.data.decode()
     assert '<meta property="og:title" content="About Me">' in html
     assert '<meta property="og:type" content="website">' in html
-    assert '<meta property="og:url" content="http://myblog.jottit.localhost:8000/about">' in html
+    assert '<meta property="og:url" content="http://myblog.tinypost.localhost:8000/about">' in html
 
 
 def test_site_homepage_og_tags(client):
@@ -69,7 +69,7 @@ def test_site_homepage_og_tags(client):
     html = response.data.decode()
     assert '<meta property="og:title" content="My Blog">' in html
     assert '<meta property="og:type" content="website">' in html
-    assert '<meta property="og:url" content="http://myblog.jottit.localhost:8000">' in html
+    assert '<meta property="og:url" content="http://myblog.tinypost.localhost:8000">' in html
     assert '<meta property="og:description" content="A blog about things">' in html
     assert '<meta property="og:site_name" content="My Blog">' in html
 

@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from app import app
 from db import create_post, create_user_and_site
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _setup_site():

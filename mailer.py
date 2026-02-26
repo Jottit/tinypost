@@ -16,7 +16,7 @@ def send_email(to, subject, text, html=None, from_addr=None):
 
     if not from_addr:
         domain = current_app.config["BASE_DOMAIN"]
-        from_addr = f"Jottit <noreply@{domain}>"
+        from_addr = f"Tinypost <noreply@{domain}>"
 
     payload = {
         "from": from_addr,
@@ -35,7 +35,7 @@ def send_email(to, subject, text, html=None, from_addr=None):
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "Jottit/1.0",
+            "User-Agent": "Tinypost/1.0",
         },
         method="POST",
     )

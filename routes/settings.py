@@ -72,8 +72,12 @@ def settings():
 
     comments_enabled = request.form.get("comments_enabled") == "on"
     update_site(
-        site["id"], title, bio or None,
-        license=license, social_links=social_links, comments_enabled=comments_enabled,
+        site["id"],
+        title,
+        bio or None,
+        license=license,
+        social_links=social_links,
+        comments_enabled=comments_enabled,
     )
     flash("Settings updated.")
     return redirect("/-/settings")
@@ -173,8 +177,8 @@ def settings_domain_verify():
     token = site["domain_verification_token"]
 
     try:
-        answers = dns.resolver.resolve(f"_jottit.{domain}", "TXT")
-        found = any(f"jottit-site-verification={token}" in str(r) for r in answers)
+        answers = dns.resolver.resolve(f"_tinypost.{domain}", "TXT")
+        found = any(f"tinypost-site-verification={token}" in str(r) for r in answers)
     except Exception:
         found = False
 

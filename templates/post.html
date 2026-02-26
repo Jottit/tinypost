@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_og_meta.html" import og_tags %}
-{% block title %}{{ post.title or site.title }} — Jottit{% endblock %}
+{% block title %}{{ post.title or site.title }} — Tinypost{% endblock %}
 {% block og_meta %}
   {{ og_tags(
     title=post.title or site.title,

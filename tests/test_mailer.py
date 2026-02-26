@@ -17,11 +17,11 @@ def test_send_email_with_api_key():
     assert req.full_url == "https://api.resend.com/emails"
     assert req.get_header("Authorization") == "Bearer re_test_123"
     assert req.get_header("Content-type") == "application/json"
-    assert req.get_header("User-agent") == "Jottit/1.0"
+    assert req.get_header("User-agent") == "Tinypost/1.0"
 
     body = json.loads(req.data)
     base = app.config["BASE_DOMAIN"]
-    assert body["from"] == f"Jottit <noreply@{base}>"
+    assert body["from"] == f"Tinypost <noreply@{base}>"
     assert body["to"] == ["user@example.com"]
     assert body["subject"] == "Test Subject"
     assert body["text"] == "Test body"

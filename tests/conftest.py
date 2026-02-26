@@ -7,7 +7,7 @@ from alembic.config import Config
 
 from app import app
 
-TEST_DB = "jottit_test"
+TEST_DB = "tinypost_test"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -53,7 +53,7 @@ def client():
         yield client
 
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 @pytest.fixture

@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from app import app
 from db import create_post, create_user_and_site
 
-SITE_HOST = "myblog.jottit.localhost:8000"
+SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _setup_site_with_posts(n=3):
@@ -103,12 +103,12 @@ def test_json_feed_items(client):
 
 
 def test_feed_404_for_nonexistent_site(client):
-    response = client.get("/feed.xml", headers={"Host": "nosuchsite.jottit.localhost:8000"})
+    response = client.get("/feed.xml", headers={"Host": "nosuchsite.tinypost.localhost:8000"})
     assert response.status_code == 404
 
 
 def test_json_feed_404_for_nonexistent_site(client):
-    response = client.get("/feed.json", headers={"Host": "nosuchsite.jottit.localhost:8000"})
+    response = client.get("/feed.json", headers={"Host": "nosuchsite.tinypost.localhost:8000"})
     assert response.status_code == 404
 
 

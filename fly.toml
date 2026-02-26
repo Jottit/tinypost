@@ -1,6 +1,6 @@
 # fly.toml — https://fly.io/docs/reference/configuration/
 
-app = "jottit"
+app = "tinypost"
 primary_region = "ams"
 
 [deploy]
