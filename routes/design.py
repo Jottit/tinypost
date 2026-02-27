@@ -1,6 +1,6 @@
 import os
 
-from flask import Response, redirect, render_template, request
+from flask import Response, flash, redirect, render_template, request
 
 from app import app
 from config import COLOR_RE, FONT_OPTIONS, VALID_FONT_VALUES
@@ -59,7 +59,8 @@ def design():
     }
     design_data = {k: v for k, v in fields.items() if v}
     update_site_design(site["id"], design_data or None)
-    return redirect("/")
+    flash("Design updated.")
+    return redirect("/-/design")
 
 
 @app.route("/-/download-theme")

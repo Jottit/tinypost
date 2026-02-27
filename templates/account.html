@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Account — {{ site.title }}{% endblock %}
 {% block body %}
-  {% set show_back_link = true %}
-  {% include "admin_menu.html" %}
-  <main>
+  <div class="panel-page">
+    <a href="/" class="panel-back">&larr; Back</a>
+    <h1 class="panel-title">Account</h1>
     <div class="panel panel--narrow">
-      <h2>Account</h2>
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}
@@ -17,7 +16,7 @@
         <input type="email" id="email" name="email" value="{{ user.email }}">
         <div class="actions mt-6">
           <button type="submit" class="btn">Save</button>
-          <a href="/" class="btn-secondary">Cancel</a>
+          <a href="/" class="btn btn--outline">Cancel</a>
         </div>
       </form>
       <div class="panel-divider">
@@ -84,5 +83,5 @@
       <p>Permanently delete your account{% if sites|length > 1 %}, all {{ sites|length }} sites,{% else %}, your site,{% endif %} and all your posts and images.</p>
       <a href="/-/settings/delete-account" class="btn btn--danger">Delete account</a>
     </div>
-  </main>
+  </div>
 {% endblock %}

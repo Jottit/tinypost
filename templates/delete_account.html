@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Delete account — {{ site.title }}{% endblock %}
 {% block body %}
-  {% include "admin_menu.html" %}
-  <main>
-    <div class="settings-card">
-      <h2>Delete account</h2>
+  <div class="panel-page">
+    <a href="/-/account" class="panel-back">&larr; Back</a>
+    <h1 class="panel-title">Delete account</h1>
+    <div class="panel panel--narrow">
       <p>This will permanently delete your account, all your sites, posts, and images. This cannot be undone.</p>
       {% if sites|length > 1 %}
       <ul>
@@ -21,11 +21,11 @@
         <input type="text" id="confirmation" name="confirmation" autocomplete="off">
         <div class="actions mt-6">
           <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete account</button>
-          <a href="/-/account" class="btn">Cancel</a>
+          <a href="/-/account" class="btn btn--outline">Cancel</a>
         </div>
       </form>
     </div>
-  </main>
+  </div>
   <script>
     var input = document.getElementById('confirmation');
     var btn = document.getElementById('confirm-btn');

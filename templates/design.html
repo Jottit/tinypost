@@ -1,124 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Design — {{ site.title }}{% endblock %}
-{% block theme_css %}{% include "theme_css.html" %}{% endblock %}
-{% block head_extra %}
-  {% include "site_design.html" %}
-<style>
-  .design-layout {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: var(--space-8);
-    padding: var(--space-10) 0;
-    background: var(--site-bg);
-    min-height: 100vh;
-    max-width: var(--content-width);
-    margin: 0 auto;
-  }
-
-  @media (max-width: 864px) {
-    .design-layout {
-      grid-template-columns: 1fr;
-      padding-inline: var(--space-4);
-    }
-  }
-
-  .design-controls {
-    align-self: start;
-    width: 100%;
-    background: rgba(60, 65, 73, 0.75);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-  }
-
-  @media (prefers-color-scheme: light) {
-    .design-controls {
-      background: rgba(255, 255, 255, 0.75);
-    }
-  }
-
-  .design-controls h2 {
-    font-size: var(--text-2xl);
-    margin-bottom: var(--space-6);
-    text-align: left;
-  }
-
-  .design-controls label {
-    margin-bottom: var(--space-2);
-  }
-
-  .design-controls select {
-    display: block;
-    width: 100%;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-sm);
-    color: var(--site-text-bright);
-    background: var(--input-bg);
-    border: 1px solid var(--site-divider);
-    border-radius: var(--radius-pill);
-    margin-bottom: var(--space-5);
-    appearance: auto;
-  }
-
-  .color-field {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-5);
-  }
-
-  .color-field input[type="color"] {
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--site-divider);
-    border-radius: var(--radius-md);
-    padding: 2px;
-    cursor: pointer;
-    background: none;
-    flex-shrink: 0;
-  }
-
-  .color-field input[type="text"] {
-    width: 120px;
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--text-sm);
-    font-family: var(--font-mono);
-    border-radius: var(--radius-pill);
-  }
-
-  .design-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-  }
-
-  #design-preview {
-    max-width: var(--site-measure);
-    margin: 0 auto;
-    padding: var(--space-6);
-    min-height: 400px;
-    font-family: var(--site-font);
-    background: var(--site-bg);
-    color: var(--site-text);
-    overflow: hidden;
-  }
-
-  #design-preview header.site-header {
-    margin-bottom: var(--space-5);
-    padding-bottom: var(--space-5);
-  }
-</style>
-{% endblock %}
 {% block body %}
-  {% set show_back_link = true %}
-  {% include "admin_menu.html" %}
-  <div class="design-layout">
-    <div class="design-controls panel">
-      <h2>Design</h2>
+  <div class="panel-page">
+    <a href="/" class="panel-back">&larr; Back</a>
+    <h1 class="panel-title">Design</h1>
+    <div class="panel panel--narrow">
+      {% for message in get_flashed_messages() %}
+        <p class="panel-notice success">{{ message }}</p>
+      {% endfor %}
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}
-      <form method="POST" action="/-/design" id="design-form">
+      <form method="POST" action="/-/design" id="design-form" class="settings-form">
         <label for="font_header">Heading font</label>
         <select id="font_header" name="font_header">
           {% for name, value in font_options %}
@@ -126,36 +19,34 @@
           {% endfor %}
         </select>
 
-        <label for="font_body">Body font</label>
+        <label for="font_body" class="mt-6">Body font</label>
         <select id="font_body" name="font_body">
           {% for name, value in font_options %}
             <option value="{{ value }}" {% if design.get('font_body', '') == value %}selected{% endif %}>{{ name }}</option>
           {% endfor %}
         </select>
 
-        <label for="color_accent_picker">Accent color</label>
+        <label for="color_accent_picker" class="mt-6">Accent color</label>
         <div class="color-field">
-          <input type="color" id="color_accent_picker" data-default="--site-accent" value="{{ design.get('color_accent', '#000000') }}">
+          <input type="color" id="color_accent_picker" value="{{ design.get('color_accent') or '#333333' }}">
           <input type="text" id="color_accent" name="color_accent" value="{{ design.get('color_accent', '') }}">
         </div>
 
-        <label for="color_bg_picker">Background color</label>
+        <label for="color_bg_picker" class="mt-6">Background color</label>
         <div class="color-field">
-          <input type="color" id="color_bg_picker" data-default="--site-bg" value="{{ design.get('color_bg', '#000000') }}">
+          <input type="color" id="color_bg_picker" value="{{ design.get('color_bg') or '#f5f5f0' }}">
           <input type="text" id="color_bg" name="color_bg" value="{{ design.get('color_bg', '') }}">
         </div>
 
-        <div id="text-color-field">
-          <label for="color_text_picker">Text color</label>
-          <div class="color-field">
-            <input type="color" id="color_text_picker" data-default="--site-text" value="{{ design.get('color_text', '#000000') }}">
-            <input type="text" id="color_text" name="color_text" value="{{ design.get('color_text', '') }}">
-          </div>
+        <label for="color_text_picker" class="mt-6">Text color</label>
+        <div class="color-field">
+          <input type="color" id="color_text_picker" value="{{ design.get('color_text') or '#333333' }}">
+          <input type="text" id="color_text" name="color_text" value="{{ design.get('color_text', '') }}">
         </div>
 
-        <div class="design-actions">
+        <div class="actions mt-6">
           <button type="submit" class="btn">Save</button>
-          <a href="/" class="btn">Cancel</a>
+          <a href="/" class="btn btn--outline">Cancel</a>
         </div>
       </form>
 
@@ -182,29 +73,26 @@
         </form>
       </div>
     </div>
-
-    <div id="design-preview">
-      <header class="site-header">
-        <nav class="page-nav">
-          <a href="#">About</a>
-          <span class="page-nav-sep">&middot;</span>
-          <a href="#">Now</a>
-          <span class="page-nav-sep">&middot;</span>
-          <a href="#">Uses</a>
-        </nav>
-        <h1>{{ site.title }}</h1>
-      </header>
-      <article>
-        <time>February 17, 2026</time>
-        <h2>Welcome to My Blog</h2>
-        <div class="post-body">
-          <p>This is a preview of how your blog will look with the current design settings. The <a href="#">quick brown fox</a> jumps over the lazy dog.</p>
-          <p>You can change the fonts and colors using the controls on the left. The preview updates in real time.</p>
-          <blockquote><p>This is a blockquote to show how quotes will look.</p></blockquote>
-          <p>Here is some <code>inline code</code> to preview as well.</p>
-        </div>
-      </article>
-    </div>
   </div>
-  <script src="/static/design.js"></script>
+  <script>
+    // Sync color pickers with text inputs
+    document.querySelectorAll('.color-field').forEach(function(field) {
+      var picker = field.querySelector('input[type="color"]');
+      var text = field.querySelector('input[type="text"]');
+      if (!picker || !text) return;
+      picker.addEventListener('input', function() { text.value = picker.value; });
+      text.addEventListener('input', function() {
+        if (/^#[0-9a-f]{6}$/i.test(text.value)) picker.value = text.value;
+      });
+    });
+
+    // CSS file upload
+    var fileInput = document.getElementById('css-file-input');
+    if (fileInput) {
+      fileInput.addEventListener('change', function() {
+        document.getElementById('css-file-name').textContent = this.files[0].name;
+        document.getElementById('css-upload-btn').hidden = false;
+      });
+    }
+  </script>
 {% endblock %}

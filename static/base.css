@@ -87,9 +87,9 @@ table {
 /* ── 2. Tokens ───────────────────────── */
 :root {
   /* Brand */
-  --brand-1: #117a65;
-  --brand-2: #28b463;
-  --brand-3: #82e0aa;
+  --brand-1: #0d9668;
+  --brand-2: #1ec97f;
+  --brand-3: #6ee7a8;
 
   /* Status */
   --success: #2ecc71;
@@ -98,7 +98,7 @@ table {
   /* Colors – light */
   --bg: #fff;
   --text: #444;
-  --text-muted: #999;
+  --text-muted: #888;
   --text-bright: #111;
   --divider: #ddd;
   --code-bg: #f5f5f5;
@@ -155,19 +155,20 @@ table {
   --speed-fast: 100ms;
   --speed-normal: 200ms;
 
-  /* Site-specific (always dark) */
-  --site-bg: #333840;
-  --site-text: #ccc;
-  --site-text-muted: #777;
-  --site-text-bright: #eee;
-  --site-divider: #222;
-  --site-code-bg: #1a1a1a;
+  /* Site-specific (light cream) */
+  --site-bg: #f5f5f0;
+  --site-text: #333;
+  --site-text-muted: #999;
+  --site-text-bright: #111;
+  --site-divider: #eee;
+  --site-code-bg: #f5f5f5;
   --site-font: var(--font-sans);
+  --site-font-body: var(--font-sans);
   --site-font-header: var(--font-sans);
-  --site-accent: #eee;
-  --site-font-size: var(--text-base);
-  --site-leading: var(--leading-normal);
-  --site-measure: 40rem;
+  --site-accent: #333;
+  --site-font-size: 1.25rem;
+  --site-leading: 1.7;
+  --site-measure: 680px;
   --editor-measure: 700px;
   --content-width: 60rem;
 }

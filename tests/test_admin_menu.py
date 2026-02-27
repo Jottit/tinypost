@@ -9,20 +9,20 @@ def login(client, user_id):
         sess["user_id"] = user_id
 
 
-def test_menu_visible_to_owner(client):
+def test_banner_visible_to_owner(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/", headers=HOST)
-    assert b"admin-menu" in response.data
-    assert b"> Write</button>" in response.data
+    assert b"admin-banner" in response.data
+    assert b"openWriteModal()" in response.data
 
 
-def test_menu_not_visible_to_non_owner(client):
+def test_banner_not_visible_to_non_owner(client):
     with app.app_context():
         create_user_and_site("owner@example.com", "myblog")
     response = client.get("/", headers=HOST)
-    assert b"admin-menu" not in response.data
+    assert b"admin-banner" not in response.data
 
 
 def test_menu_not_visible_on_editor(client):
@@ -30,10 +30,10 @@ def test_menu_not_visible_on_editor(client):
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/edit", headers=HOST)
-    assert b"admin-menu" not in response.data
+    assert b"admin-banner" not in response.data
 
 
-def test_dropdown_links_present(client):
+def test_banner_links_present(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
@@ -45,13 +45,13 @@ def test_dropdown_links_present(client):
     assert b"/signout" in response.data
 
 
-def test_menu_on_post_page(client):
+def test_banner_on_post_page(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
         create_post(site["id"], "hello", "Hello", "World")
     login(client, user["id"])
     response = client.get("/hello", headers=HOST)
-    assert b"admin-menu" in response.data
+    assert b"admin-banner" in response.data
 
 
 def test_initials_from_single_word_title(client):

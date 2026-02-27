@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Blogroll — {{ site.title }}{% endblock %}
 {% block body %}
-  {% set show_back_link = true %}
-  {% include "admin_menu.html" %}
-  <main>
+  <div class="panel-page">
+    <a href="/" class="panel-back">&larr; Back</a>
+    <h1 class="panel-title">Blogroll</h1>
     <div class="panel panel--narrow">
       {% for message in get_flashed_messages() %}
         <p class="panel-notice success">{{ message }}</p>
       {% endfor %}
-      <h2>Blogroll</h2>
       <p class="text-muted">Blogs and sites you recommend.</p>
       <form method="POST" action="/-/blogroll">
         {% set br = blogroll or [] %}
@@ -24,11 +23,11 @@
         <button type="button" class="btn mt-2" onclick="addBlogrollItem()">Add site</button>
         <div class="actions mt-6">
           <button type="submit" class="btn">Save</button>
-          <a href="/" class="btn">Cancel</a>
+          <a href="/" class="btn btn--outline">Cancel</a>
         </div>
       </form>
     </div>
-  </main>
+  </div>
   <script>
     function reindexBlogroll() {
       var rows = document.querySelectorAll('.blogroll-row');

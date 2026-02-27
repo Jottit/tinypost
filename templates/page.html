@@ -19,9 +19,10 @@
   {% include "site_design.html" %}
 {% endblock %}
 {% block body %}
+  {% include "admin_banner.html" %}
+  {% include "site_header.html" %}
   <main>
-    {% include "admin_menu.html" %}
-    {% include "site_header.html" %}
+    <div class="site-content">
     <article>
       <h2>{{ page.title }}{% if page.is_draft %} <span class="draft-label">Draft</span>{% endif %}</h2>
       {% if page.body %}
@@ -36,6 +37,7 @@
         </div>
       {% endif %}
     </article>
+    </div>
   </main>
   {% include "site_footer.html" %}
 {% endblock %}

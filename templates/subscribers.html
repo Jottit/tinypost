@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Subscribers — {{ site.title }}{% endblock %}
 {% block body %}
-  {% set show_back_link = true %}
-  {% include "admin_menu.html" %}
-  <main>
+  <div class="panel-page">
+    <a href="/" class="panel-back">&larr; Back</a>
+    <h1 class="panel-title">Subscribers</h1>
     <div class="panel panel--narrow">
-      <h2>Subscribers</h2>
       <p class="text-muted">{{ total }} subscriber{{ 's' if total != 1 }} ({{ confirmed_count }} confirmed, {{ pending_count }} pending)</p>
       {% if subscribers %}
         <table class="subscribers-table">
@@ -36,5 +35,5 @@
         <p class="text-muted">No subscribers yet.</p>
       {% endif %}
     </div>
-  </main>
+  </div>
 {% endblock %}

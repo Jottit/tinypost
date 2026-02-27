@@ -2,40 +2,7 @@
    ui.css — Tinypost admin UI components
    ======================================== */
 
-/* ── Dark mode ──────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --bg: #333840;
-    --text: #ccc;
-    --text-muted: #777;
-    --text-bright: #eee;
-    --divider: #222;
-    --code-bg: #1a1a1a;
-    --input-bg: #2a2e34;
-    --card-bg: #3c4149;
-  }
-}
 
-/* ── Main layout ────────────────────── */
-main {
-  max-width: var(--site-measure);
-  margin: 0 auto;
-  padding: var(--space-9) var(--space-5) var(--space-8);
-  overflow-x: clip;
-}
-
-@media (min-width: 641px) {
-  main {
-    padding-top: var(--space-6);
-  }
-}
-
-article {
-  max-width: var(--site-measure);
-  margin-left: auto;
-  margin-right: auto;
-}
 
 /* ── Avatar settings ────────────────── */
 .avatar-section {
@@ -246,7 +213,7 @@ body:has(.public-page) {
   font-size: 4rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.2;
   margin-bottom: 0;
   background: linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3));
   -webkit-background-clip: text;
@@ -327,6 +294,49 @@ body:has(.public-page) {
   opacity: 0.8;
 }
 
+/* ── Email form ─────────────────────── */
+.email-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 350px;
+}
+
+input[type="email"].email-input {
+  border: none;
+  border-bottom: 2px dashed var(--text-muted);
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+  font-size: var(--text-xl);
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-4);
+}
+
+input[type="email"].email-input:focus {
+  outline: none;
+  border-color: transparent;
+  border-bottom-color: var(--text-bright);
+}
+
+.btn-claim {
+  padding: var(--space-2) var(--space-6);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: opacity var(--speed-fast);
+}
+
+.btn-claim:hover {
+  opacity: 0.8;
+}
+
 /* ── Passcode ───────────────────────── */
 .passcode-inputs {
   display: flex;
@@ -334,21 +344,23 @@ body:has(.public-page) {
   justify-content: center;
 }
 
-.passcode-inputs input {
+.passcode-inputs input[type="text"] {
   width: 3rem;
   height: 3.5rem;
   text-align: center;
   font-size: var(--text-2xl);
   font-family: var(--font-mono);
-  background: var(--bg);
-  border: 1px solid var(--text-muted);
-  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  border-bottom: 2px dashed var(--text-muted);
+  border-radius: 0;
   padding: 0;
 }
 
-.passcode-inputs input:focus {
+.passcode-inputs input[type="text"]:focus {
   outline: none;
-  border-color: var(--text-bright);
+  border-color: transparent;
+  border-bottom-color: var(--text-bright);
 }
 
 /* ── Buttons ────────────────────────── */
@@ -399,18 +411,49 @@ body:has(.public-page) {
   color: #fff;
 }
 
+/* ── Panel page ────────────────────── */
+.panel-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-8);
+  background: #f5f5f0;
+}
+
+.panel-back {
+  display: block;
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: var(--space-5);
+}
+
+.panel-back:hover {
+  color: var(--text-bright);
+}
+
+.panel-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-5);
+  text-align: center;
+}
+
 /* ── Panel ──────────────────────────── */
 .panel {
   max-width: var(--measure);
   margin: 0 auto;
-  background: var(--card-bg);
+  background: #fff;
   color: var(--text);
   border-radius: var(--radius-lg);
-  padding: var(--space-6);
+  padding: var(--space-9);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  width: 100%;
 }
 
 .panel--narrow {
-  max-width: var(--measure-narrow);
+  max-width: 500px;
 }
 
 .panel + .panel {
@@ -419,32 +462,76 @@ body:has(.public-page) {
 
 p.panel-notice {
   display: block;
-  margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) var(--space-6);
-  padding: var(--space-3) var(--space-6);
+  margin: calc(-1 * var(--space-9)) calc(-1 * var(--space-9)) var(--space-6);
+  padding: var(--space-3) var(--space-9);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   text-align: center;
 }
 
+.panel input[type="text"],
+.panel input[type="email"],
+.panel input[type="password"],
+.panel input[type="url"],
+.panel input[type="number"],
+.panel textarea,
+.panel select {
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+.panel select {
+  padding-right: var(--space-8);
+}
+
 @media (max-width: 640px) {
-  .panel {
-    background: none;
-    border-radius: 0;
-    padding: 0;
+  .panel-page {
+    padding: var(--space-5);
   }
-}
 
-.settings-form input[type="text"] {
-  border-radius: var(--radius-pill);
-}
+  .panel {
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+  }
 
-.settings-form textarea {
-  border-radius: 16px;
+  p.panel-notice {
+    margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) var(--space-6);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
 }
 
 .panel-divider {
   border-top: 1px solid color-mix(in srgb, var(--divider), transparent 50%);
   margin-top: var(--space-8);
   padding-top: var(--space-8);
+}
+
+/* ── Color field ───────────────────── */
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.color-field input[type="color"] {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  cursor: pointer;
+  background: none;
+  flex-shrink: 0;
+}
+
+.color-field input[type="text"] {
+  width: 120px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
 }
 
 /* ── Domain settings ────────────────── */
