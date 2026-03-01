@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Tinypost — self-owned publishing on the web{% endblock %}
+{% block title %}tinypost — self-owned publishing on the web{% endblock %}
 {% block body %}
   <nav class="top-nav">
     {% include "user_menu.html" %}
   </nav>
   <main class="page-centered">
     <header class="mb-4">
-      <h1 class="logo"><span>Tinypost</span></h1>
+      <h1 class="logo"><span>tinypost</span></h1>
     </header>
     <form action="/" method="post" class="mb-4">
       <div class="pill-input pill-input-right">
-        <input type="text" name="subdomain" placeholder="yourname" value="{{ subdomain or '' }}" required>
+        <input type="text" name="subdomain" placeholder="" value="{{ subdomain or '' }}" required>
         <span class="pill-input-suffix">.tinypost.blog</span>
         <button type="submit">Go</button>
       </div>

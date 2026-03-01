@@ -1,14 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Sign up — Tinypost{% endblock %}
+{% block title %}Sign up — tinypost{% endblock %}
 {% block body %}
   <main class="page-centered">
-    <p>Enter your email to claim <strong>{{ subdomain }}.tinypost.blog</strong></p>
-    <form action="/signup" method="post" class="form-narrow">
+    <h1 class="title">What's your email?</h1>
+    <p class="subtitle">We'll send you a passcode</p>
+    <form action="/signup" method="post" class="email-form">
       <input type="hidden" name="subdomain" value="{{ subdomain }}">
-      <div class="pill-input">
-        <input type="email" name="email" placeholder="you@example.com" required autofocus>
-        <button type="submit">Go</button>
-      </div>
+      <input type="email" name="email" class="email-input" placeholder="" required autofocus>
+      <button type="submit" class="btn-claim">Send passcode</button>
     </form>
   </main>
 {% endblock %}
