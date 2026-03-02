@@ -6,6 +6,14 @@
   {% if site.bio %}
     <p class="sidebar-bio">{{ site.bio }}</p>
   {% endif %}
+  {% set links = site.social_links or [] %}
+  {% if links %}
+    <div class="social-links">
+      {% for link in links %}
+        <a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
   <div class="sidebar-section">
     <h3>Subscribe by email</h3>
     <form action="/subscribe" method="post" class="subscribe-form">

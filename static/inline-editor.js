@@ -2,7 +2,7 @@ import { Jot } from '/static/js/jot.js';
 import { bindImageHandlers } from '/static/image-upload.js';
 
 var wrapper = document.querySelector('.inline-editor');
-var writeBtn = document.querySelector('.site-write-btn');
+var writeBtn = document.querySelector('.write-pill');
 var form = document.getElementById('inline-editor-form');
 var editorEl = document.getElementById('inline-editor-body');
 var hiddenInput = form.querySelector('input[name="body"]');
@@ -32,18 +32,15 @@ function updatePlaceholder() {
   el.classList.toggle('ProseMirror-empty', !jot.getValue().trim());
 }
 
-// If editor is already visible (empty blog), init immediately and hide write button
+// If editor is already visible (empty blog), init immediately and hide write pill
 if (!wrapper.hidden) {
   initEditor();
-  if (writeBtn) writeBtn.classList.add('site-write-btn--hidden');
+  if (writeBtn) writeBtn.classList.add('write-pill--hidden');
 }
 
 function hideWriteBtn() {
   if (!writeBtn) return;
-  writeBtn.classList.add('site-write-btn--hidden');
-  writeBtn.addEventListener('transitionend', function() {
-    writeBtn.style.display = 'none';
-  }, { once: true });
+  writeBtn.style.display = 'none';
 }
 
 function showWriteBtn() {
@@ -51,7 +48,7 @@ function showWriteBtn() {
   writeBtn.style.display = '';
   // Force reflow so transition plays
   writeBtn.offsetHeight;
-  writeBtn.classList.remove('site-write-btn--hidden');
+  writeBtn.classList.remove('write-pill--hidden');
 }
 
 // Override openWriteModal so "+ Write" toggles the inline editor
@@ -123,7 +120,7 @@ form.addEventListener('submit', function(e) {
       return res.json().then(function(json) {
         if (res.ok && json.slug) {
           localStorage.removeItem(STORAGE_KEY);
-          window.location.href = '/' + json.slug;
+          window.location.href = '/';
         } else {
           showError(json.error || 'Something went wrong.');
         }

@@ -442,9 +442,9 @@ nav a:hover {
 
 input.page-nav-add-input {
   position: absolute;
-  left: calc(100% + var(--space-3));
+  right: calc(100% + var(--space-3));
   top: 50%;
-  transform: translateY(-50%) translateX(-4px);
+  transform: translateY(-50%) translateX(4px);
   width: 10ch;
   padding: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
@@ -460,14 +460,30 @@ input.page-nav-add-input.active {
   transform: translateY(-50%) translateX(0);
 }
 
-/* ── Write button ───────────────────── */
-.site-write-btn {
-  display: block;
-  margin: var(--space-6) auto;
+/* ── Write pill ─────────────────────── */
+.write-pill {
+  display: flex;
+  align-items: center;
+  margin: var(--space-6) auto 0;
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5);
+  border: 1px solid #ddd;
+  border-radius: var(--radius-pill);
+  color: var(--site-text-muted);
+  font-size: var(--text-base);
+  max-width: var(--site-measure);
+  cursor: text;
   transition: opacity 0.2s ease;
 }
 
-.site-write-btn--hidden {
+.write-pill-text {
+  flex: 1;
+}
+
+.write-pill:hover {
+  border-color: var(--site-text-muted);
+}
+
+.write-pill--hidden {
   opacity: 0;
   pointer-events: none;
 }
@@ -732,21 +748,21 @@ input[type="text"].inline-editor-title {
 }
 
 .inline-editor--slide-in {
-  animation: inline-editor-slide-in 0.3s ease;
+  animation: inline-editor-fade-in 0.3s ease;
 }
 
-@keyframes inline-editor-slide-in {
-  from { opacity: 0; max-height: 0; overflow: hidden; }
-  to { opacity: 1; max-height: 500px; overflow: hidden; }
+@keyframes inline-editor-fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .inline-editor--slide-out {
-  animation: inline-editor-slide-out 0.3s ease forwards;
+  animation: inline-editor-fade-out 0.2s ease forwards;
 }
 
-@keyframes inline-editor-slide-out {
-  from { opacity: 1; max-height: 500px; overflow: hidden; }
-  to { opacity: 0; max-height: 0; overflow: hidden; }
+@keyframes inline-editor-fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
 }
 
 .inline-editor-error {

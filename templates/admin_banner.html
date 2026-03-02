@@ -1,6 +1,6 @@
 {% if is_owner %}
 <div class="admin-banner">
-  <a href="/" class="admin-banner-home">tinypost</a>
+  <a href="http://{{ config.BASE_DOMAIN }}" class="admin-banner-home">tinypost</a>
   <input type="checkbox" id="admin-toggle" hidden>
   {% if site.avatar %}
     <label for="admin-toggle" class="admin-avatar">

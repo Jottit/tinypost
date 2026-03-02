@@ -26,8 +26,8 @@
   <main>
     <div class="site-layout">
     <div class="site-content">
-    {% if is_owner %}
-      <button type="button" class="btn btn--primary btn--sm site-write-btn" onclick="openWriteModal()">+ Write</button>
+    {% if is_owner and posts %}
+      <div class="write-pill" onclick="openWriteModal()"><span class="write-pill-text">Write something...</span><button type="button" class="btn btn--primary btn--sm write-pill-btn">Publish</button></div>
     {% endif %}
     <div class="h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
