@@ -1,4 +1,4 @@
-app = "tinypost-caddy"
+app = "tinypost-proxy"
 primary_region = "ams"
 
 [build]
