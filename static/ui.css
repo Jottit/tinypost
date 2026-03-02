@@ -79,7 +79,7 @@
 
 .top-nav a,
 .top-nav .link-button {
-  color: #bbb;
+  color: var(--text-muted);
 }
 
 .link-button {
@@ -179,12 +179,12 @@ body:has(.public-page) {
 }
 
 .home-footer a {
-  color: #bbb;
+  color: var(--text-muted);
   text-decoration: none;
 }
 
 .home-footer a:hover {
-  color: #fff;
+  color: var(--text);
 }
 
 .home-footer-icon {
@@ -396,14 +396,14 @@ input[type="email"].email-input:focus {
 }
 
 .btn--outline {
-  color: var(--text-muted);
+  color: var(--text);
   background: none;
   border: 1px solid var(--text-muted);
 }
 
 .btn--outline:hover {
-  color: var(--text-bright);
-  border-color: var(--text-bright);
+  color: var(--text);
+  border-color: var(--text-muted);
 }
 
 .btn--primary {
