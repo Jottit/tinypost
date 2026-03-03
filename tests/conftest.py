@@ -49,6 +49,9 @@ def client():
     app.config["TESTING"] = True
     app.config["DATABASE"] = TEST_DB
     app.config["SERVER_NAME"] = app.config["BASE_DOMAIN"]
+    from app import limiter
+
+    limiter.enabled = False
     with app.test_client() as client:
         yield client
 

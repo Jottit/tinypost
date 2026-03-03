@@ -17,6 +17,6 @@ def test_check_subdomain_taken(client, taken_subdomain):
 
 
 def test_check_subdomain_invalid(client):
-    response = client.get("/check-subdomain?name=x")
+    response = client.get("/check-subdomain?name=--invalid")
     assert response.status_code == 200
     assert response.json == {"error": "Invalid name"}

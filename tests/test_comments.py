@@ -77,8 +77,7 @@ def test_anonymous_comment_passcode_flow(mock_passcode, mock_send, client):
         data={"name": "Reader", "email": "reader@example.com", "body": "Hello!"},
         headers=HEADERS,
     )
-    with client.session_transaction() as sess:
-        passcode = sess["pending_comment"]["passcode"]
+    passcode = mock_passcode.call_args[0][1]
     response = client.post(
         "/-/comment/hello/verify",
         data={"passcode": passcode},

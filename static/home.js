@@ -6,7 +6,7 @@
   var defaultClass = hint.className;
   var timer;
   var available = true;
-  var validPattern = /^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$/;
+  var validPattern = /^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$/;
 
   function resize() {
     input.size = Math.min(20, Math.max(8, input.value.length || 8));

@@ -1,4 +1,5 @@
 import os
+import re
 
 from flask import Response, flash, redirect, render_template, request
 
@@ -7,6 +8,16 @@ from config import COLOR_RE, FONT_OPTIONS, VALID_FONT_VALUES
 from db import update_site_custom_css, update_site_design
 from routes import require_owner
 from utils import auto_text_color, site_url
+
+
+def sanitize_css(css):
+    css = re.sub(r"<\s*/\s*style", "", css, flags=re.IGNORECASE)
+    css = re.sub(r"@import\b[^;]*;?", "", css, flags=re.IGNORECASE)
+    css = re.sub(r"expression\s*\(", "(", css, flags=re.IGNORECASE)
+    css = re.sub(r"javascript\s*:", "", css, flags=re.IGNORECASE)
+    css = re.sub(r"behavior\s*:", "", css, flags=re.IGNORECASE)
+    css = re.sub(r"-moz-binding\s*:", "", css, flags=re.IGNORECASE)
+    return css
 
 
 @app.route("/-/design", methods=["GET", "POST"])
@@ -107,6 +118,7 @@ def upload_css():
     if not content:
         return redirect("/-/design")
 
+    content = sanitize_css(content)
     update_site_custom_css(site["id"], content)
     return redirect("/-/design")
 

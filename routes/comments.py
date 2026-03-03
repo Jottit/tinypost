@@ -1,9 +1,10 @@
 import hashlib
+from urllib.parse import urlparse
 
 from flask import abort, jsonify, make_response, redirect, render_template, request, session
 
-from app import app
-from auth import generate_passcode, send_passcode
+from app import app, limiter
+from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
 from db import (
     create_comment,
     delete_comment,
@@ -21,7 +22,18 @@ def _hash_email(email):
     return hashlib.sha256(email.strip().lower().encode()).hexdigest()
 
 
+def _safe_referrer():
+    ref = request.referrer
+    if not ref:
+        return "/"
+    parsed = urlparse(ref)
+    if parsed.netloc and parsed.netloc != request.host:
+        return "/"
+    return ref
+
+
 @app.route("/-/comment/<slug>", methods=["POST"])
+@limiter.limit("10/minute")
 def comment_post(slug):
     site = get_current_site()
     if not site:
@@ -82,20 +94,21 @@ def comment_post(slug):
         "slug": slug,
         "site_id": site["id"],
         "post_id": post["id"],
-        "passcode": passcode,
+        "passcode": hash_passcode(passcode),
     }
     send_passcode(email, passcode)
     return jsonify(status="verify", email=mask_email(email))
 
 
 @app.route("/-/comment/<slug>/verify", methods=["POST"])
+@limiter.limit("10/minute")
 def comment_verify(slug):
     pending = session.get("pending_comment")
     if not pending or pending["slug"] != slug:
         return jsonify(status="error", message="No pending comment."), 400
 
     code = request.form.get("passcode", "").strip()
-    if code != pending["passcode"]:
+    if not verify_passcode(code, pending["passcode"]):
         return jsonify(status="error", message="Wrong passcode."), 400
 
     comment = create_comment(
@@ -117,6 +130,7 @@ def comment_verify(slug):
         pending["email_hash"],
         max_age=30 * 24 * 60 * 60,
         httponly=True,
+        secure=True,
         samesite="Lax",
     )
     return resp
@@ -126,7 +140,7 @@ def comment_verify(slug):
 def comment_delete(comment_id):
     site = require_owner()
     delete_comment(comment_id, site["id"])
-    return redirect(request.referrer or "/")
+    return redirect(_safe_referrer())
 
 
 def _notify_owner(site, post, commenter_name, comment_body):

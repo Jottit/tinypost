@@ -3,6 +3,7 @@ boto3
 dnspython
 feedparser
 flask
+flask-limiter
 gunicorn
 markdown
 markdownify

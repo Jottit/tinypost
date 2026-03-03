@@ -1,12 +1,12 @@
 import base64
 import hashlib
 import secrets
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from flask import abort, jsonify, redirect, render_template, request, session
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-from app import app
+from app import app, limiter
 from auth import generate_passcode, send_passcode
 from db import create_auth_code, exchange_auth_code, get_auth_code, get_site_by_id, get_user_by_id
 from utils import get_current_site, mask_email, site_url
@@ -34,6 +34,10 @@ def _validate_params(params):
         return "Missing client_id"
     if not params["redirect_uri"]:
         return "Missing redirect_uri"
+    c = urlparse(params["client_id"])
+    r = urlparse(params["redirect_uri"])
+    if (c.scheme, c.netloc) != (r.scheme, r.netloc):
+        return "redirect_uri must be on the same domain as client_id"
     return None
 
 
@@ -88,6 +92,7 @@ def indieauth_authorize():
 
 
 @app.route("/auth", methods=["POST"])
+@limiter.limit("10/minute")
 def indieauth_authorize_post():
     site = get_current_site()
     if not site:

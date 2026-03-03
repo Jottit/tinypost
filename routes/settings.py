@@ -98,7 +98,7 @@ def settings_subdomain():
             "settings_subdomain.html",
             site=site,
             is_owner=True,
-            error="Subdomain must be 3-32 characters, lowercase letters, numbers, and hyphens.",
+            error="Subdomain must be 1-32 characters, lowercase letters, numbers, and hyphens.",
         )
 
     if subdomain != site["subdomain"] and subdomain_taken(subdomain):

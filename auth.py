@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import secrets
 import string
 
@@ -8,6 +10,14 @@ from mailer import send_email
 
 def generate_passcode():
     return "".join(secrets.choice(string.digits) for _ in range(6))
+
+
+def hash_passcode(passcode):
+    return hashlib.sha256(passcode.encode()).hexdigest()
+
+
+def verify_passcode(passcode, hashed):
+    return hmac.compare_digest(hashlib.sha256(passcode.encode()).hexdigest(), hashed)
 
 
 def send_passcode(email, passcode):

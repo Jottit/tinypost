@@ -2,8 +2,8 @@ import zipfile
 
 from flask import redirect, render_template, request, session
 
-from app import app
-from auth import generate_passcode, send_passcode
+from app import app, limiter
+from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
 from db import (
     create_personal_token,
     get_personal_token,
@@ -49,6 +49,7 @@ def account():
 
 
 @app.route("/-/account/email", methods=["GET", "POST"])
+@limiter.limit("5/minute", methods=["POST"])
 def account_email():
     site = require_owner()
 
@@ -65,12 +66,13 @@ def account_email():
         )
 
     passcode = generate_passcode()
-    session["email_change"] = {"email": email, "passcode": passcode}
+    session["email_change"] = {"email": email, "passcode": hash_passcode(passcode)}
     send_passcode(email, passcode)
     return render_template("account_email_verify.html", site=site, email=email)
 
 
 @app.route("/-/account/email/verify", methods=["POST"])
+@limiter.limit("10/minute")
 def account_email_verify():
     site = require_owner()
     user = get_user_by_id(session["user_id"])
@@ -80,7 +82,7 @@ def account_email_verify():
         return redirect("/-/account/email")
 
     passcode = request.form.get("passcode", "").strip()
-    if passcode != change["passcode"]:
+    if not verify_passcode(passcode, change["passcode"]):
         return render_template(
             "account_email_verify.html", site=site, email=change["email"], error="Invalid passcode."
         )

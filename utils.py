@@ -1,12 +1,28 @@
 import re
 
-RESERVED_SUBDOMAINS = {"www", "mail", "ftp", "admin", "api", "app", "smtp", "pop", "imap"}
+RESERVED_SUBDOMAINS = {
+    "www",
+    "mail",
+    "ftp",
+    "admin",
+    "api",
+    "app",
+    "smtp",
+    "pop",
+    "imap",
+    "i",
+    "m",
+    "ns",
+    "mx",
+    "ww",
+    "w",
+}
 
 
 def is_valid_subdomain(name):
     if name in RESERVED_SUBDOMAINS:
         return False
-    return bool(re.match(r"^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$", name))
+    return bool(re.match(r"^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$", name))
 
 
 def slugify(text):

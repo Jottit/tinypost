@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from app import app
+from auth import hash_passcode
 from db import (
     create_page,
     create_post,
@@ -39,7 +40,7 @@ def test_require_owner_no_site(client):
 
 
 def test_home_post_invalid_subdomain(client):
-    response = client.post("/", data={"subdomain": "x"})
+    response = client.post("/", data={"subdomain": "--invalid"})
     assert response.status_code == 200
     assert b"Invalid name" in response.data
 
@@ -69,7 +70,11 @@ def test_signup_post(mock_send, client):
 
 def test_signup_verify_success(client):
     with client.session_transaction() as sess:
-        sess["signup"] = {"subdomain": "fresh", "email": "u@example.com", "passcode": "123456"}
+        sess["signup"] = {
+            "subdomain": "fresh",
+            "email": "u@example.com",
+            "passcode": hash_passcode("123456"),
+        }
     response = client.post("/verify", data={"passcode": "123456"})
     assert response.status_code == 302
     with client.session_transaction() as sess:
@@ -78,7 +83,11 @@ def test_signup_verify_success(client):
 
 def test_signup_verify_wrong_code(client):
     with client.session_transaction() as sess:
-        sess["signup"] = {"subdomain": "fresh", "email": "u@example.com", "passcode": "123456"}
+        sess["signup"] = {
+            "subdomain": "fresh",
+            "email": "u@example.com",
+            "passcode": hash_passcode("123456"),
+        }
     response = client.post("/verify", data={"passcode": "000000"})
     assert response.status_code == 200
     assert b"Wrong passcode" in response.data
@@ -116,7 +125,11 @@ def test_signin_verify_success(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     with client.session_transaction() as sess:
-        sess["signin"] = {"email": "owner@example.com", "user_id": user["id"], "passcode": "123456"}
+        sess["signin"] = {
+            "email": "owner@example.com",
+            "user_id": user["id"],
+            "passcode": hash_passcode("123456"),
+        }
     response = client.post("/signin/verify", data={"passcode": "123456"})
     assert response.status_code == 302
     with client.session_transaction() as sess:
@@ -125,14 +138,18 @@ def test_signin_verify_success(client):
 
 def test_signin_verify_wrong_code(client):
     with client.session_transaction() as sess:
-        sess["signin"] = {"email": "u@example.com", "user_id": 1, "passcode": "123456"}
+        sess["signin"] = {
+            "email": "u@example.com",
+            "user_id": 1,
+            "passcode": hash_passcode("123456"),
+        }
     response = client.post("/signin/verify", data={"passcode": "000000"})
     assert response.status_code == 200
     assert b"Wrong passcode" in response.data
 
 
 def test_signin_verify_no_session(client):
-    response = client.post("/signin/verify", data={"passcode": "123456"})
+    response = client.post("/signin/verify", data={"passcode": hash_passcode("123456")})
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 

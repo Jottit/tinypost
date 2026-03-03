@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from app import app
 from db import create_user_and_site, get_user_by_id
 
@@ -43,7 +45,8 @@ def test_account_post_only_updates_name(client):
     assert updated["email"] == "owner@example.com"
 
 
-def test_account_update_email_with_passcode(client):
+@patch("routes.account.send_passcode")
+def test_account_update_email_with_passcode(mock_send, client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
@@ -55,8 +58,7 @@ def test_account_update_email_with_passcode(client):
     assert response.status_code == 200
     assert b"new@example.com" in response.data
 
-    with client.session_transaction() as sess:
-        passcode = sess["email_change"]["passcode"]
+    passcode = mock_send.call_args[0][1]
 
     response = client.post(
         "/-/account/email/verify",
