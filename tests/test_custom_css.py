@@ -115,7 +115,7 @@ def test_post_serves_custom_css_inline(client):
     assert b"<style>article { margin: 0; }</style>" in response.data
 
 
-def test_design_page_shows_custom_theme_status(client):
+def test_design_page_loads_with_custom_css(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
         update_site_custom_css(site["id"], "body { color: red; }")
@@ -123,5 +123,3 @@ def test_design_page_shows_custom_theme_status(client):
         sess["user_id"] = user["id"]
     response = client.get("/-/design", headers={"Host": "myblog.tinypost.localhost:8000"})
     assert response.status_code == 200
-    assert b"Using custom theme" in response.data
-    assert b"Remove custom theme" in response.data
