@@ -460,19 +460,25 @@ input.page-nav-add-input.active {
   transform: translateY(-50%) translateX(0);
 }
 
-/* ── Write pill ─────────────────────── */
+/* ── Write area (pill + editor) ─────── */
+.write-area {
+  margin: var(--space-6) auto 0;
+  max-width: var(--site-measure);
+}
+
+/* Pill */
 .write-pill {
   display: flex;
   align-items: center;
-  margin: var(--space-6) auto 0;
   padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5);
   border: 1px solid #ddd;
   border-radius: var(--radius-pill);
   color: var(--site-text-muted);
   font-size: var(--text-base);
-  max-width: var(--site-measure);
   cursor: text;
-  transition: opacity 0.2s ease;
+  max-height: 50px;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease, border-color 0.3s ease;
 }
 
 .write-pill-text {
@@ -483,8 +489,12 @@ input.page-nav-add-input.active {
   border-color: var(--site-text-muted);
 }
 
-.write-pill--hidden {
+.write-area--open .write-pill {
   opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
   pointer-events: none;
 }
 
@@ -718,13 +728,26 @@ a.blogroll-item-post:hover {
   margin-bottom: var(--space-3);
 }
 
-/* ── Inline editor (empty state) ───── */
+/* ── Inline editor ─────────────────── */
 .inline-editor {
   position: relative;
-  margin-top: var(--space-6);
-  border: 1px solid var(--site-divider);
+  border: 1px solid transparent;
   border-radius: var(--radius-lg);
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 0.35s ease, opacity 0.25s ease 0.1s, padding 0.3s ease, border-color 0.25s ease;
+}
+
+.write-area--open .inline-editor {
+  max-height: 600px;
   padding: var(--space-4);
+  border-color: var(--site-divider);
+  opacity: 1;
+  overflow: visible;
+  pointer-events: auto;
 }
 
 input[type="text"].inline-editor-title {
@@ -787,24 +810,6 @@ input[type="text"].inline-editor-title {
 
 .inline-editor-expand svg {
   display: block;
-}
-
-.inline-editor--slide-in {
-  animation: inline-editor-fade-in 0.3s ease;
-}
-
-@keyframes inline-editor-fade-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.inline-editor--slide-out {
-  animation: inline-editor-fade-out 0.2s ease forwards;
-}
-
-@keyframes inline-editor-fade-out {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-8px); }
 }
 
 .inline-editor-error {

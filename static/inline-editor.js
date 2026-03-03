@@ -1,8 +1,7 @@
 import { Jot } from '/static/js/jot.js';
 import { bindImageHandlers } from '/static/image-upload.js';
 
-var wrapper = document.querySelector('.inline-editor');
-var writeBtn = document.querySelector('.write-pill');
+var area = document.querySelector('.write-area');
 var form = document.getElementById('inline-editor-form');
 var editorEl = document.getElementById('inline-editor-body');
 var hiddenInput = form.querySelector('input[name="body"]');
@@ -32,37 +31,18 @@ function updatePlaceholder() {
   el.classList.toggle('ProseMirror-empty', !jot.getValue().trim());
 }
 
-// If editor is already visible (empty blog), init immediately and hide write pill
-if (!wrapper.hidden) {
+// If already open (empty blog), init immediately
+if (area.classList.contains('write-area--open')) {
   initEditor();
-  if (writeBtn) writeBtn.classList.add('write-pill--hidden');
+  editorEl.querySelector('.ProseMirror').focus();
 }
 
-function hideWriteBtn() {
-  if (!writeBtn) return;
-  writeBtn.style.display = 'none';
-}
-
-function showWriteBtn() {
-  if (!writeBtn) return;
-  writeBtn.style.display = '';
-  // Force reflow so transition plays
-  writeBtn.offsetHeight;
-  writeBtn.classList.remove('write-pill--hidden');
-}
-
-// Override openWriteModal so "+ Write" toggles the inline editor
 window.openWriteModal = function() {
-  if (!wrapper.hidden) {
-    wrapper.classList.remove('inline-editor--slide-in');
-    wrapper.classList.add('inline-editor--slide-out');
-    wrapper.addEventListener('animationend', function() {
-      wrapper.hidden = true;
-      wrapper.classList.remove('inline-editor--slide-out');
-      showWriteBtn();
-    }, { once: true });
+  if (area.classList.contains('write-area--open')) {
+    area.classList.remove('write-area--open');
     return;
   }
+
   initEditor();
   var draft = null;
   try {
@@ -77,9 +57,8 @@ window.openWriteModal = function() {
     }
     updatePlaceholder();
   }
-  hideWriteBtn();
-  wrapper.hidden = false;
-  wrapper.classList.add('inline-editor--slide-in');
+
+  area.classList.add('write-area--open');
   editorEl.querySelector('.ProseMirror').focus();
 };
 

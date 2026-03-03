@@ -26,13 +26,12 @@
   <main>
     <div class="site-layout">
     <div class="site-content">
-    {% if is_owner and posts %}
-      <div class="write-pill" onclick="openWriteModal()"><span class="write-pill-text">Write something...</span><button type="button" class="btn btn--primary btn--sm write-pill-btn">Publish</button></div>
-    {% endif %}
-    <div class="h-feed">
-      <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
-      {% if is_owner %}
-        <div class="inline-editor"{% if posts %} hidden{% endif %}>
+    {% if is_owner %}
+      <div class="write-area{% if not posts %} write-area--open{% endif %}">
+        {% if posts %}
+          <div class="write-pill" onclick="openWriteModal()"><span class="write-pill-text">Write something...</span><button type="button" class="btn btn--primary btn--sm write-pill-btn">Publish</button></div>
+        {% endif %}
+        <div class="inline-editor">
           <button type="button" class="inline-editor-expand" onclick="expandInlineEditor()" title="Fullscreen editor"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4v4"/><path d="M6 14H2v-4"/><path d="M14 2l-5 5"/><path d="M2 14l5-5"/></svg></button>
           <form id="inline-editor-form">
             <input type="text" name="title" placeholder="Title (optional)" class="inline-editor-title">
@@ -43,8 +42,11 @@
             </div>
           </form>
         </div>
-        <script type="module" src="/static/inline-editor.js"></script>
-      {% endif %}
+      </div>
+      <script type="module" src="/static/inline-editor.js"></script>
+    {% endif %}
+    <div class="h-feed">
+      <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if posts %}
         {% for post in posts %}
           <article class="h-entry{% if post.is_draft %} draft{% endif %}">

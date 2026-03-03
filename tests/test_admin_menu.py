@@ -15,7 +15,7 @@ def test_banner_visible_to_owner(client):
     login(client, user["id"])
     response = client.get("/", headers=HOST)
     assert b"admin-banner" in response.data
-    assert b"openWriteModal()" in response.data
+    assert b"write-area" in response.data
 
 
 def test_banner_not_visible_to_non_owner(client):
