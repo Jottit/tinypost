@@ -1,7 +1,7 @@
 <form class="comment-form" data-slug="{{ post.slug }}" data-logged-in="{{ 'true' if user else 'false' }}">
   <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
   <div class="comment-fields">
-    <input type="text" name="name" placeholder="Your name" required>
+    <input type="text" name="name" placeholder="Your name" value="{{ user.name or '' if user else '' }}" required>
     {% if not user %}
       <input type="email" name="email" placeholder="Your email" required>
     {% endif %}
