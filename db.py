@@ -68,10 +68,11 @@ def get_posts_for_site(site_id, include_drafts=False, limit=30, offset=0):
     return query(sql, (site_id, limit, offset))
 
 
-def get_all_posts_for_site(site_id):
+def get_all_posts_for_site(site_id, limit=1000):
     return query(
-        "SELECT * FROM posts WHERE site_id = %s ORDER BY COALESCE(published_at, created_at) DESC",
-        (site_id,),
+        "SELECT * FROM posts WHERE site_id = %s ORDER BY COALESCE(published_at, created_at) DESC"
+        " LIMIT %s",
+        (site_id, limit),
     )
 
 
@@ -446,6 +447,15 @@ def get_subscriber_count(site_id):
         one=True,
     )
     return row["count"]
+
+
+def has_blogroll(site_id):
+    row = query(
+        "SELECT EXISTS(SELECT 1 FROM blogroll WHERE site_id = %s) AS has",
+        (site_id,),
+        one=True,
+    )
+    return row["has"]
 
 
 def get_blogroll(site_id):

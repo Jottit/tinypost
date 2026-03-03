@@ -6,7 +6,7 @@ import markdown as md
 from flask import Response, abort, jsonify
 
 from app import app
-from db import get_blogroll, get_posts_for_site
+from db import get_posts_for_site, has_blogroll
 from utils import get_current_site, site_url
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
@@ -60,7 +60,7 @@ def feed():
             tzinfo=timezone.utc
         )
         ET.SubElement(channel, "lastBuildDate").text = format_datetime(last_build)
-    if get_blogroll(site["id"]):
+    if has_blogroll(site["id"]):
         ET.SubElement(channel, f"{{{SOURCE_NS}}}blogroll").text = f"{base_url}/blogroll.opml"
 
     for p in posts:

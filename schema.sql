@@ -113,3 +113,10 @@ CREATE TABLE indieauth_codes (
     expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX idx_sites_user_id ON sites (user_id);
+CREATE INDEX idx_subscribers_site_id ON subscribers (site_id);
+CREATE INDEX idx_blogroll_site_id ON blogroll (site_id);
+CREATE INDEX idx_comments_post_id ON comments (post_id);
+CREATE INDEX idx_comments_site_id ON comments (site_id);
+CREATE INDEX idx_indieauth_codes_site_id ON indieauth_codes (site_id);
