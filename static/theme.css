@@ -379,7 +379,7 @@ nav a:hover {
   gap: var(--space-4);
   position: relative;
   margin-bottom: 0;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
 }
 
 .page-nav a {
@@ -537,6 +537,26 @@ input.page-nav-add-input.active {
   margin-bottom: var(--space-3);
 }
 
+.sidebar-avatar-placeholder {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--site-divider);
+  color: var(--site-bg);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+
+.sidebar-avatar-placeholder svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar-avatar-placeholder:hover {
+  opacity: 0.8;
+}
+
 .sidebar-title {
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
@@ -547,6 +567,23 @@ input.page-nav-add-input.active {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
   margin-bottom: var(--space-2);
+}
+
+.sidebar-add-btn {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--site-text-muted);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  text-decoration: none;
+  margin-bottom: var(--space-2);
+  transition: color var(--speed-fast), border-color var(--speed-fast);
+}
+
+.sidebar-add-btn:hover {
+  color: var(--site-text-bright);
+  border-color: var(--site-text-bright);
 }
 
 .site-sidebar .subscribe-form {
@@ -685,6 +722,9 @@ a.blogroll-item-post:hover {
 .inline-editor {
   position: relative;
   margin-top: var(--space-6);
+  border: 1px solid var(--site-divider);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
 }
 
 input[type="text"].inline-editor-title {
@@ -724,15 +764,17 @@ input[type="text"].inline-editor-title {
 
 .inline-editor-actions {
   padding-top: var(--space-4);
+  text-align: right;
 }
 
 .inline-editor-expand {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: var(--space-4);
+  right: var(--space-4);
   color: var(--site-text-muted);
   padding: var(--space-2);
   border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
   line-height: 1;
   background: none;
   border: none;
@@ -769,6 +811,13 @@ input[type="text"].inline-editor-title {
   color: #c0392b;
   font-size: var(--text-sm);
   margin-bottom: var(--space-4);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--site-text-muted);
+  font-size: var(--text-lg);
+  padding-block: var(--space-6);
 }
 
 /* ── Pagination ─────────────────────── */
