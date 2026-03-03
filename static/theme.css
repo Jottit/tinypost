@@ -772,6 +772,8 @@ input[type="text"].inline-editor-title {
 
 .inline-editor-body {
   min-height: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
   font-size: var(--text-lg);
   line-height: var(--site-leading);
   color: var(--site-text);
