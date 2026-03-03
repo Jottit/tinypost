@@ -826,7 +826,7 @@ input[type="text"].inline-editor-title {
   text-align: center;
   color: var(--site-text-muted);
   font-size: var(--text-lg);
-  padding-block: var(--space-6);
+  padding-block: var(--space-10);
 }
 
 /* ── Pagination ─────────────────────── */
@@ -853,7 +853,7 @@ input[type="text"].inline-editor-title {
 /* ── Empty state ────────────────────── */
 .empty-state {
   text-align: center;
-  padding: var(--space-6) 0;
+  padding: var(--space-10) 0;
 }
 
 .empty-state-text {
