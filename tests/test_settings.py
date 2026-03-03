@@ -26,7 +26,7 @@ def test_settings_update(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/-/settings",
+        "/-/settings/blog",
         data={"title": "New Title", "bio": "A short bio"},
         headers={"Host": "myblog.tinypost.localhost:8000"},
     )
@@ -43,7 +43,7 @@ def test_settings_title_required(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
-        "/-/settings",
+        "/-/settings/blog",
         data={"title": "", "bio": "bio"},
         headers={"Host": "myblog.tinypost.localhost:8000"},
     )

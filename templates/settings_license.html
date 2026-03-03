@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}License — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">License</h1>
+    <div class="panel panel--narrow">
+      <form method="POST" action="/-/settings/license" class="settings-form auto-save">
+        <label for="license">License</label>
+        <select id="license" name="license">
+          <option value="">No license</option>
+          <option value="all-rights-reserved"{{ ' selected' if site.license == 'all-rights-reserved' }}>&copy; All Rights Reserved</option>
+          <option value="cc-by-4.0"{{ ' selected' if site.license == 'cc-by-4.0' }}>CC BY 4.0</option>
+          <option value="cc-by-sa-4.0"{{ ' selected' if site.license == 'cc-by-sa-4.0' }}>CC BY-SA 4.0</option>
+          <option value="cc-by-nc-4.0"{{ ' selected' if site.license == 'cc-by-nc-4.0' }}>CC BY-NC 4.0</option>
+          <option value="cc-by-nc-sa-4.0"{{ ' selected' if site.license == 'cc-by-nc-sa-4.0' }}>CC BY-NC-SA 4.0</option>
+          <option value="cc0-1.0"{{ ' selected' if site.license == 'cc0-1.0' }}>CC0 (Public Domain)</option>
+        </select>
+      </form>
+    </div>
+  </div>
+  <script src="/static/auto-save.js"></script>
+{% endblock %}

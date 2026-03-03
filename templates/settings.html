@@ -4,157 +4,74 @@
   <div class="panel-page">
     <a href="/" class="panel-back">&larr; Back</a>
     <h1 class="panel-title">Settings</h1>
-    <div class="panel panel--narrow">
-      {% for message in get_flashed_messages() %}
-        <p class="panel-notice success">{{ message }}</p>
-      {% endfor %}
-      {% if error %}
-        <p class="error">{{ error }}</p>
-      {% endif %}
-      <div class="avatar-section">
-        <label>Avatar</label>
-        <div class="avatar-row">
-          {% if site.avatar %}
-            <img src="{{ site.avatar }}" alt="avatar" class="avatar-preview">
-          {% else %}
-            <div class="avatar-placeholder">
-              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="30" r="14" fill="currentColor"/>
-                <ellipse cx="40" cy="68" rx="24" ry="20" fill="currentColor"/>
-              </svg>
-            </div>
-          {% endif %}
-          <div class="avatar-detail">
-            <div class="avatar-actions">
-              <a href="#" onclick="document.getElementById('avatar-input').click(); return false;">{{ "Update" if site.avatar else "Upload" }}</a>
-              {% if site.avatar %}
-                <form method="POST" action="/-/settings/avatar/delete">
-                  <button type="submit" class="avatar-remove">Remove</button>
-                </form>
-              {% endif %}
-            </div>
-            <p class="text-muted">Recommended: Square JPG, PNG, or GIF</p>
-          </div>
-        </div>
-        <form id="avatar-form" method="POST" action="/-/settings/avatar" enctype="multipart/form-data">
-          <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" hidden onchange="this.form.submit()">
-        </form>
-      </div>
-      <form method="POST" action="/-/settings" class="settings-form">
-        <label for="title">Title</label>
-        <input type="text" id="title" name="title" value="{{ site.title or '' }}" autofocus>
-        <label for="bio" class="mt-6">Bio</label>
-        <textarea id="bio" name="bio" rows="4">{{ site.bio or '' }}</textarea>
-        <label for="menu" class="mt-6">Menu</label>
-        <textarea id="menu" name="menu" rows="4">{{ site.menu or '' }}</textarea>
-        <p class="text-muted">One page per line. Use Label: slug to set a custom label.</p>
-        <label for="license" class="mt-6">License</label>
-        <select id="license" name="license">
-          <option value="">No license</option>
-          <option value="all-rights-reserved"{{ ' selected' if site.license == 'all-rights-reserved' }}>© All Rights Reserved</option>
-          <option value="cc-by-4.0"{{ ' selected' if site.license == 'cc-by-4.0' }}>CC BY 4.0</option>
-          <option value="cc-by-sa-4.0"{{ ' selected' if site.license == 'cc-by-sa-4.0' }}>CC BY-SA 4.0</option>
-          <option value="cc-by-nc-4.0"{{ ' selected' if site.license == 'cc-by-nc-4.0' }}>CC BY-NC 4.0</option>
-          <option value="cc-by-nc-sa-4.0"{{ ' selected' if site.license == 'cc-by-nc-sa-4.0' }}>CC BY-NC-SA 4.0</option>
-          <option value="cc0-1.0"{{ ' selected' if site.license == 'cc0-1.0' }}>CC0 (Public Domain)</option>
-        </select>
-        <fieldset class="mt-6">
-          <legend>Social links</legend>
-          <p class="text-muted">Links to your profiles elsewhere on the web.</p>
-          {% set links = site.social_links or [] %}
-          <div class="social-links-editor">
-            {% for link in links %}
-              <div class="social-link-row">
-                <input type="text" name="social_links[{{ loop.index0 }}][label]" value="{{ link.label or '' }}" placeholder="Label" class="input--sm">
-                <input type="url" name="social_links[{{ loop.index0 }}][url]" value="{{ link.url or '' }}" placeholder="https://..." class="input--sm">
-                <button type="button" class="social-link-remove" onclick="removeSocialLink(this)" aria-label="Remove">&times;</button>
-              </div>
-            {% endfor %}
-          </div>
-          <button type="button" class="btn mt-2" onclick="addSocialLink()">Add link</button>
-        </fieldset>
-        <label class="mt-6">Comments</label>
-        <label class="checkbox-label">
-          <input type="checkbox" name="comments_enabled"{{ ' checked' if site.comments_enabled }}>
-          Enable comments on posts
-        </label>
-        <div class="actions mt-6">
-          <button type="submit" class="btn">Save</button>
-          <a href="/" class="btn btn--outline">Cancel</a>
-        </div>
-      </form>
-    </div>
-    <div class="panel panel--narrow">
-      <h2>Custom domain</h2>
-      {% if domain_error %}
-        <p class="error">{{ domain_error }}</p>
-      {% endif %}
-      {% if domain_success %}
-        <p class="success">{{ domain_success }}</p>
-      {% endif %}
-      {% if site.custom_domain and site.domain_verified_at %}
-        <div class="domain-status">
-          <span class="domain-verified">{{ site.custom_domain }}</span>
-          <form method="POST" action="/-/settings/domain/remove" class="inline">
-            <button type="submit" class="domain-remove">Remove</button>
-          </form>
-        </div>
-      {% elif site.custom_domain %}
-        <div class="domain-status">
-          <p><strong>{{ site.custom_domain }}</strong> — not yet verified</p>
-          <div class="domain-instructions">
-            <p>Add these DNS records to verify ownership:</p>
-            <p><strong>TXT</strong> record for <code>_tinypost.{{ site.custom_domain }}</code>:</p>
-            <pre><code>tinypost-site-verification={{ site.domain_verification_token }}</code></pre>
-            {% if custom_domain_ipv4 %}
-              <p><strong>A</strong> record pointing to <code>{{ custom_domain_ipv4 }}</code></p>
-            {% endif %}
-            {% if custom_domain_ipv6 %}
-              <p><strong>AAAA</strong> record pointing to <code>{{ custom_domain_ipv6 }}</code></p>
-            {% endif %}
-            <p><strong>CNAME</strong> record for <code>www</code> pointing to <code>{{ site.custom_domain }}</code></p>
-          </div>
-          <div class="domain-actions">
-            <form method="POST" action="/-/settings/domain/verify" class="inline">
-              <button type="submit" class="btn">Verify</button>
-            </form>
-            <form method="POST" action="/-/settings/domain/remove" class="inline">
-              <button type="submit" class="domain-remove">Remove</button>
-            </form>
-          </div>
-        </div>
+    {% for message in get_flashed_messages() %}
+      <p class="success mb-4">{{ message }}</p>
+    {% endfor %}
+    <a href="/-/settings/blog" class="settings-identity">
+      {% if site.avatar %}
+        <img src="{{ site.avatar }}" alt="avatar" class="avatar-preview">
       {% else %}
-        <form method="POST" action="/-/settings/domain" class="domain-form">
-          <input type="text" name="domain" placeholder="example.com">
-          <button type="submit" class="btn mt-4">Add domain</button>
-        </form>
+        <div class="avatar-placeholder">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="30" r="14" fill="currentColor"/>
+            <ellipse cx="40" cy="68" rx="24" ry="20" fill="currentColor"/>
+          </svg>
+        </div>
       {% endif %}
+      <div class="settings-identity-text">
+        <span class="settings-identity-title">{{ site.title }}</span>
+        {% if site.bio %}
+          <span class="settings-identity-bio">{{ site.bio }}</span>
+        {% endif %}
+      </div>
+      <span class="settings-chevron">&rsaquo;</span>
+    </a>
+    <div class="settings-list">
+      <a href="/-/account" class="settings-row">
+        <span class="settings-row-label">Account</span>
+        <span class="settings-row-value">{{ user.email }}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/subdomain" class="settings-row">
+        <span class="settings-row-label">Subdomain</span>
+        <span class="settings-row-value">{{ site.subdomain }}.tinypost.blog</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/menu" class="settings-row">
+        <span class="settings-row-label">Site menu</span>
+        <span class="settings-row-value"></span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/social" class="settings-row">
+        <span class="settings-row-label">Social links</span>
+        <span class="settings-row-value">{% if site.social_links %}{{ site.social_links | length }}{% endif %}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/domain" class="settings-row">
+        <span class="settings-row-label">Custom domain</span>
+        <span class="settings-row-value">{% if site.custom_domain %}{{ site.custom_domain }}{% endif %}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/comments" class="settings-row">
+        <span class="settings-row-label">Comments</span>
+        <span class="settings-row-value">{{ "On" if site.comments_enabled else "Off" }}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/license" class="settings-row">
+        <span class="settings-row-label">License</span>
+        <span class="settings-row-value">{{ license_label }}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/design" class="settings-row">
+        <span class="settings-row-label">Design</span>
+        <span class="settings-row-value"></span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/blogroll" class="settings-row settings-row--last">
+        <span class="settings-row-label">Blogroll</span>
+        <span class="settings-row-value"></span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
     </div>
   </div>
-  <script>
-    function reindexSocialLinks() {
-      var rows = document.querySelectorAll('.social-link-row');
-      rows.forEach(function(row, i) {
-        row.querySelector('input[type="text"]').name = 'social_links[' + i + '][label]';
-        row.querySelector('input[type="url"]').name = 'social_links[' + i + '][url]';
-      });
-    }
-
-    function removeSocialLink(btn) {
-      btn.parentElement.remove();
-      reindexSocialLinks();
-    }
-
-    function addSocialLink() {
-      var container = document.querySelector('.social-links-editor');
-      var idx = container.querySelectorAll('.social-link-row').length;
-      var row = document.createElement('div');
-      row.className = 'social-link-row';
-      row.innerHTML = '<input type="text" name="social_links[' + idx + '][label]" placeholder="Label" class="input--sm">' +
-        '<input type="url" name="social_links[' + idx + '][url]" placeholder="https://..." class="input--sm">' +
-        '<button type="button" class="social-link-remove" onclick="removeSocialLink(this)" aria-label="Remove">&times;</button>';
-      container.appendChild(row);
-    }
-
-  </script>
 {% endblock %}

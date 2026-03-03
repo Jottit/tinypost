@@ -132,6 +132,66 @@ def update_site(
     return site
 
 
+def update_site_blog(site_id, title, bio):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET title = %s, bio = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (title, bio, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def update_site_menu(site_id, menu):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET menu = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (menu, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def update_site_social_links(site_id, social_links):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET social_links = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (Json(social_links or []), site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def update_site_comments(site_id, comments_enabled):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET comments_enabled = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (comments_enabled, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def update_site_license(site_id, license):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET license = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (license, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
+def update_site_subdomain(site_id, subdomain):
+    db = get_db()
+    site = db.execute(
+        "UPDATE sites SET subdomain = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (subdomain, site_id),
+    ).fetchone()
+    db.commit()
+    return site
+
+
 def update_site_avatar(site_id, avatar_url):
     db = get_db()
     site = db.execute(
@@ -224,6 +284,16 @@ def update_user_email(user_id, email):
     user = db.execute(
         "UPDATE users SET email = %s WHERE id = %s RETURNING *",
         (email, user_id),
+    ).fetchone()
+    db.commit()
+    return user
+
+
+def update_user(user_id, name, email):
+    db = get_db()
+    user = db.execute(
+        "UPDATE users SET name = %s, email = %s WHERE id = %s RETURNING *",
+        (name, email, user_id),
     ).fetchone()
     db.commit()
     return user

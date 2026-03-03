@@ -36,7 +36,7 @@ def test_account_update_email(client):
         headers=HOST,
     )
     assert response.status_code == 200
-    assert b"Email updated" in response.data
+    assert b"Account updated" in response.data
     with app.app_context():
         updated = get_user_by_id(user["id"])
     assert updated["email"] == "new@example.com"

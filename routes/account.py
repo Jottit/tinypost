@@ -9,7 +9,7 @@ from db import (
     get_sites_by_user,
     get_user_by_id,
     revoke_personal_token,
-    update_user_email,
+    update_user,
 )
 from routes import require_owner
 from substack import import_posts, import_subscribers, rehost_images
@@ -37,12 +37,15 @@ def account():
     if request.method == "GET":
         return render_account(site, user)
 
+    name = request.form.get("name", "").strip() or None
     email = request.form.get("email", "").strip().lower()
     if not email:
         return render_account(site, user, error="Email is required.")
-    update_user_email(user["id"], email)
+    update_user(user["id"], name, email)
+    if request.headers.get("X-Auto-Save"):
+        return "", 204
     user = get_user_by_id(user["id"])
-    return render_account(site, user, success="Email updated.")
+    return render_account(site, user, success="Account updated.")
 
 
 @app.route("/-/account/import", methods=["POST"])

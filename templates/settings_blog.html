@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Blog profile — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Blog profile</h1>
+    <div class="panel panel--narrow">
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <div class="avatar-section">
+        <label>Avatar</label>
+        <div class="avatar-row">
+          {% if site.avatar %}
+            <img src="{{ site.avatar }}" alt="avatar" class="avatar-preview">
+          {% else %}
+            <div class="avatar-placeholder">
+              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="30" r="14" fill="currentColor"/>
+                <ellipse cx="40" cy="68" rx="24" ry="20" fill="currentColor"/>
+              </svg>
+            </div>
+          {% endif %}
+          <div class="avatar-detail">
+            <div class="avatar-actions">
+              <a href="#" onclick="document.getElementById('avatar-input').click(); return false;">{{ "Update" if site.avatar else "Upload" }}</a>
+              {% if site.avatar %}
+                <form method="POST" action="/-/settings/avatar/delete">
+                  <button type="submit" class="avatar-remove">Remove</button>
+                </form>
+              {% endif %}
+            </div>
+            <p class="text-muted">Recommended: Square JPG, PNG, or GIF</p>
+          </div>
+        </div>
+        <form id="avatar-form" method="POST" action="/-/settings/avatar" enctype="multipart/form-data">
+          <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" hidden onchange="this.form.submit()">
+        </form>
+      </div>
+      <form method="POST" action="/-/settings/blog" class="settings-form auto-save">
+        <label for="title">Site title</label>
+        <input type="text" id="title" name="title" value="{{ site.title or '' }}">
+        <label for="bio" class="mt-6">Bio</label>
+        <textarea id="bio" name="bio" rows="4">{{ site.bio or '' }}</textarea>
+      </form>
+    </div>
+  </div>
+  <script src="/static/auto-save.js"></script>
+{% endblock %}

@@ -21,8 +21,8 @@ def test_license_default_is_none(client):
 def test_set_license_in_settings(client):
     setup_site(client)
     client.post(
-        "/-/settings",
-        data={"title": "My Blog", "license": "cc-by-4.0"},
+        "/-/settings/license",
+        data={"license": "cc-by-4.0"},
         headers=HOST,
     )
     with app.app_context():
@@ -33,13 +33,13 @@ def test_set_license_in_settings(client):
 def test_clear_license(client):
     setup_site(client)
     client.post(
-        "/-/settings",
-        data={"title": "My Blog", "license": "cc-by-4.0"},
+        "/-/settings/license",
+        data={"license": "cc-by-4.0"},
         headers=HOST,
     )
     client.post(
-        "/-/settings",
-        data={"title": "My Blog", "license": ""},
+        "/-/settings/license",
+        data={"license": ""},
         headers=HOST,
     )
     with app.app_context():
@@ -50,11 +50,11 @@ def test_clear_license(client):
 def test_license_shown_in_settings_form(client):
     setup_site(client)
     client.post(
-        "/-/settings",
-        data={"title": "My Blog", "license": "cc-by-nc-4.0"},
+        "/-/settings/license",
+        data={"license": "cc-by-nc-4.0"},
         headers=HOST,
     )
-    response = client.get("/-/settings", headers=HOST)
+    response = client.get("/-/settings/license", headers=HOST)
     assert b'value="cc-by-nc-4.0" selected' in response.data
 
 

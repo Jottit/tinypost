@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Custom domain — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Custom domain</h1>
+    <div class="panel panel--narrow">
+      {% if domain_error %}
+        <p class="error">{{ domain_error }}</p>
+      {% endif %}
+      {% if site.custom_domain and site.domain_verified_at %}
+        <div class="domain-status">
+          <span class="domain-verified">{{ site.custom_domain }}</span>
+          <form method="POST" action="/-/settings/domain/remove" class="inline">
+            <button type="submit" class="domain-remove">Remove</button>
+          </form>
+        </div>
+      {% elif site.custom_domain %}
+        <div class="domain-status">
+          <p><strong>{{ site.custom_domain }}</strong> — not yet verified</p>
+          <div class="domain-instructions">
+            <p>Add these DNS records to verify ownership:</p>
+            <p><strong>TXT</strong> record for <code>_tinypost.{{ site.custom_domain }}</code>:</p>
+            <pre><code>tinypost-site-verification={{ site.domain_verification_token }}</code></pre>
+            {% if custom_domain_ipv4 %}
+              <p><strong>A</strong> record pointing to <code>{{ custom_domain_ipv4 }}</code></p>
+            {% endif %}
+            {% if custom_domain_ipv6 %}
+              <p><strong>AAAA</strong> record pointing to <code>{{ custom_domain_ipv6 }}</code></p>
+            {% endif %}
+            <p><strong>CNAME</strong> record for <code>www</code> pointing to <code>{{ site.custom_domain }}</code></p>
+          </div>
+          <div class="domain-actions">
+            <form method="POST" action="/-/settings/domain/verify" class="inline">
+              <button type="submit" class="btn">Verify</button>
+            </form>
+            <form method="POST" action="/-/settings/domain/remove" class="inline">
+              <button type="submit" class="domain-remove">Remove</button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <form method="POST" action="/-/settings/domain" class="domain-form">
+          <input type="text" name="domain" placeholder="example.com">
+          <button type="submit" class="btn mt-4">Add domain</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -43,7 +43,7 @@ def test_add_domain_shown_in_settings(client):
         data={"domain": "example.com"},
         headers={"Host": SITE_HOST},
     )
-    response = client.get("/-/settings", headers={"Host": SITE_HOST})
+    response = client.get("/-/settings/domain", headers={"Host": SITE_HOST})
     assert b"example.com" in response.data
     assert b"not yet verified" in response.data
 

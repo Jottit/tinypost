@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Site menu — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Site menu</h1>
+    <div class="panel panel--narrow">
+      <form method="POST" action="/-/settings/menu" class="settings-form auto-save">
+        <label for="menu">Menu</label>
+        <textarea id="menu" name="menu" rows="6">{{ site.menu or '' }}</textarea>
+        <p class="text-muted">One page per line. Use Label: slug to set a custom label.</p>
+      </form>
+    </div>
+  </div>
+  <script src="/static/auto-save.js"></script>
+{% endblock %}

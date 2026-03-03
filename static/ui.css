@@ -255,7 +255,8 @@ body:has(.public-page) {
   margin-right: var(--space-4);
 }
 
-.pill-input input {
+.pill-input input,
+.panel .pill-input input[type="text"] {
   border: none;
   background: transparent;
   border-radius: 0;
@@ -1293,4 +1294,123 @@ input[type="checkbox"]:checked {
 
 .subscribe-unsub:hover {
   color: #aaa;
+}
+
+/* ── Settings hub ──────────────────── */
+.settings-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  max-width: 500px;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: var(--space-6);
+  transition: box-shadow var(--speed-fast);
+}
+
+.settings-identity:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+}
+
+.settings-identity .avatar-preview,
+.settings-identity .avatar-placeholder {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.settings-identity-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-identity-title {
+  display: block;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-bright);
+}
+
+.settings-identity-bio {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-chevron {
+  font-size: var(--text-2xl);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.settings-list {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  max-width: 500px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid color-mix(in srgb, var(--divider), transparent 50%);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--speed-fast);
+}
+
+a.settings-row:hover {
+  background: var(--input-bg);
+}
+
+.settings-row--last {
+  border-bottom: none;
+}
+
+.settings-row--static {
+  cursor: default;
+}
+
+.settings-row-label {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--text-bright);
+}
+
+.settings-row-value {
+  margin-left: auto;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .settings-identity {
+    padding: var(--space-5);
+  }
+
+  .settings-row {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .settings-row-value {
+    max-width: 120px;
+  }
 }

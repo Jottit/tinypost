@@ -4,6 +4,7 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
+    name TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -23,6 +24,7 @@ CREATE TABLE sites (
     license TEXT,
     social_links JSONB DEFAULT '[]',
     comments_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    menu TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

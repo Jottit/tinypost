@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Social links — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Social links</h1>
+    <div class="panel panel--narrow">
+      <form method="POST" action="/-/settings/social" class="settings-form auto-save" id="social-form">
+        <p class="text-muted">Links to your profiles elsewhere on the web.</p>
+        {% set links = site.social_links or [] %}
+        <div class="social-links-editor">
+          {% for link in links %}
+            <div class="social-link-row">
+              <input type="text" name="social_links[{{ loop.index0 }}][label]" value="{{ link.label or '' }}" placeholder="Label" class="input--sm">
+              <input type="url" name="social_links[{{ loop.index0 }}][url]" value="{{ link.url or '' }}" placeholder="https://..." class="input--sm">
+              <button type="button" class="social-link-remove" onclick="removeSocialLink(this)" aria-label="Remove">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn mt-2" onclick="addSocialLink()">Add link</button>
+      </form>
+    </div>
+  </div>
+  <script src="/static/auto-save.js"></script>
+  <script>
+    function reindexSocialLinks() {
+      var rows = document.querySelectorAll('.social-link-row');
+      rows.forEach(function(row, i) {
+        row.querySelector('input[type="text"]').name = 'social_links[' + i + '][label]';
+        row.querySelector('input[type="url"]').name = 'social_links[' + i + '][url]';
+      });
+    }
+
+    function removeSocialLink(btn) {
+      btn.parentElement.remove();
+      reindexSocialLinks();
+      autoSaveNow(document.getElementById('social-form'));
+    }
+
+    function addSocialLink() {
+      var container = document.querySelector('.social-links-editor');
+      var idx = container.querySelectorAll('.social-link-row').length;
+      var row = document.createElement('div');
+      row.className = 'social-link-row';
+      row.innerHTML = '<input type="text" name="social_links[' + idx + '][label]" placeholder="Label" class="input--sm">' +
+        '<input type="url" name="social_links[' + idx + '][url]" placeholder="https://..." class="input--sm">' +
+        '<button type="button" class="social-link-remove" onclick="removeSocialLink(this)" aria-label="Remove">&times;</button>';
+      container.appendChild(row);
+      row.querySelector('input').focus();
+    }
+  </script>
+{% endblock %}

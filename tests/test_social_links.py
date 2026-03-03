@@ -12,11 +12,8 @@ def test_social_links_saved(client):
         user, site = create_user_and_site("owner@example.com", "myblog")
     login(client, user)
     response = client.post(
-        "/-/settings",
+        "/-/settings/social",
         data={
-            "title": "My Blog",
-            "bio": "",
-            "license": "",
             "social_links[0][label]": "Mastodon",
             "social_links[0][url]": "https://mastodon.social/@test",
             "social_links[1][label]": "GitHub",
@@ -38,11 +35,8 @@ def test_empty_social_links_skipped(client):
         user, site = create_user_and_site("owner@example.com", "myblog")
     login(client, user)
     response = client.post(
-        "/-/settings",
+        "/-/settings/social",
         data={
-            "title": "My Blog",
-            "bio": "",
-            "license": "",
             "social_links[0][label]": "",
             "social_links[0][url]": "",
             "social_links[1][label]": "GitHub",
@@ -87,7 +81,7 @@ def test_social_links_in_settings_form(client):
             social_links=[{"label": "GitHub", "url": "https://github.com/test"}],
         )
     login(client, user)
-    response = client.get("/-/settings", headers={"Host": "myblog.tinypost.localhost:8000"})
+    response = client.get("/-/settings/social", headers={"Host": "myblog.tinypost.localhost:8000"})
     html = response.data.decode()
     assert "https://github.com/test" in html
     assert "GitHub" in html

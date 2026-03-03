@@ -2,7 +2,7 @@
 {% block title %}Design — {{ site.title }}{% endblock %}
 {% block body %}
   <div class="panel-page">
-    <a href="/" class="panel-back">&larr; Back</a>
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
     <h1 class="panel-title">Design</h1>
     <div class="panel panel--narrow">
       {% for message in get_flashed_messages() %}
@@ -46,7 +46,7 @@
 
         <div class="actions mt-6">
           <button type="submit" class="btn">Save</button>
-          <a href="/" class="btn btn--outline">Cancel</a>
+          <a href="/-/settings" class="btn btn--outline">Cancel</a>
         </div>
       </form>
 

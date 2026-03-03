@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Subdomain — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Subdomain</h1>
+    <div class="panel panel--narrow">
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <form method="POST" action="/-/settings/subdomain" class="settings-form auto-save">
+        <label for="subdomain">Subdomain</label>
+        <div class="pill-input">
+          <input type="text" id="subdomain" name="subdomain" value="{{ site.subdomain }}">
+          <span class="pill-input-suffix">.tinypost.blog</span>
+        </div>
+        <p class="text-muted mt-2">Changing your subdomain will break existing links to your blog.</p>
+      </form>
+    </div>
+  </div>
+  <script src="/static/auto-save.js"></script>
+{% endblock %}
