@@ -17,43 +17,77 @@ def test_account_requires_auth(client):
     assert "/signin" in response.headers["Location"]
 
 
-def test_account_shows_email(client):
+def test_account_shows_email_as_text_with_update_link(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/account", headers=HOST)
     assert response.status_code == 200
     assert b"owner@example.com" in response.data
+    assert b"/-/account/email" in response.data
+    assert b'name="email"' not in response.data
 
 
-def test_account_update_email(client):
-    with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
-    login(client, user["id"])
-    response = client.post(
-        "/-/account",
-        data={"email": "new@example.com"},
-        headers=HOST,
-    )
-    assert response.status_code == 200
-    assert b"Account updated" in response.data
-    with app.app_context():
-        updated = get_user_by_id(user["id"])
-    assert updated["email"] == "new@example.com"
-
-
-def test_account_update_name(client):
+def test_account_post_only_updates_name(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     client.post(
         "/-/account",
-        data={"name": "Alice", "email": "owner@example.com"},
+        data={"name": "Alice"},
         headers=HOST,
     )
     with app.app_context():
         updated = get_user_by_id(user["id"])
     assert updated["name"] == "Alice"
+    assert updated["email"] == "owner@example.com"
+
+
+def test_account_update_email_with_passcode(client):
+    with app.app_context():
+        user, _ = create_user_and_site("owner@example.com", "myblog")
+    login(client, user["id"])
+    response = client.post(
+        "/-/account/email",
+        data={"email": "new@example.com"},
+        headers=HOST,
+    )
+    assert response.status_code == 200
+    assert b"new@example.com" in response.data
+
+    with client.session_transaction() as sess:
+        passcode = sess["email_change"]["passcode"]
+
+    response = client.post(
+        "/-/account/email/verify",
+        data={"passcode": passcode},
+        headers=HOST,
+    )
+    assert response.status_code == 302
+    with app.app_context():
+        updated = get_user_by_id(user["id"])
+    assert updated["email"] == "new@example.com"
+
+
+def test_account_email_wrong_passcode(client):
+    with app.app_context():
+        user, _ = create_user_and_site("owner@example.com", "myblog")
+    login(client, user["id"])
+    client.post(
+        "/-/account/email",
+        data={"email": "new@example.com"},
+        headers=HOST,
+    )
+    response = client.post(
+        "/-/account/email/verify",
+        data={"passcode": "000000"},
+        headers=HOST,
+    )
+    assert response.status_code == 200
+    assert b"Invalid passcode" in response.data
+    with app.app_context():
+        updated = get_user_by_id(user["id"])
+    assert updated["email"] == "owner@example.com"
 
 
 def test_account_email_required(client):
@@ -61,7 +95,7 @@ def test_account_email_required(client):
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
-        "/-/account",
+        "/-/account/email",
         data={"email": ""},
         headers=HOST,
     )

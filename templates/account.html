@@ -14,9 +14,8 @@
       <form method="POST" action="/-/account" class="settings-form auto-save">
         <label for="name">Name</label>
         <input type="text" id="name" name="name" value="{{ user.name or '' }}">
-        <label for="email" class="mt-6">Email</label>
-        <input type="email" id="email" name="email" value="{{ user.email }}">
       </form>
+      <p>Email: {{ user.email }} <a href="/-/account/email">Update email</a></p>
       <div class="panel-divider">
       <h3>API token</h3>
       {% if new_token %}

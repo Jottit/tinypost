@@ -3,13 +3,16 @@ import zipfile
 from flask import redirect, render_template, request, session
 
 from app import app
+from auth import generate_passcode, send_passcode
 from db import (
     create_personal_token,
     get_personal_token,
     get_sites_by_user,
+    get_user_by_email,
     get_user_by_id,
     revoke_personal_token,
     update_user,
+    update_user_email,
 )
 from routes import require_owner
 from substack import import_posts, import_subscribers, rehost_images
@@ -38,14 +41,54 @@ def account():
         return render_account(site, user)
 
     name = request.form.get("name", "").strip() or None
-    email = request.form.get("email", "").strip().lower()
-    if not email:
-        return render_account(site, user, error="Email is required.")
-    update_user(user["id"], name, email)
+    update_user(user["id"], name, user["email"])
     if request.headers.get("X-Auto-Save"):
         return "", 204
     user = get_user_by_id(user["id"])
     return render_account(site, user, success="Account updated.")
+
+
+@app.route("/-/account/email", methods=["GET", "POST"])
+def account_email():
+    site = require_owner()
+    user = get_user_by_id(session["user_id"])
+
+    if request.method == "GET":
+        return render_template("account_email.html", site=site)
+
+    email = request.form.get("email", "").strip().lower()
+    if not email:
+        return render_template("account_email.html", site=site, error="Email is required.")
+
+    if get_user_by_email(email):
+        return render_template(
+            "account_email.html", site=site, error="That email is already in use."
+        )
+
+    passcode = generate_passcode()
+    session["email_change"] = {"email": email, "passcode": passcode}
+    send_passcode(email, passcode)
+    return render_template("account_email_verify.html", site=site, email=email)
+
+
+@app.route("/-/account/email/verify", methods=["POST"])
+def account_email_verify():
+    site = require_owner()
+    user = get_user_by_id(session["user_id"])
+
+    change = session.get("email_change")
+    if not change:
+        return redirect("/-/account/email")
+
+    passcode = request.form.get("passcode", "").strip()
+    if passcode != change["passcode"]:
+        return render_template(
+            "account_email_verify.html", site=site, email=change["email"], error="Invalid passcode."
+        )
+
+    update_user_email(user["id"], change["email"])
+    session.pop("email_change", None)
+    return redirect("/-/account")
 
 
 @app.route("/-/settings/export-import")

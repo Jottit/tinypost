@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Verify email — {{ site.title }}{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <p>We sent a 6-digit code to <strong>{{ email }}</strong>.<br>Enter it below to update your email.</p>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="/-/account/email/verify" method="post" class="passcode-form">
+      <input type="hidden" name="passcode" id="passcode-value">
+      <div class="passcode-inputs">
+        <input type="text" inputmode="numeric" maxlength="1" required autofocus>
+        <input type="text" inputmode="numeric" maxlength="1" required>
+        <input type="text" inputmode="numeric" maxlength="1" required>
+        <input type="text" inputmode="numeric" maxlength="1" required>
+        <input type="text" inputmode="numeric" maxlength="1" required>
+        <input type="text" inputmode="numeric" maxlength="1" required>
+      </div>
+    </form>
+  </main>
+  <script src="/static/passcode.js"></script>
+{% endblock %}
