@@ -75,7 +75,16 @@ def home():
     ):
         return redirect(f"https://{site['custom_domain']}", code=308)
 
-    posts = get_posts_for_site(site["id"], include_drafts=is_owner)
+    page = request.args.get("page", 1, type=int)
+    if page < 1:
+        page = 1
+    per_page = 20
+    offset = (page - 1) * per_page
+    fetched_posts = get_posts_for_site(
+        site["id"], include_drafts=is_owner, limit=per_page + 1, offset=offset
+    )
+    has_next = len(fetched_posts) > per_page
+    posts = fetched_posts[:per_page]
     pages = get_pages_for_site(site["id"], include_drafts=is_owner)
     comment_counts = get_comment_counts([p["id"] for p in posts])
     return render_template(
@@ -87,6 +96,8 @@ def home():
         subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
         blogroll=get_blogroll(site["id"]),
         comment_counts=comment_counts,
+        page=page,
+        has_next=has_next,
     )
 
 

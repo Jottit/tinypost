@@ -65,6 +65,12 @@
         </div>
       {% endif %}
     </div>
+    {% if has_next or page > 1 %}
+    <nav class="pagination" aria-label="Posts navigation">
+      {% if has_next %}<a href="?page={{ page + 1 }}">Older</a>{% endif %}
+      {% if page > 1 %}<a href="{% if page == 2 %}?{% else %}?page={{ page - 1 }}{% endif %}">Newer</a>{% endif %}
+    </nav>
+    {% endif %}
     </div>
     {% include "site_sidebar.html" %}
     </div>

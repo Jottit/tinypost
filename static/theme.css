@@ -771,6 +771,27 @@ input[type="text"].inline-editor-title {
   margin-bottom: var(--space-4);
 }
 
+/* ── Pagination ─────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-6) 0;
+  font-size: var(--text-sm);
+}
+
+.pagination a {
+  color: var(--site-text-muted);
+  text-decoration: none;
+}
+
+.pagination a:hover {
+  color: var(--site-text-bright);
+}
+
+.pagination a:last-child:first-child {
+  margin-left: auto;
+}
+
 /* ── Empty state ────────────────────── */
 .empty-state {
   text-align: center;

@@ -58,12 +58,12 @@ def get_site_by_subdomain(subdomain):
     return query("SELECT * FROM sites WHERE subdomain = %s", (subdomain,), one=True)
 
 
-def get_posts_for_site(site_id, include_drafts=False, limit=30):
+def get_posts_for_site(site_id, include_drafts=False, limit=30, offset=0):
     sql = "SELECT * FROM posts WHERE site_id = %s"
     if not include_drafts:
         sql += " AND is_draft = FALSE"
-    sql += " ORDER BY COALESCE(published_at, created_at) DESC LIMIT %s"
-    return query(sql, (site_id, limit))
+    sql += " ORDER BY COALESCE(published_at, created_at) DESC LIMIT %s OFFSET %s"
+    return query(sql, (site_id, limit, offset))
 
 
 def get_all_posts_for_site(site_id):
