@@ -135,7 +135,8 @@ def update_site(
 def update_site_blog(site_id, title, bio, license=None):
     db = get_db()
     site = db.execute(
-        "UPDATE sites SET title = %s, bio = %s, license = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        "UPDATE sites SET title = %s, bio = %s, license = %s,"
+        " updated_at = NOW() WHERE id = %s RETURNING *",
         (title, bio, license, site_id),
     ).fetchone()
     db.commit()
