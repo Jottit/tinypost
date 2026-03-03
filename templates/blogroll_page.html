@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Blogroll — {{ site.title }}{% endblock %}
 {% block theme_css %}{% include "theme_css.html" %}{% endblock %}
-{% block head_extra %}{% include "site_design.html" %}{% endblock %}
+{% block head_extra %}
+  {% include "site_design.html" %}
+{% endblock %}
 {% block body %}
+  {% include "admin_banner.html" %}
+  {% include "site_header.html" %}
   <main>
-    <header class="site-header">
-      <h1><a href="{{ site_url(site) }}">{{ site.title }}</a></h1>
-    </header>
-    <div class="panel panel--narrow">
+    <div class="site-content">
+    <article>
       <h2>Blogroll</h2>
       <ul class="blogroll-list">
         {% for item in blogroll %}
           <li>{% include "blogroll_item.html" %}</li>
         {% endfor %}
       </ul>
+    </article>
     </div>
   </main>
   {% include "site_footer.html" %}

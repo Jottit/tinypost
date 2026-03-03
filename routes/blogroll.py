@@ -1,4 +1,4 @@
-from flask import abort, flash, redirect, render_template, request
+from flask import abort, flash, redirect, render_template, request, session
 
 from app import app
 from db import get_blogroll, update_blogroll
@@ -11,8 +11,9 @@ def blogroll():
     site = get_current_site()
     if not site:
         abort(404)
+    is_owner = session.get("user_id") == site["user_id"]
     items = get_blogroll(site["id"])
-    return render_template("blogroll_page.html", site=site, blogroll=items)
+    return render_template("blogroll_page.html", site=site, blogroll=items, is_owner=is_owner)
 
 
 @app.route("/-/blogroll", methods=["GET", "POST"])
