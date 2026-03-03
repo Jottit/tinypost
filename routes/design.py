@@ -92,15 +92,13 @@ def download_theme():
 
 """
 
-    if custom_css:
-        body = custom_css
-    else:
+    if not custom_css:
         theme_path = os.path.join(app.static_folder, "theme.css")
         with open(theme_path) as f:
-            body = f.read()
+            custom_css = f.read()
 
     return Response(
-        header + body,
+        header + custom_css,
         mimetype="text/css",
         headers={"Content-Disposition": 'attachment; filename="theme.css"'},
     )

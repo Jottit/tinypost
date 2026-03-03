@@ -506,7 +506,7 @@ def _find_or_create_feed(db, url, feed_url=None):
         "INSERT INTO feeds (url, feed_url) VALUES (%s, %s)"
         " ON CONFLICT (url) DO UPDATE SET url = EXCLUDED.url"
         " RETURNING id",
-        (url, feed_url or None),
+        (url, feed_url),
     ).fetchone()
     return row["id"]
 

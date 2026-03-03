@@ -15,8 +15,7 @@ def send_email(to, subject, text, html=None, from_addr=None):
         return
 
     if not from_addr:
-        domain = current_app.config["BASE_DOMAIN"]
-        from_addr = f"Tinypost <noreply@{domain}>"
+        from_addr = f"Tinypost <noreply@{current_app.config['BASE_DOMAIN']}>"
 
     payload = {
         "from": from_addr,

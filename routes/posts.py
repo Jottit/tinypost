@@ -153,12 +153,9 @@ def post(slug):
             abort(404)
         comments = get_comments_for_post(post["id"])
         comment_count = get_comment_count(post["id"])
-        user = None
-        user_site = None
         user_id = session.get("user_id")
-        if user_id:
-            user = get_user_by_id(user_id)
-            user_site = get_site_by_user(user_id)
+        user = get_user_by_id(user_id) if user_id else None
+        user_site = get_site_by_user(user_id) if user_id else None
         return render_template(
             "post.html",
             site=site,

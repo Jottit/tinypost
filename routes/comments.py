@@ -24,12 +24,11 @@ def _hash_email(email):
 
 def _safe_referrer():
     ref = request.referrer
-    if not ref:
-        return "/"
-    parsed = urlparse(ref)
-    if parsed.netloc and parsed.netloc != request.host:
-        return "/"
-    return ref
+    if ref:
+        parsed = urlparse(ref)
+        if not parsed.netloc or parsed.netloc == request.host:
+            return ref
+    return "/"
 
 
 @app.route("/-/comment/<slug>", methods=["POST"])
