@@ -18,6 +18,20 @@ RESERVED_SUBDOMAINS = {
     "w",
 }
 
+RESERVED_SLUGS = {
+    "signin",
+    "signup",
+    "verify",
+    "signout",
+    "subscribe",
+    "auth",
+    "micropub",
+    "feed.xml",
+    "feed.json",
+    "blogroll.opml",
+    "healthz",
+}
+
 
 def is_valid_subdomain(name):
     if name in RESERVED_SUBDOMAINS:

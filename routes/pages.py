@@ -9,7 +9,7 @@ from db import (
     update_page,
 )
 from routes import require_owner
-from utils import slugify
+from utils import RESERVED_SLUGS, slugify
 
 
 @app.route("/-/new-page", methods=["GET", "POST"])
@@ -30,13 +30,17 @@ def new_page():
         return render_template(
             "edit_page.html", site=site, page=page, new=True, error="Title is required."
         )
-    if get_post_by_slug(site["id"], slug) or get_page_by_slug(site["id"], slug):
+    if (
+        slug in RESERVED_SLUGS
+        or get_post_by_slug(site["id"], slug)
+        or get_page_by_slug(site["id"], slug)
+    ):
         return render_template(
             "edit_page.html",
             site=site,
             page=page,
             new=True,
-            error="That URL slug is already taken.",
+            error="That URL slug is reserved or already taken.",
         )
     is_draft = request.form.get("is_draft") == "on"
     create_page(site["id"], slug, title, body=body, is_draft=is_draft)

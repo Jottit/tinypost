@@ -19,7 +19,7 @@ from db import (
 from mailer import send_email
 from routes import require_owner
 from template_setup import parse_menu
-from utils import get_current_site, site_url, slugify
+from utils import RESERVED_SLUGS, get_current_site, site_url, slugify
 
 
 @app.route("/-/edit", methods=["GET", "POST"])
@@ -37,10 +37,12 @@ def edit():
             return jsonify(error="Post body is required."), 400
         return render_template("edit.html", site=site, error="Post body is required.")
     slug = slugify(title or body[:50]) or "post"
-    if get_page_by_slug(site["id"], slug):
+    if slug in RESERVED_SLUGS or get_page_by_slug(site["id"], slug):
         if is_ajax:
-            return jsonify(error="A page already uses that URL slug."), 400
-        return render_template("edit.html", site=site, error="A page already uses that URL slug.")
+            return jsonify(error="That URL slug is reserved or already in use."), 400
+        return render_template(
+            "edit.html", site=site, error="That URL slug is reserved or already in use."
+        )
     is_draft = request.form.get("is_draft") == "on"
     create_post(site["id"], slug, title or None, body, is_draft=is_draft)
     if is_ajax:
@@ -71,13 +73,13 @@ def edit_post(slug):
             error="Post body is required.",
         )
     new_slug = slugify(title or body[:50]) or "post"
-    if get_page_by_slug(site["id"], new_slug):
+    if new_slug in RESERVED_SLUGS or get_page_by_slug(site["id"], new_slug):
         return render_template(
             "edit.html",
             site=site,
             post=post,
             subscriber_count=sub_count,
-            error="A page already uses that URL slug.",
+            error="That URL slug is reserved or already in use.",
         )
     is_draft = request.form.get("is_draft") == "on"
     update_post(post["id"], new_slug, title or None, body, is_draft=is_draft)
@@ -107,6 +109,8 @@ def send_post(slug):
     if not subscribers:
         return redirect(f"/-/edit/{slug}")
 
+    mark_post_sent(post["id"])
+
     base_url = site_url(site)
     body_html = md.markdown(post["body"])
     post_url = f"{base_url}/{slug}"
@@ -133,7 +137,6 @@ def send_post(slug):
             ),
         )
 
-    mark_post_sent(post["id"])
     return redirect(f"/{slug}")
 
 

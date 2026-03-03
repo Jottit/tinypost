@@ -318,14 +318,12 @@ def get_page_by_id(page_id):
 
 def create_page(site_id, slug, title, body="", is_draft=False):
     db = get_db()
-    max_order = db.execute(
-        "SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM pages WHERE site_id = %s",
-        (site_id,),
-    ).fetchone()["max_order"]
     page = db.execute(
         "INSERT INTO pages (site_id, slug, title, body, is_draft, sort_order)"
-        " VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
-        (site_id, slug, title, body, is_draft, max_order + 1),
+        " VALUES (%s, %s, %s, %s, %s,"
+        " (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM pages WHERE site_id = %s))"
+        " RETURNING *",
+        (site_id, slug, title, body, is_draft, site_id),
     ).fetchone()
     db.commit()
     return page
@@ -348,7 +346,7 @@ def delete_page(page_id):
     db.commit()
 
 
-def delete_site(site_id):
+def delete_site(site_id, commit=True):
     db = get_db()
     db.execute("DELETE FROM comments WHERE site_id = %s", (site_id,))
     db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site_id,))
@@ -357,13 +355,14 @@ def delete_site(site_id):
     db.execute("DELETE FROM pages WHERE site_id = %s", (site_id,))
     db.execute("DELETE FROM posts WHERE site_id = %s", (site_id,))
     db.execute("DELETE FROM sites WHERE id = %s", (site_id,))
-    db.commit()
+    if commit:
+        db.commit()
 
 
 def delete_account(user_id):
     db = get_db()
     for site in get_sites_by_user(user_id):
-        delete_site(site["id"])
+        delete_site(site["id"], commit=False)
     db.execute("UPDATE comments SET user_id = NULL WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))
     db.commit()

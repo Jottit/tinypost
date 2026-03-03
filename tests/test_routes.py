@@ -233,7 +233,7 @@ def test_edit_post_page_slug_conflict(client):
         "/-/edit/hello", data={"title": "About", "body": "New body"}, headers=HOST
     )
     assert response.status_code == 200
-    assert b"page already uses" in response.data
+    assert b"reserved or already in use" in response.data
 
 
 # ── Delete post ─────────────────────────────────

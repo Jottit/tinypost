@@ -29,7 +29,7 @@ def test_create_post_slug_conflict_with_page(client):
         headers={"Host": SITE_HOST},
     )
     assert response.status_code == 200
-    assert b"page already uses" in response.data
+    assert b"reserved or already in use" in response.data
 
 
 def test_draft_page_hidden_from_public_nav(client):

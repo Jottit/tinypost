@@ -2,7 +2,7 @@ from flask import redirect, render_template, request, session
 
 from app import app, limiter
 from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
-from db import create_user_and_site, get_site_by_user, get_user_by_email
+from db import create_user_and_site, get_site_by_user, get_user_by_email, subdomain_taken
 from utils import is_valid_subdomain, subdomain_url
 
 
@@ -11,7 +11,7 @@ from utils import is_valid_subdomain, subdomain_url
 def signup_post():
     subdomain = request.form["subdomain"].strip().lower()
     email = request.form["email"].strip().lower()
-    if not is_valid_subdomain(subdomain):
+    if not is_valid_subdomain(subdomain) or subdomain_taken(subdomain):
         return redirect("/")
     passcode = generate_passcode()
     session["signup"] = {
