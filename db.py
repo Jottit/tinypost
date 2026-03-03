@@ -4,21 +4,8 @@ import psycopg
 from flask import current_app, g
 from psycopg.rows import dict_row
 from psycopg.types.json import Json
-from psycopg_pool import NullConnectionPool
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/tinypost")
-
-_pool = None
-
-
-def _get_pool():
-    global _pool
-    if _pool is None:
-        _pool = NullConnectionPool(
-            DATABASE_URL,
-            kwargs={"row_factory": dict_row, "connect_timeout": 5},
-        )
-    return _pool
 
 
 def get_db():
@@ -27,19 +14,14 @@ def get_db():
         if db_name:
             g.db = psycopg.connect(f"dbname={db_name}", row_factory=dict_row)
         else:
-            g.db = _get_pool().getconn()
-            g._db_pooled = True
+            g.db = psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=5)
     return g.db
 
 
 def close_db(e=None):
-    pooled = g.pop("_db_pooled", False)
     db = g.pop("db", None)
     if db is not None:
-        if pooled:
-            _get_pool().putconn(db)
-        else:
-            db.close()
+        db.close()
 
 
 def query(sql, args=(), one=False):
