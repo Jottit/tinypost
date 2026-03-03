@@ -347,9 +347,14 @@ article h2 a:hover {
 }
 
 .social-links a {
-  color: var(--site-text-muted);
+  color: var(--site-text-bright);
   text-decoration: none;
-  margin: 0 var(--space-2);
+}
+
+.social-links a + a::before {
+  content: "\00b7";
+  margin: 0 var(--space-2) 0 var(--space-1);
+  color: var(--site-text-muted);
 }
 
 .social-links a:hover {
@@ -604,6 +609,8 @@ input.page-nav-add-input.active {
 
 .site-sidebar .pill-input {
   max-width: 100%;
+  background: var(--site-bg);
+  border-color: color-mix(in srgb, var(--site-text-muted), transparent 60%);
 }
 
 .site-sidebar .social-links {
@@ -611,7 +618,7 @@ input.page-nav-add-input.active {
 }
 
 .site-sidebar .social-links a {
-  margin: 0 var(--space-2) 0 0;
+  margin: 0;
 }
 
 .sidebar-section {
