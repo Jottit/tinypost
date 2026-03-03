@@ -65,7 +65,7 @@ def test_create_page_with_reserved_slug(client):
 def test_send_post_marks_sent_before_emails(mock_send, client):
     _, site = setup_site(client)
     with app.app_context():
-        post = create_post(site["id"], "hello", "Hello", "Body")
+        create_post(site["id"], "hello", "Hello", "Body")
         from db import create_subscriber
 
         create_subscriber(site["id"], "sub@example.com", "tok-1")
