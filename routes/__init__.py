@@ -1,5 +1,6 @@
 from flask import abort, redirect, session
 
+from app import app  # noqa: F401 — re-exported for `python app.py` compatibility
 from utils import get_current_site
 
 
@@ -21,6 +22,8 @@ from routes import (  # noqa: E402, F401
     errors,
     feeds,
     home,
+    indieauth,
+    micropub,
     pages,
     posts,
     settings,

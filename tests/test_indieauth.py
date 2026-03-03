@@ -102,7 +102,7 @@ class TestAuthorizeGet:
 
 
 class TestPasscodeFlow:
-    @patch("indieauth.send_passcode")
+    @patch("routes.indieauth.send_passcode")
     def test_send_passcode(self, mock_send, client):
         make_site(client)
         _, challenge = pkce_pair()
@@ -116,7 +116,7 @@ class TestPasscodeFlow:
         assert b"passcode_token" in resp.data
         mock_send.assert_called_once()
 
-    @patch("indieauth.send_passcode")
+    @patch("routes.indieauth.send_passcode")
     def test_verify_correct_passcode(self, mock_send, client):
         make_site(client)
         _, challenge = pkce_pair()
@@ -142,7 +142,7 @@ class TestPasscodeFlow:
         assert b"Approve" in resp.data
         assert b"auth_token" in resp.data
 
-    @patch("indieauth.send_passcode")
+    @patch("routes.indieauth.send_passcode")
     def test_verify_wrong_passcode(self, mock_send, client):
         make_site(client)
         _, challenge = pkce_pair()

@@ -224,7 +224,7 @@ class TestMicropubQuery:
 
 
 class TestMicropubMedia:
-    @patch("micropub.upload_image")
+    @patch("routes.micropub.upload_image")
     def test_upload(self, mock_upload, client):
         _, site = make_site(client)
         token = make_token(site)

@@ -21,9 +21,7 @@ init_templates(app)
 init_cli(app)
 
 
-import indieauth  # noqa: F401
-import micropub  # noqa: F401
-import routes  # noqa: F401
+from routes import *  # noqa: F401,F403
 
 
 @app.after_request
