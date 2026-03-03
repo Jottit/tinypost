@@ -4,10 +4,12 @@
 {% block head_extra %}
   {% include "site_design.html" %}
 {% endblock %}
+{% block body_attrs %} class="has-sidebar"{% endblock %}
 {% block body %}
   {% include "admin_banner.html" %}
   {% include "site_header.html" %}
   <main>
+    <div class="site-layout">
     <div class="site-content">
     <article>
       <h2>Blogroll</h2>
@@ -17,6 +19,8 @@
         {% endfor %}
       </ul>
     </article>
+    </div>
+    {% include "site_sidebar.html" %}
     </div>
   </main>
   {% include "site_footer.html" %}
