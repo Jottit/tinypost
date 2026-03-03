@@ -1,13 +1,11 @@
-import json
-
 from app import app
 from db import (
     create_page,
     create_post,
     create_user_and_site,
     get_page_by_id,
-    get_page_by_slug,
     update_page,
+    update_site,
 )
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
@@ -19,63 +17,6 @@ def _setup(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     return user, site
-
-
-def test_add_page_json(client):
-    _, site = _setup(client)
-    response = client.post(
-        "/-/navigation/add",
-        data=json.dumps({"title": "About"}),
-        content_type="application/json",
-        headers={"Host": SITE_HOST},
-    )
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data["slug"] == "about"
-    with app.app_context():
-        page = get_page_by_slug(site["id"], "about")
-    assert page is not None
-    assert page["title"] == "About"
-    assert page["is_draft"] is False
-
-
-def test_add_page_empty_title_json(client):
-    _setup(client)
-    response = client.post(
-        "/-/navigation/add",
-        data=json.dumps({"title": ""}),
-        content_type="application/json",
-        headers={"Host": SITE_HOST},
-    )
-    assert response.status_code == 400
-    data = response.get_json()
-    assert "Title is required" in data["error"]
-
-
-def test_add_page_slug_conflict_with_post_json(client):
-    _, site = _setup(client)
-    with app.app_context():
-        create_post(site["id"], "about", "About", "About me")
-    response = client.post(
-        "/-/navigation/add",
-        data=json.dumps({"title": "About"}),
-        content_type="application/json",
-        headers={"Host": SITE_HOST},
-    )
-    assert response.status_code == 409
-    data = response.get_json()
-    assert "already taken" in data["error"]
-
-
-def test_add_page_form_redirects_to_edit(client):
-    _setup(client)
-    response = client.post(
-        "/-/navigation/add",
-        data={"title": "About"},
-        headers={"Host": SITE_HOST},
-    )
-    assert response.status_code == 302
-    assert "/-/edit-page/about" in response.headers["Location"]
 
 
 def test_create_post_slug_conflict_with_page(client):
@@ -101,23 +42,23 @@ def test_draft_page_hidden_from_public_nav(client):
     assert b"About" not in response.data
 
 
-def test_published_page_shown_in_public_nav(client):
+def test_menu_shown_in_nav(client):
     _, site = _setup(client)
     with app.app_context():
-        page = create_page(site["id"], "about", "About")
-        update_page(page["id"], "About", "About me", is_draft=False)
+        update_site(site["id"], site["title"], None, menu="About")
     with client.session_transaction() as sess:
         sess.clear()
     response = client.get("/", headers={"Host": SITE_HOST})
     assert b"About" in response.data
 
 
-def test_owner_sees_draft_pages_in_nav(client):
+def test_menu_custom_label(client):
     _, site = _setup(client)
     with app.app_context():
-        create_page(site["id"], "about", "About")
+        update_site(site["id"], site["title"], None, menu="Home: index")
     response = client.get("/", headers={"Host": SITE_HOST})
-    assert b"About" in response.data
+    assert b"Home" in response.data
+    assert b"/index" in response.data
 
 
 def test_page_renders_at_slug(client):
@@ -169,41 +110,6 @@ def test_edit_page_body_and_publish(client):
     assert page["is_draft"] is False
 
 
-def test_delete_page_json(client):
-    _, site = _setup(client)
-    with app.app_context():
-        page = create_page(site["id"], "about", "About")
-    response = client.post(
-        f"/-/navigation/delete/{page['id']}",
-        content_type="application/json",
-        headers={"Host": SITE_HOST},
-    )
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data["ok"] is True
-    with app.app_context():
-        assert get_page_by_id(page["id"]) is None
-
-
-def test_reorder_pages(client):
-    _, site = _setup(client)
-    with app.app_context():
-        p1 = create_page(site["id"], "about", "About")
-        p2 = create_page(site["id"], "now", "Now")
-        p3 = create_page(site["id"], "uses", "Uses")
-    response = client.post(
-        "/-/navigation/reorder",
-        data=json.dumps({"order": [p3["id"], p1["id"], p2["id"]]}),
-        content_type="application/json",
-        headers={"Host": SITE_HOST},
-    )
-    assert response.status_code == 200
-    with app.app_context():
-        assert get_page_by_id(p3["id"])["sort_order"] == 0
-        assert get_page_by_id(p1["id"])["sort_order"] == 1
-        assert get_page_by_id(p2["id"])["sort_order"] == 2
-
-
 def test_posts_take_priority_over_pages(client):
     _, site = _setup(client)
     with app.app_context():
@@ -228,32 +134,46 @@ def test_pages_not_in_rss_feed(client):
     assert b"Hello" in response.data
 
 
-def test_owner_sees_add_button_in_nav(client):
+def test_owner_sees_add_menu_link(client):
     _setup(client)
     response = client.get("/", headers={"Host": SITE_HOST})
-    assert b"page-nav-add" in response.data
+    assert b"add menu" in response.data
 
 
-def test_public_does_not_see_add_button(client):
+def test_public_does_not_see_add_menu_link(client):
     _setup(client)
     with client.session_transaction() as sess:
         sess.clear()
     response = client.get("/", headers={"Host": SITE_HOST})
-    assert b"page-nav-add" not in response.data
+    assert b"add menu" not in response.data
 
 
-def test_owner_sees_add_button_with_pages(client):
+def test_add_menu_link_hidden_when_menu_set(client):
     _, site = _setup(client)
     with app.app_context():
-        create_page(site["id"], "about", "About")
+        update_site(site["id"], site["title"], None, menu="About")
     response = client.get("/", headers={"Host": SITE_HOST})
-    assert b"page-nav-add" in response.data
+    assert b"add menu" not in response.data
 
 
-def test_nav_renders_for_owner_with_no_pages(client):
-    _setup(client)
-    response = client.get("/", headers={"Host": SITE_HOST})
-    assert b"page-nav" in response.data
+def test_menu_link_to_missing_page_redirects_to_editor(client):
+    _, site = _setup(client)
+    with app.app_context():
+        update_site(site["id"], site["title"], None, menu="About")
+    response = client.get("/about", headers={"Host": SITE_HOST})
+    assert response.status_code == 302
+    assert "/-/new-page" in response.headers["Location"]
+    assert "title=About" in response.headers["Location"]
+
+
+def test_menu_link_to_missing_page_404_for_public(client):
+    _, site = _setup(client)
+    with app.app_context():
+        update_site(site["id"], site["title"], None, menu="About")
+    with client.session_transaction() as sess:
+        sess.clear()
+    response = client.get("/about", headers={"Host": SITE_HOST})
+    assert response.status_code == 404
 
 
 def test_edit_page_title_required(client):

@@ -9,7 +9,6 @@ from db import (
     get_comments_for_post,
     get_confirmed_subscribers,
     get_page_by_slug,
-    get_pages_for_site,
     get_post_by_slug,
     get_site_by_user,
     get_subscriber_count,
@@ -19,6 +18,7 @@ from db import (
 )
 from mailer import send_email
 from routes import require_owner
+from template_setup import parse_menu
 from utils import get_current_site, site_url, slugify
 
 
@@ -143,7 +143,6 @@ def post(slug):
     if not site:
         abort(404)
     is_owner = session.get("user_id") == site["user_id"]
-    pages = get_pages_for_site(site["id"], include_drafts=is_owner)
 
     post = get_post_by_slug(site["id"], slug)
     if post:
@@ -161,7 +160,6 @@ def post(slug):
             "post.html",
             site=site,
             post=post,
-            pages=pages,
             is_owner=is_owner,
             subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
             comments=comments,
@@ -174,6 +172,11 @@ def post(slug):
     if page:
         if page["is_draft"] and not is_owner:
             abort(404)
-        return render_template("page.html", site=site, page=page, pages=pages, is_owner=is_owner)
+        return render_template("page.html", site=site, page=page, is_owner=is_owner)
+
+    if is_owner:
+        for item in parse_menu(site.get("menu")):
+            if item["slug"] == slug:
+                return redirect(f"/-/new-page?title={item['label']}")
 
     abort(404)

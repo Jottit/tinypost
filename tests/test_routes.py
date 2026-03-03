@@ -1,5 +1,4 @@
 import io
-import json
 import zipfile
 from pathlib import Path
 from unittest.mock import patch
@@ -357,40 +356,6 @@ def test_upload_css_no_file(client):
     response = client.post("/-/design/upload-css", headers=HOST)
     assert response.status_code == 302
     assert "/-/design" in response.headers["Location"]
-
-
-# ── Navigation: form (non-JSON) errors ──────────
-
-
-def test_nav_add_form_error(client):
-    _setup(client)
-    response = client.post("/-/navigation/add", data={"title": ""}, headers=HOST)
-    assert response.status_code == 200
-
-
-def test_nav_delete_not_found(client):
-    _setup(client)
-    response = client.post("/-/navigation/delete/999999", headers=HOST)
-    assert response.status_code == 404
-
-
-def test_nav_delete_form_redirect(client):
-    _, site = _setup(client)
-    with app.app_context():
-        page = create_page(site["id"], "about", "About")
-    response = client.post(f"/-/navigation/delete/{page['id']}", headers=HOST)
-    assert response.status_code == 302
-
-
-def test_nav_reorder_missing_order(client):
-    _setup(client)
-    response = client.post(
-        "/-/navigation/reorder",
-        data=json.dumps({}),
-        content_type="application/json",
-        headers=HOST,
-    )
-    assert response.status_code == 400
 
 
 # ── New page ────────────────────────────────────

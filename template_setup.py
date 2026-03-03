@@ -72,3 +72,18 @@ def init_templates(app):
 
     app.jinja_env.globals["site_url"] = site_url
     app.jinja_env.globals["subdomain_url"] = subdomain_url
+    app.jinja_env.globals["parse_menu"] = parse_menu
+
+
+def parse_menu(menu_text):
+    items = []
+    for line in (menu_text or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ":" in line:
+            label, slug = line.split(":", 1)
+            items.append({"label": label.strip(), "slug": slug.strip()})
+        else:
+            items.append({"label": line, "slug": line.lower()})
+    return items

@@ -66,6 +66,7 @@ def settings():
         i += 1
 
     comments_enabled = request.form.get("comments_enabled") == "on"
+    menu = request.form.get("menu", "").strip() or None
     update_site(
         site["id"],
         title,
@@ -73,6 +74,7 @@ def settings():
         license=license,
         social_links=social_links,
         comments_enabled=comments_enabled,
+        menu=menu,
     )
     flash("Settings updated.")
     return redirect("/-/settings")

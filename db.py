@@ -118,13 +118,15 @@ def update_post(post_id, slug, title, body, is_draft=False):
     return post
 
 
-def update_site(site_id, title, bio, license=None, social_links=None, comments_enabled=False):
+def update_site(
+    site_id, title, bio, license=None, social_links=None, comments_enabled=False, menu=None
+):
     db = get_db()
     site = db.execute(
         "UPDATE sites SET title = %s, bio = %s, license = %s, social_links = %s,"
-        " comments_enabled = %s, updated_at = NOW()"
+        " comments_enabled = %s, menu = %s, updated_at = NOW()"
         " WHERE id = %s RETURNING *",
-        (title, bio, license, Json(social_links or []), comments_enabled, site_id),
+        (title, bio, license, Json(social_links or []), comments_enabled, menu, site_id),
     ).fetchone()
     db.commit()
     return site
@@ -272,16 +274,6 @@ def update_page(page_id, title, body, is_draft=False):
 def delete_page(page_id):
     db = get_db()
     db.execute("DELETE FROM pages WHERE id = %s", (page_id,))
-    db.commit()
-
-
-def reorder_pages(site_id, page_ids):
-    db = get_db()
-    for i, page_id in enumerate(page_ids):
-        db.execute(
-            "UPDATE pages SET sort_order = %s WHERE id = %s AND site_id = %s",
-            (i, page_id, site_id),
-        )
     db.commit()
 
 

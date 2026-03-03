@@ -45,6 +45,9 @@
         <input type="text" id="title" name="title" value="{{ site.title or '' }}" autofocus>
         <label for="bio" class="mt-6">Bio</label>
         <textarea id="bio" name="bio" rows="4">{{ site.bio or '' }}</textarea>
+        <label for="menu" class="mt-6">Menu</label>
+        <textarea id="menu" name="menu" rows="4">{{ site.menu or '' }}</textarea>
+        <p class="text-muted">One page per line. Use Label: slug to set a custom label.</p>
         <label for="license" class="mt-6">License</label>
         <select id="license" name="license">
           <option value="">No license</option>
