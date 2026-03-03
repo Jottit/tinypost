@@ -658,6 +658,7 @@ p.panel-notice {
 
 main.editor {
   max-width: var(--editor-measure);
+  margin: 0 auto;
   min-height: 100vh;
   position: relative;
 }
@@ -669,7 +670,6 @@ main.editor {
 }
 
 .editor form {
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
