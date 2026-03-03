@@ -11,7 +11,7 @@
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}
-      <form method="POST" action="/-/design" id="design-form" class="settings-form">
+      <form method="POST" action="/-/design" id="design-form" class="settings-form auto-save">
         <label for="font_header">Heading font</label>
         <select id="font_header" name="font_header">
           {% for name, value in font_options %}
@@ -44,55 +44,25 @@
           <input type="text" id="color_text" name="color_text" value="{{ design.get('color_text', '') }}">
         </div>
 
-        <div class="actions mt-6">
-          <button type="submit" class="btn">Save</button>
-          <a href="/-/settings" class="btn btn--outline">Cancel</a>
-        </div>
       </form>
 
-      <div class="panel-divider">
-        <h3>Custom CSS</h3>
-        <p class="text-muted mb-4">Download the default theme, customize it, and upload your own.</p>
-
-        <a href="/-/download-theme" class="btn">Download theme</a>
-
-        {% if site.custom_css %}
-          <div class="mt-4 mb-4">
-            <span class="success">Using custom theme</span>
-          </div>
-          <form method="POST" action="/-/design/remove-css">
-            <button type="submit" class="btn">Remove custom theme</button>
-          </form>
-        {% endif %}
-
-        <form id="css-upload-form" method="POST" action="/-/design/upload-css" enctype="multipart/form-data" class="mt-4">
-          <input type="file" id="css-file-input" name="css_file" accept=".css,text/css" hidden>
-          <label for="css-file-input" class="btn">Choose file</label>
-          <span id="css-file-name" class="text-muted pl-5"></span>
-          <button type="submit" id="css-upload-btn" class="btn mt-4" hidden>Upload</button>
-        </form>
-      </div>
     </div>
   </div>
+  <script src="/static/auto-save.js"></script>
   <script>
     // Sync color pickers with text inputs
     document.querySelectorAll('.color-field').forEach(function(field) {
       var picker = field.querySelector('input[type="color"]');
       var text = field.querySelector('input[type="text"]');
       if (!picker || !text) return;
-      picker.addEventListener('input', function() { text.value = picker.value; });
+      picker.addEventListener('input', function() {
+        text.value = picker.value;
+        text.dispatchEvent(new Event('input', {bubbles: true}));
+      });
       text.addEventListener('input', function() {
         if (/^#[0-9a-f]{6}$/i.test(text.value)) picker.value = text.value;
       });
     });
 
-    // CSS file upload
-    var fileInput = document.getElementById('css-file-input');
-    if (fileInput) {
-      fileInput.addEventListener('change', function() {
-        document.getElementById('css-file-name').textContent = this.files[0].name;
-        document.getElementById('css-upload-btn').hidden = false;
-      });
-    }
   </script>
 {% endblock %}

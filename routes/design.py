@@ -59,6 +59,8 @@ def design():
     }
     design_data = {k: v for k, v in fields.items() if v}
     update_site_design(site["id"], design_data or None)
+    if request.headers.get("X-Auto-Save"):
+        return "", 204
     flash("Design updated.")
     return redirect("/-/design")
 

@@ -6,9 +6,13 @@
     <h1 class="panel-title">Comments</h1>
     <div class="panel panel--narrow">
       <form method="POST" action="/-/settings/comments" class="settings-form auto-save">
-        <label class="checkbox-label">
-          <input type="checkbox" name="comments_enabled"{{ ' checked' if site.comments_enabled }}>
-          Enable comments on posts
+        <label class="toggle-row">
+          <span class="toggle-text">
+            <span class="toggle-label">Enable comments on posts</span>
+            <span class="toggle-desc">Allow readers to leave comments on your posts.</span>
+          </span>
+          <input type="checkbox" name="comments_enabled" class="toggle-input"{{ ' checked' if site.comments_enabled }}>
+          <span class="toggle-track"><span class="toggle-knob"></span></span>
         </label>
       </form>
     </div>

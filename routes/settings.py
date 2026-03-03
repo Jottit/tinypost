@@ -72,12 +72,13 @@ def settings_blog():
 
     title = request.form.get("title", "").strip()
     bio = request.form.get("bio", "").strip()
+    license = request.form.get("license", "").strip() or None
     if not title:
         return render_template(
             "settings_blog.html", site=site, is_owner=True, error="Title is required."
         )
 
-    update_site_blog(site["id"], title, bio or None)
+    update_site_blog(site["id"], title, bio or None, license)
     if request.headers.get("X-Auto-Save"):
         return "", 204
     flash("Blog profile updated.")
@@ -110,10 +111,14 @@ def settings_subdomain():
 
     if subdomain != site["subdomain"]:
         update_site_subdomain(site["id"], subdomain)
+        if request.headers.get("X-Auto-Save"):
+            return "", 204
+        flash("Subdomain updated.")
+        new_base = f"http://{subdomain}.{app.config['BASE_DOMAIN']}"
+        return redirect(f"{new_base}/-/settings")
     if request.headers.get("X-Auto-Save"):
         return "", 204
-    flash("Subdomain updated.")
-    return redirect("/-/settings")
+    return redirect("/-/settings/subdomain")
 
 
 @app.route("/-/settings/menu", methods=["GET", "POST"])

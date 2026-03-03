@@ -33,5 +33,7 @@ def blogroll_edit():
         i += 1
 
     update_blogroll(site["id"], items)
+    if request.headers.get("X-Auto-Save"):
+        return "", 204
     flash("Blogroll updated.")
     return redirect("/-/blogroll")
