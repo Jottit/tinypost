@@ -271,7 +271,6 @@ article {
   position: relative;
   margin-top: var(--space-6);
   margin-bottom: var(--space-8);
-  padding-bottom: var(--space-8);
 }
 
 a.article-link {
@@ -281,7 +280,6 @@ a.article-link {
 
 article:last-child {
   margin-bottom: 0;
-  padding-bottom: 0;
 }
 
 article time {
@@ -466,7 +464,7 @@ input.page-nav-add-input.active {
 
 /* ── Write area (pill + editor) ─────── */
 .write-area {
-  margin: var(--space-6) auto 0;
+  margin: var(--space-6) auto var(--space-2);
   max-width: var(--site-measure);
 }
 
@@ -556,8 +554,8 @@ input.page-nav-add-input.active {
   width: 64px;
   height: 64px;
   border-radius: var(--radius-full);
-  background: var(--site-divider);
-  color: var(--site-bg);
+  background: #eee;
+  color: #ddd;
   overflow: hidden;
   margin-bottom: var(--space-3);
 }

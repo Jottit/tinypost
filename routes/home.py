@@ -85,6 +85,7 @@ def home():
     has_next = len(fetched_posts) > per_page
     posts = fetched_posts[:per_page]
     comment_counts = get_comment_counts([p["id"] for p in posts])
+    owner = get_user_by_id(site["user_id"])
     return render_template(
         "site.html",
         site=site,
@@ -95,6 +96,7 @@ def home():
         comment_counts=comment_counts,
         page=page,
         has_next=has_next,
+        owner=owner,
     )
 
 
