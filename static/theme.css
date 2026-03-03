@@ -746,11 +746,11 @@ a.blogroll-item-post:hover {
 }
 
 .write-area--open .inline-editor {
-  max-height: 600px;
+  max-height: none;
   padding: var(--space-4);
   border-color: var(--site-divider);
   opacity: 1;
-  overflow: visible;
+  overflow: hidden;
   pointer-events: auto;
 }
 
@@ -782,6 +782,8 @@ input[type="text"].inline-editor-title {
 .inline-editor-body .ProseMirror {
   outline: none;
   min-height: 200px;
+  max-height: inherit;
+  overflow-y: auto;
 }
 
 .inline-editor-body .ProseMirror[data-placeholder].ProseMirror-empty::before {
