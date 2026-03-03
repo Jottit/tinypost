@@ -43,3 +43,4 @@ def send_email(to, subject, text, html=None, from_addr=None):
         urllib.request.urlopen(req)
     except urllib.error.HTTPError as e:
         logger.error("Resend API error %s: %s", e.code, e.read().decode())
+        raise

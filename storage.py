@@ -1,5 +1,6 @@
 import os
 import shutil
+import threading
 from io import BytesIO
 from pathlib import Path
 
@@ -75,17 +76,20 @@ def delete_all_images(subdomain):
 
 
 _client = None
+_client_lock = threading.Lock()
 
 
 def _s3_client():
     global _client
     if _client is None:
-        _client = boto3.client(
-            "s3",
-            endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"),
-            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-        )
+        with _client_lock:
+            if _client is None:
+                _client = boto3.client(
+                    "s3",
+                    endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"),
+                    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+                    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+                )
     return _client
 
 

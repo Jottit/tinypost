@@ -64,7 +64,9 @@ def site_url(site):
 def subdomain_url(site):
     from app import app
 
-    return f"http://{site['subdomain']}.{app.config['BASE_DOMAIN']}"
+    base = app.config["BASE_DOMAIN"]
+    scheme = "http" if "localhost" in base else "https"
+    return f"{scheme}://{site['subdomain']}.{base}"
 
 
 def host_and_base():
