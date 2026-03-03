@@ -15,7 +15,10 @@
         <label for="name">Name</label>
         <input type="text" id="name" name="name" value="{{ user.name or '' }}">
       </form>
-      <p>Email: {{ user.email }} <a href="/-/account/email">Update email</a></p>
+      <div class="mt-6">
+        <label>Email</label>
+        {{ user.email }} · <a href="/-/account/email">Change email</a>
+      </div>
       <div class="panel-divider">
       <h3>API token</h3>
       {% if new_token %}
