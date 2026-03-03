@@ -11,7 +11,7 @@ from db import close_db
 from template_setup import init_templates
 
 app = Flask(__name__)
-app.secret_key = "change-me-later"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 app.config["BASE_DOMAIN"] = os.environ.get("BASE_DOMAIN", "tinypost.localhost:8000")
 app.config["SESSION_COOKIE_DOMAIN"] = app.config["BASE_DOMAIN"].split(":")[0]
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
@@ -21,9 +21,9 @@ init_templates(app)
 init_cli(app)
 
 
-from indieauth import *
-from micropub import *
-from routes import *
+import indieauth  # noqa: F401
+import micropub  # noqa: F401
+import routes  # noqa: F401
 
 
 @app.after_request

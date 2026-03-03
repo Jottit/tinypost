@@ -11,7 +11,9 @@ from db import (
     get_page_by_slug,
     get_pages_for_site,
     get_post_by_slug,
+    get_site_by_user,
     get_subscriber_count,
+    get_user_by_id,
     mark_post_sent,
     update_post,
 )
@@ -153,8 +155,6 @@ def post(slug):
         user_site = None
         user_id = session.get("user_id")
         if user_id:
-            from db import get_site_by_user, get_user_by_id
-
             user = get_user_by_id(user_id)
             user_site = get_site_by_user(user_id)
         return render_template(

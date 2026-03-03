@@ -6,12 +6,7 @@ import dns.resolver
 from flask import Response, flash, redirect, render_template, request, session
 
 from app import app
-from config import (
-    ALLOWED_IMAGE_TYPES,
-    CUSTOM_DOMAIN_IPV4,
-    CUSTOM_DOMAIN_IPV6,
-    MAX_IMAGE_SIZE,
-)
+from config import ALLOWED_IMAGE_TYPES, CUSTOM_DOMAIN_IPV4, CUSTOM_DOMAIN_IPV6
 from db import (
     delete_account,
     delete_site,
@@ -31,9 +26,9 @@ from storage import (
     delete_all_images,
     delete_image,
     download_image,
-    file_size,
     list_images,
     upload_image,
+    validate_image,
 )
 
 
@@ -91,11 +86,9 @@ def settings_avatar():
     if not file:
         return redirect("/-/settings")
 
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        return render_settings(site, error="File type not allowed.")
-
-    if file_size(file) > MAX_IMAGE_SIZE:
-        return render_settings(site, error="File too large (max 5MB).")
+    error = validate_image(file)
+    if error:
+        return render_settings(site, error=f"{error}.")
 
     ext = ALLOWED_IMAGE_TYPES[file.content_type]
     fmt = file.content_type.split("/")[-1].upper()

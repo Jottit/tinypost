@@ -1,8 +1,6 @@
 import re
 from datetime import datetime, timezone
 
-import re
-
 import markdown
 from markupsafe import Markup
 
@@ -54,7 +52,7 @@ def init_templates(app):
     def comment_markdown_filter(text):
         html = markdown.markdown(text)
         html = re.sub(r"<h[1-6][^>]*>|</h[1-6]>", "", html)
-        html = re.sub(r'<img[^>]*/?>', "", html)
+        html = re.sub(r"<img[^>]*/?>", "", html)
         return Markup(html)
 
     @app.template_filter("truncatewords")

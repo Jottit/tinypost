@@ -42,7 +42,7 @@ def feed():
     site = get_current_site()
     if not site:
         abort(404)
-    posts = get_posts_for_site(site["id"])[:20]
+    posts = get_posts_for_site(site["id"], limit=20)
     base_url = site_url(site)
 
     rss = ET.Element("rss", version="2.0")
@@ -86,7 +86,7 @@ def feed_json():
     site = get_current_site()
     if not site:
         abort(404)
-    posts = get_posts_for_site(site["id"])[:20]
+    posts = get_posts_for_site(site["id"], limit=20)
     base_url = site_url(site)
 
     items = []

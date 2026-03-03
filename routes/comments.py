@@ -96,7 +96,7 @@ def comment_verify(slug):
 
     code = request.form.get("passcode", "").strip()
     if code != pending["passcode"]:
-        return jsonify(status="error", message="Wrong passcode.")
+        return jsonify(status="error", message="Wrong passcode."), 400
 
     comment = create_comment(
         pending["post_id"],

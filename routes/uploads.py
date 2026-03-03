@@ -4,8 +4,8 @@ import uuid
 from flask import abort, jsonify, request, send_from_directory, session
 
 from app import app
-from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
-from storage import file_size, upload_image
+from config import ALLOWED_IMAGE_TYPES
+from storage import upload_image, validate_image
 from utils import get_current_site
 
 
@@ -21,11 +21,9 @@ def upload():
     if not file:
         return jsonify({"error": "No file provided"}), 400
 
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        return jsonify({"error": "File type not allowed"}), 400
-
-    if file_size(file) > MAX_IMAGE_SIZE:
-        return jsonify({"error": "File too large (max 5MB)"}), 400
+    error = validate_image(file)
+    if error:
+        return jsonify({"error": error}), 400
 
     ext = ALLOWED_IMAGE_TYPES[file.content_type]
     key = f"{site['subdomain']}/{uuid.uuid4()}.{ext}"

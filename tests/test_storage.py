@@ -68,8 +68,8 @@ def test_upload_image_s3(mock_client_fn):
     mock_client_fn.return_value = mock_s3
     file = BytesIO(b"image data")
 
-    with patch.dict(
-        "os.environ", {"BUCKET_NAME": "my-bucket", "STORAGE_URL": "https://cdn.example.com"}
+    with patch("storage.BUCKET_NAME", "my-bucket"), patch.dict(
+        "os.environ", {"STORAGE_URL": "https://cdn.example.com"}
     ):
         url = upload_image("myblog/img.png", file, "image/png")
 
@@ -86,8 +86,7 @@ def test_upload_image_s3(mock_client_fn):
 def test_upload_image_s3_default_url(mock_client_fn):
     mock_client_fn.return_value = MagicMock()
 
-    env = {"BUCKET_NAME": "my-bucket"}
-    with patch.dict("os.environ", env, clear=True):
+    with patch("storage.BUCKET_NAME", "my-bucket"), patch.dict("os.environ", {}, clear=True):
         url = upload_image("myblog/img.png", BytesIO(b"data"), "image/png")
 
     assert url == "https://my-bucket.fly.storage.tigris.dev/myblog/img.png"
@@ -112,7 +111,7 @@ def test_delete_image_s3(mock_client_fn):
     mock_s3 = MagicMock()
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         delete_image("myblog/img.png")
 
     mock_s3.delete_object.assert_called_once_with(Bucket="my-bucket", Key="myblog/img.png")
@@ -143,7 +142,7 @@ def test_delete_all_images_s3(mock_client_fn):
     mock_s3.get_paginator.return_value = mock_paginator
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         delete_all_images("site")
 
     mock_paginator.paginate.assert_called_once_with(Bucket="my-bucket", Prefix="site/")
@@ -160,7 +159,7 @@ def test_delete_all_images_s3_empty(mock_client_fn):
     mock_s3.get_paginator.return_value = mock_paginator
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         delete_all_images("site")
 
     mock_s3.delete_object.assert_not_called()
@@ -194,7 +193,7 @@ def test_list_images_s3(mock_client_fn):
     mock_s3.get_paginator.return_value = mock_paginator
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         result = list_images("site")
 
     assert result == ["site/a.png", "site/b.jpg"]
@@ -227,7 +226,7 @@ def test_download_image_s3(mock_client_fn):
     mock_s3.download_fileobj.side_effect = fake_download
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         result = download_image("site/pic.png")
 
     assert result == b"s3 data"
@@ -240,7 +239,7 @@ def test_upload_s3_error(mock_client_fn):
     mock_s3.upload_fileobj.side_effect = Exception("connection refused")
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         with pytest.raises(Exception, match="connection refused"):
             upload_image("myblog/img.png", BytesIO(b"data"), "image/png")
 
@@ -251,6 +250,6 @@ def test_delete_s3_error(mock_client_fn):
     mock_s3.delete_object.side_effect = Exception("timeout")
     mock_client_fn.return_value = mock_s3
 
-    with patch.dict("os.environ", {"BUCKET_NAME": "my-bucket"}):
+    with patch("storage.BUCKET_NAME", "my-bucket"):
         with pytest.raises(Exception, match="timeout"):
             delete_image("myblog/img.png")

@@ -7,12 +7,25 @@ import boto3
 from flask import current_app
 from PIL import Image
 
+from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE
+
+BUCKET_NAME = os.environ.get("BUCKET_NAME")
+
 
 def file_size(file):
     file.seek(0, 2)
     size = file.tell()
     file.seek(0)
     return size
+
+
+def validate_image(file):
+    """Returns error message string, or None if valid."""
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        return "File type not allowed"
+    if file_size(file) > MAX_IMAGE_SIZE:
+        return "File too large (max 5MB)"
+    return None
 
 
 def crop_square(file, format):
@@ -29,9 +42,8 @@ def crop_square(file, format):
 
 
 def upload_image(key, file, content_type):
-    bucket = os.environ.get("BUCKET_NAME")
-    if bucket:
-        return _upload_to_s3(bucket, key, file, content_type)
+    if BUCKET_NAME:
+        return _upload_to_s3(BUCKET_NAME, key, file, content_type)
 
     dest = Path(current_app.instance_path) / "uploads" / key
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -40,9 +52,8 @@ def upload_image(key, file, content_type):
 
 
 def delete_image(key):
-    bucket = os.environ.get("BUCKET_NAME")
-    if bucket:
-        return _delete_from_s3(bucket, key)
+    if BUCKET_NAME:
+        return _delete_from_s3(BUCKET_NAME, key)
 
     dest = Path(current_app.instance_path) / "uploads" / key
     if dest.exists():
@@ -50,13 +61,12 @@ def delete_image(key):
 
 
 def delete_all_images(subdomain):
-    bucket = os.environ.get("BUCKET_NAME")
-    if bucket:
+    if BUCKET_NAME:
         client = _s3_client()
         paginator = client.get_paginator("list_objects_v2")
-        for page in paginator.paginate(Bucket=bucket, Prefix=f"{subdomain}/"):
+        for page in paginator.paginate(Bucket=BUCKET_NAME, Prefix=f"{subdomain}/"):
             for obj in page.get("Contents", []):
-                client.delete_object(Bucket=bucket, Key=obj["Key"])
+                client.delete_object(Bucket=BUCKET_NAME, Key=obj["Key"])
         return
 
     uploads_dir = Path(current_app.instance_path) / "uploads" / subdomain
@@ -95,9 +105,8 @@ def _delete_from_s3(bucket, key):
 
 
 def list_images(subdomain):
-    bucket = os.environ.get("BUCKET_NAME")
-    if bucket:
-        return _list_from_s3(bucket, subdomain)
+    if BUCKET_NAME:
+        return _list_from_s3(BUCKET_NAME, subdomain)
 
     upload_dir = Path(current_app.instance_path) / "uploads" / subdomain
     if not upload_dir.exists():
@@ -106,9 +115,8 @@ def list_images(subdomain):
 
 
 def download_image(key):
-    bucket = os.environ.get("BUCKET_NAME")
-    if bucket:
-        return _download_from_s3(bucket, key)
+    if BUCKET_NAME:
+        return _download_from_s3(BUCKET_NAME, key)
 
     path = Path(current_app.instance_path) / "uploads" / key
     if not path.exists():

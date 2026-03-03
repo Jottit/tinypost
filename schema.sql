@@ -34,6 +34,7 @@ CREATE TABLE posts (
     title TEXT,
     body TEXT NOT NULL,
     is_draft BOOLEAN NOT NULL DEFAULT FALSE,
+    published_at TIMESTAMPTZ,
     sent_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -62,19 +63,25 @@ CREATE TABLE subscribers (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE blogroll (
+CREATE TABLE feeds (
     id SERIAL PRIMARY KEY,
-    site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    url TEXT NOT NULL,
+    url TEXT NOT NULL UNIQUE,
     feed_url TEXT,
-    sort_order INTEGER NOT NULL DEFAULT 0,
     feed_title TEXT,
     feed_icon_url TEXT,
     latest_post_title TEXT,
     latest_post_url TEXT,
-    last_fetched TIMESTAMPTZ,
     last_updated TIMESTAMPTZ,
+    last_fetched TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE blogroll (
+    id SERIAL PRIMARY KEY,
+    site_id INTEGER NOT NULL REFERENCES sites(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    feed_id INTEGER NOT NULL REFERENCES feeds(id),
+    sort_order INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
