@@ -454,7 +454,7 @@ input[type="email"].email-input:focus {
 }
 
 .panel--narrow {
-  max-width: 500px;
+  max-width: var(--measure-narrow);
 }
 
 .panel + .panel {
@@ -591,6 +591,7 @@ p.panel-notice {
 }
 
 .danger-zone {
+  width: 100%;
   max-width: var(--measure-narrow);
   margin: var(--space-8) auto 0;
   border: 1px solid #c0392b;
@@ -1371,7 +1372,7 @@ input[type="checkbox"]:checked {
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  max-width: 500px;
+  max-width: var(--measure-narrow);
   width: 100%;
   text-decoration: none;
   color: inherit;
@@ -1422,7 +1423,7 @@ input[type="checkbox"]:checked {
   background: #fff;
   border-radius: var(--radius-lg);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  max-width: 500px;
+  max-width: var(--measure-narrow);
   width: 100%;
   overflow: hidden;
 }

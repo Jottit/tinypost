@@ -42,6 +42,20 @@ def test_account_update_email(client):
     assert updated["email"] == "new@example.com"
 
 
+def test_account_update_name(client):
+    with app.app_context():
+        user, _ = create_user_and_site("owner@example.com", "myblog")
+    login(client, user["id"])
+    client.post(
+        "/-/account",
+        data={"name": "Alice", "email": "owner@example.com"},
+        headers=HOST,
+    )
+    with app.app_context():
+        updated = get_user_by_id(user["id"])
+    assert updated["name"] == "Alice"
+
+
 def test_account_email_required(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
@@ -55,9 +69,12 @@ def test_account_email_required(client):
     assert b"Email is required" in response.data
 
 
-def test_account_delete_link_present(client):
+def test_account_page_has_token_section(client):
     with app.app_context():
         user, _ = create_user_and_site("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/account", headers=HOST)
+    assert b"name" in response.data
+    assert b"email" in response.data
+    assert b"API token" in response.data
     assert b"/-/settings/delete-account" in response.data

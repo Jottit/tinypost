@@ -18,38 +18,6 @@
         <input type="email" id="email" name="email" value="{{ user.email }}">
       </form>
       <div class="panel-divider">
-      <h3>Export</h3>
-      <p>Download all your posts and images as a zip file.</p>
-      <a href="/-/settings/export" class="btn">Export</a>
-      </div>
-      <div class="panel-divider">
-      <h3>Import from Substack</h3>
-      {% if import_error %}
-        <p class="error">{{ import_error }}</p>
-      {% endif %}
-      {% if import_results %}
-        <p class="success">
-          {{ import_results.posts_imported }} posts imported{% if import_results.posts_skipped %}, {{ import_results.posts_skipped }} skipped{% endif %}.
-          {% if import_results.images_rehosted %}{{ import_results.images_rehosted }} images re-hosted.{% endif %}
-          {% if import_results.subscribers_imported %}{{ import_results.subscribers_imported }} subscribers imported.{% endif %}
-        </p>
-      {% endif %}
-      <p>Upload your Substack export zip file to import posts and subscribers.</p>
-      <form method="POST" action="/-/account/import" enctype="multipart/form-data">
-        <input type="file" id="import-file" name="archive" accept=".zip" hidden>
-        <label for="import-file" class="btn">Choose file</label>
-        <span id="import-file-name" class="text-muted ph-2"></span>
-        <button type="submit" id="import-btn" class="btn hidden">Import</button>
-      </form>
-      <script>
-        document.getElementById("import-file").addEventListener("change", function () {
-          document.getElementById("import-file-name").textContent = this.files[0].name;
-          document.getElementById("import-btn").classList.remove("hidden");
-        });
-      </script>
-      </div>
-    </div>
-    <div class="export-zone">
       <h3>API token</h3>
       {% if new_token %}
         <p class="success">Token created. Copy it now — it won't be shown again.</p>
@@ -70,11 +38,7 @@
           <button type="submit" class="btn">Generate token</button>
         </form>
       {% endif %}
-    </div>
-    <div class="danger-zone">
-      <h3>Delete site</h3>
-      <p>Permanently delete {{ site.title }} and all its posts and images.</p>
-      <a href="/-/settings/delete-site" class="btn btn--danger">Delete site</a>
+      </div>
     </div>
     <div class="danger-zone">
       <h3>Delete account</h3>

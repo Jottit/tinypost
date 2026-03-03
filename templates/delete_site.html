@@ -2,7 +2,7 @@
 {% block title %}Delete site — {{ site.title }}{% endblock %}
 {% block body %}
   <div class="panel-page">
-    <a href="/-/account" class="panel-back">&larr; Back</a>
+    <a href="/-/settings/blog" class="panel-back">&larr; Blog profile</a>
     <h1 class="panel-title">Delete site</h1>
     <div class="panel panel--narrow">
       <p>This will permanently delete <strong>{{ site.subdomain }}.tinypost.blog</strong> and all its posts and images. This cannot be undone.</p>
@@ -14,7 +14,7 @@
         <input type="text" id="confirmation" name="confirmation" autocomplete="off">
         <div class="actions mt-6">
           <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete site</button>
-          <a href="/-/account" class="btn btn--outline">Cancel</a>
+          <a href="/-/settings/blog" class="btn btn--outline">Cancel</a>
         </div>
       </form>
     </div>
