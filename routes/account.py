@@ -51,7 +51,6 @@ def account():
 @app.route("/-/account/email", methods=["GET", "POST"])
 def account_email():
     site = require_owner()
-    user = get_user_by_id(session["user_id"])
 
     if request.method == "GET":
         return render_template("account_email.html", site=site)
