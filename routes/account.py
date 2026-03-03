@@ -3,8 +3,14 @@ import zipfile
 from flask import redirect, render_template, request, session
 
 from app import app
-from db import get_sites_by_user, get_user_by_id, update_user_email
-from indieauth_db import create_personal_token, get_personal_token, revoke_personal_token
+from db import (
+    create_personal_token,
+    get_personal_token,
+    get_sites_by_user,
+    get_user_by_id,
+    revoke_personal_token,
+    update_user_email,
+)
 from routes import require_owner
 from substack import import_posts, import_subscribers, rehost_images
 

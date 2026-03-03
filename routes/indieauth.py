@@ -8,8 +8,7 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from app import app
 from auth import generate_passcode, send_passcode
-from db import get_site_by_id, get_user_by_id
-from indieauth_db import create_auth_code, exchange_auth_code, get_auth_code
+from db import create_auth_code, exchange_auth_code, get_auth_code, get_site_by_id, get_user_by_id
 from utils import get_current_site, mask_email, site_url
 
 _serializer = URLSafeTimedSerializer(app.secret_key, salt="indieauth-passcode")

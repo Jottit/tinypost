@@ -2,12 +2,14 @@ import json
 from unittest.mock import patch
 
 from app import app
-from db import create_post, create_user_and_site, get_post_by_slug
-from indieauth_db import (
+from db import (
     create_auth_code,
     create_personal_token,
+    create_post,
+    create_user_and_site,
     exchange_auth_code,
     get_personal_token,
+    get_post_by_slug,
     revoke_personal_token,
 )
 

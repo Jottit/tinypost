@@ -5,8 +5,7 @@ from markdownify import markdownify
 
 from app import app
 from config import ALLOWED_IMAGE_TYPES
-from db import create_post, get_post_by_slug
-from indieauth_db import get_token
+from db import create_post, get_post_by_slug, get_token
 from storage import upload_image, validate_image
 from utils import get_current_site, site_url, slugify, subdomain_url
 
