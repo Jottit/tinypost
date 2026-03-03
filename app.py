@@ -1,7 +1,7 @@
 import os
 
 import sentry_sdk
-from flask import Flask, request, session
+from flask import Flask
 
 if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(dsn=os.environ["SENTRY_DSN"])
@@ -22,25 +22,6 @@ init_cli(app)
 
 
 from routes import *  # noqa: F401,F403
-
-
-@app.after_request
-def set_cache_headers(response):
-    if request.method != "GET" or response.status_code != 200:
-        return response
-    from utils import host_and_base
-
-    host, base = host_and_base()
-    if host == base:
-        return response
-    if request.path.startswith("/-/"):
-        return response
-    if session.get("user_id"):
-        response.headers["Cache-Control"] = "private, no-store"
-        return response
-    response.headers["Cache-Control"] = "public, max-age=60"
-    return response
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
