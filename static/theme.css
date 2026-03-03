@@ -227,14 +227,13 @@ header h1 a {
 
 /* ── Footer ──────────────────────────── */
 footer {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
   padding: var(--space-8) var(--space-4);
   font-size: var(--text-sm);
   color: var(--site-text-muted);
-}
-
-footer .license {
-  margin-top: var(--space-4);
 }
 
 .post-subscribe-bio {
