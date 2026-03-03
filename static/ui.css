@@ -80,6 +80,7 @@
 .top-nav a,
 .top-nav .link-button {
   color: var(--text-muted);
+  text-decoration: none;
 }
 
 .link-button {
