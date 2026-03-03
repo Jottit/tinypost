@@ -690,6 +690,7 @@ main.editor {
   color: var(--text-bright);
   background: transparent;
   padding: 0;
+  margin-top: var(--space-8);
   margin-bottom: var(--space-4);
 }
 
