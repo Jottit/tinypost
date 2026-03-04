@@ -323,7 +323,7 @@ input[type="email"].email-input:focus {
   border-bottom-color: var(--text-bright);
 }
 
-.btn-claim {
+.btn--outline {
   padding: var(--space-2) var(--space-6);
   border: 1px solid var(--divider);
   border-radius: var(--radius-pill);
@@ -335,7 +335,7 @@ input[type="email"].email-input:focus {
   transition: opacity var(--speed-fast);
 }
 
-.btn-claim:hover {
+.btn--outline:hover {
   opacity: 0.8;
 }
 
@@ -363,6 +363,10 @@ input[type="email"].email-input:focus {
   outline: none;
   border-color: transparent;
   border-bottom-color: var(--text-bright);
+}
+
+.passcode-form .btn {
+  margin-top: var(--space-6);
 }
 
 /* ── Buttons ────────────────────────── */

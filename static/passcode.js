@@ -2,13 +2,21 @@ const inputs = document.querySelectorAll('.passcode-inputs input');
 const hidden = document.getElementById('passcode-value');
 const form = document.querySelector('.passcode-form');
 
+function collectCode() {
+  return Array.from(inputs).map(el => el.value).join('');
+}
+
 function trySubmit() {
-  const code = Array.from(inputs).map(el => el.value).join('');
+  const code = collectCode();
   if (code.length === 6) {
     hidden.value = code;
     form.submit();
   }
 }
+
+form.addEventListener('submit', () => {
+  hidden.value = collectCode();
+});
 
 inputs.forEach((input, i) => {
   input.addEventListener('input', () => {
