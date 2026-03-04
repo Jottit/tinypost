@@ -514,7 +514,7 @@ input.page-nav-add-input.active {
 }
 
 .site-content {
-  padding: 0 0 0 var(--space-5);
+  padding-inline: var(--space-5);
 }
 
 .site-layout > * {
