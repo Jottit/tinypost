@@ -43,4 +43,4 @@ init_cli(app)
 from routes import *  # noqa: F401,F403
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8000)
+    app.run(debug=True, port=int(os.environ.get("PORT", 8000)))

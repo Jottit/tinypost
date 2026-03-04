@@ -258,13 +258,13 @@ body:has(.public-page) {
 
 .pill-input input,
 .panel .pill-input input[type="text"] {
+  flex: 1;
   border: none;
   background: transparent;
   border-radius: 0;
   padding: var(--space-2) 0;
   font-size: var(--text-sm);
   min-width: 0;
-  width: auto;
 }
 
 .pill-input-right input {
