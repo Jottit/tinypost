@@ -12,7 +12,13 @@ from db import close_db
 from template_setup import init_templates
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
+app.secret_key = os.environ.get("SECRET_KEY")
+if not app.secret_key:
+    if os.environ.get("FLASK_DEBUG") == "1":
+        app.secret_key = "dev-secret-key"
+    else:
+        raise RuntimeError("SECRET_KEY environment variable is required")
+
 app.config["BASE_DOMAIN"] = os.environ.get("BASE_DOMAIN", "tinypost.localhost:8000")
 app.config["SESSION_COOKIE_DOMAIN"] = app.config["BASE_DOMAIN"].split(":")[0]
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
