@@ -28,6 +28,6 @@ primary_region = "ams"
 
 [[vm]]
   size = "shared-cpu-1x"
-  memory = 256
+  memory = 512
   auto_stop_machines = "off"
   min_machines_running = 1

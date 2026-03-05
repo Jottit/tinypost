@@ -17,4 +17,4 @@ primary_region = "ams"
   processes = ["app"]
 
 [processes]
-  app = "gunicorn app:app -w 2 --bind 0.0.0.0:8080"
+  app = "gunicorn app:app -w 2 --threads 2 --bind 0.0.0.0:8080"

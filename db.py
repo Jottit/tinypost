@@ -6,8 +6,23 @@ import psycopg
 from flask import current_app, g
 from psycopg.rows import dict_row
 from psycopg.types.json import Json
+from psycopg_pool import ConnectionPool
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/tinypost")
+
+_pool = None
+
+
+def get_pool():
+    global _pool
+    if _pool is None:
+        _pool = ConnectionPool(
+            DATABASE_URL,
+            min_size=2,
+            max_size=10,
+            kwargs={"row_factory": dict_row, "connect_timeout": 5},
+        )
+    return _pool
 
 
 def get_db():
@@ -15,14 +30,20 @@ def get_db():
         db_name = current_app.config.get("DATABASE")
         if db_name:
             g.db = psycopg.connect(f"dbname={db_name}", row_factory=dict_row)
+            g.db_from_pool = False
         else:
-            g.db = psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=5)
+            g.db = get_pool().getconn()
+            g.db_from_pool = True
     return g.db
 
 
 def close_db(e=None):
     db = g.pop("db", None)
-    if db is not None:
+    if db is None:
+        return
+    if g.pop("db_from_pool", False):
+        get_pool().putconn(db)
+    else:
         db.close()
 
 
@@ -65,6 +86,20 @@ def get_posts_for_site(site_id, include_drafts=False, limit=30, offset=0):
     if not include_drafts:
         sql += " AND is_draft = FALSE"
     sql += " ORDER BY COALESCE(published_at, created_at) DESC LIMIT %s OFFSET %s"
+    return query(sql, (site_id, limit, offset))
+
+
+def get_posts_with_comment_counts(site_id, include_drafts=False, limit=30, offset=0):
+    sql = (
+        "SELECT p.*, COALESCE(c.count, 0) AS comment_count"
+        " FROM posts p"
+        " LEFT JOIN (SELECT post_id, COUNT(*) AS count FROM comments GROUP BY post_id) c"
+        " ON c.post_id = p.id"
+        " WHERE p.site_id = %s"
+    )
+    if not include_drafts:
+        sql += " AND p.is_draft = FALSE"
+    sql += " ORDER BY COALESCE(p.published_at, p.created_at) DESC LIMIT %s OFFSET %s"
     return query(sql, (site_id, limit, offset))
 
 
@@ -234,6 +269,15 @@ def get_site_by_custom_domain(domain):
     return query(
         "SELECT * FROM sites WHERE custom_domain = %s AND domain_verified_at IS NOT NULL",
         (domain,),
+        one=True,
+    )
+
+
+def get_site_with_owner(site_id):
+    return query(
+        "SELECT s.*, u.name AS owner_name, u.email AS owner_email"
+        " FROM sites s JOIN users u ON s.user_id = u.id WHERE s.id = %s",
+        (site_id,),
         one=True,
     )
 
