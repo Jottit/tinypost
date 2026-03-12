@@ -36,19 +36,11 @@
       </div>
       <a class="u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
     </section>
-    <form action="/subscribe" method="post" class="site-intro-subscribe">
-      <div class="pill-input">
-        <input type="email" name="email" placeholder="Subscribe by email" required>
-        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-        <button type="submit">Subscribe</button>
-      </div>
-    </form>
-
+    <hr class="site-divider">
     <section class="site-stream h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if posts %}
         {% for post in posts %}
-          {% if not loop.first %}<hr class="post-divider">{% endif %}
           <article class="h-entry{% if post.is_draft %} draft{% endif %}">
             <p class="post-meta"><time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at|timeago }}</time> · <span>{{ post.body|readtime }}</span></p>
             {% if post.title %}
@@ -75,19 +67,45 @@
     </nav>
     {% endif %}
 
-    {% if blogroll %}
-    <section class="site-blogroll">
-      <h3>Blogroll</h3>
-      <ul class="blogroll-list">
-        {% for item in blogroll[:5] %}
-          <li>{% include "blogroll_item.html" %}</li>
-        {% endfor %}
-      </ul>
-      {% if blogroll|length > 5 %}
-        <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
-      {% endif %}
-    </section>
-    {% endif %}
   </main>
-  {% include "site_footer.html" %}
+  <footer class="site-footer">
+    <div class="site-footer-columns">
+      <form action="/subscribe" method="post" class="site-footer-subscribe">
+        <div class="pill-input">
+          <input type="email" name="email" placeholder="Subscribe by email" required>
+          <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+          <button type="submit">Subscribe</button>
+        </div>
+      </form>
+      {% if blogroll %}
+      <section class="site-blogroll">
+        <h3>Blogroll</h3>
+        <ul class="blogroll-list">
+          {% for item in blogroll[:3] %}
+            <li>{% include "blogroll_item.html" %}</li>
+          {% endfor %}
+        </ul>
+        {% if blogroll|length > 3 %}
+          <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
+        {% endif %}
+      </section>
+      {% endif %}
+    </div>
+    <div class="site-footer-meta">
+      {% if site.license == 'all-rights-reserved' %}
+        <div class="license">&copy; {{ now.year }} {{ site.title }}</div>
+      {% elif site.license == 'cc-by-4.0' %}
+        <div class="license">Licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div>
+      {% elif site.license == 'cc-by-sa-4.0' %}
+        <div class="license">Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></div>
+      {% elif site.license == 'cc-by-nc-4.0' %}
+        <div class="license">Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></div>
+      {% elif site.license == 'cc-by-nc-sa-4.0' %}
+        <div class="license">Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></div>
+      {% elif site.license == 'cc0-1.0' %}
+        <div class="license">Licensed under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a></div>
+      {% endif %}
+      <div>Powered by <a href="http://{{ config.BASE_DOMAIN }}">Tinypost</a></div>
+    </div>
+  </footer>
 {% endblock %}
