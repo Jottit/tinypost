@@ -208,6 +208,32 @@ th {
   font-size: 0.9375rem;
 }
 
+.send-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background: var(--site-code-bg);
+  border-bottom: 1px solid var(--site-divider);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+}
+
+.send-banner-text {
+  color: var(--site-text-muted);
+  margin-bottom: 0;
+}
+
+.send-banner-sent {
+  color: var(--site-text-muted);
+}
+
+.send-banner .btn {
+  padding: 5px 14px;
+  font-size: var(--text-sm);
+}
+
 /* ── Header ──────────────────────────── */
 header {
   border-bottom: 1px solid var(--site-divider);
@@ -441,9 +467,11 @@ nav a:hover {
 
 .site-intro {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 
 .site-intro-avatar,
@@ -456,6 +484,7 @@ nav a:hover {
 
 .site-intro-avatar {
   object-fit: cover;
+  margin-bottom: 0;
 }
 
 .site-intro-avatar-placeholder {
@@ -472,7 +501,6 @@ nav a:hover {
 
 .site-intro-text {
   min-width: 0;
-  flex: 1;
 }
 
 .site-intro-title {
@@ -509,35 +537,6 @@ nav a:hover {
   border-top: 1px solid var(--site-divider);
 }
 
-.site-footer-columns {
-  display: flex;
-  gap: var(--space-8);
-  margin-bottom: var(--space-6);
-}
-
-.site-footer-subscribe {
-  flex: 1;
-  max-width: 320px;
-}
-
-.site-footer-subscribe .pill-input {
-  font-family: var(--font-mono);
-  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
-  background: var(--site-bg);
-  border-color: var(--site-divider);
-  font-size: var(--text-sm);
-}
-
-.site-footer-subscribe .pill-input button {
-  color: #fff;
-  background: var(--site-accent);
-  font-size: var(--text-xs);
-}
-
-.site-footer-subscribe input[type="email"] {
-  width: 150px;
-  font-size: var(--text-xs);
-}
 
 .site-intro-links {
   font-size: var(--text-sm);
@@ -550,11 +549,7 @@ nav a:hover {
   text-decoration: none;
 }
 
-.site-intro-bio a:first-of-type {
-  margin-left: var(--space-2);
-}
-
-.site-intro-bio a::before {
+.site-intro-links a::before {
   content: "";
   display: inline-block;
   width: 0.85em;
@@ -573,6 +568,7 @@ nav a:hover {
 }
 
 .site-intro-follow h3,
+.site-footer-subscribe h3,
 .site-blogroll h3 {
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
@@ -601,6 +597,30 @@ nav a:hover {
   letter-spacing: 0.05em;
   color: var(--site-text-muted);
   margin-bottom: var(--space-1);
+}
+
+.site-intro-subscribe {
+  max-width: 275px;
+  margin: 0 auto var(--space-6);
+}
+
+.site-intro-subscribe .pill-input {
+  font-family: var(--font-mono);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  background: var(--site-bg);
+  border-color: var(--site-divider);
+  font-size: var(--text-sm);
+}
+
+.site-intro-subscribe .pill-input button {
+  color: #fff;
+  background: var(--site-accent);
+  font-size: var(--text-xs);
+}
+
+.site-intro-subscribe input[type="email"] {
+  width: 150px;
+  font-size: var(--text-xs);
 }
 
 .site-blogroll {
@@ -688,6 +708,8 @@ a.blogroll-item-post:hover {
   list-style: none;
   padding: 0;
   margin: 0;
+  columns: 2;
+  column-gap: var(--space-8);
 }
 
 .blogroll-list li {

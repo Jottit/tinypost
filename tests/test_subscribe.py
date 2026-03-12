@@ -223,7 +223,7 @@ def test_send_button_shown_on_post(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.get("/hello", headers=HEADERS)
-    assert b"Send to 1 subscriber" in response.data
+    assert b"been emailed" in response.data
 
 
 def test_send_button_hidden_for_draft(client):
@@ -235,4 +235,4 @@ def test_send_button_hidden_for_draft(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.get("/hello", headers=HEADERS)
-    assert b"Send to" not in response.data
+    assert b"send-banner" not in response.data

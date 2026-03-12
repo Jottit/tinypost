@@ -20,6 +20,18 @@
 {% endblock %}
 {% block body %}
   {% include "admin_banner.html" %}
+  {% if is_owner and not post.is_draft and subscriber_count and subscriber_count > 0 %}
+    <div class="send-banner">
+      {% if post.sent_at %}
+        <p class="send-banner-text send-banner-sent">Sent to {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}</p>
+      {% else %}
+        <p class="send-banner-text">This post hasn't been emailed to your {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }} yet.</p>
+        <form method="POST" action="/-/send/{{ post.slug }}">
+          <button type="submit" class="btn btn--primary">Send</button>
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
   <main>
     <div class="site-content">
     <article class="h-entry post-article">
@@ -42,15 +54,6 @@
           <form method="POST" action="/-/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
             <button type="submit" class="btn btn--outline">Delete</button>
           </form>
-          {% if not post.is_draft and subscriber_count and subscriber_count > 0 %}
-            {% if post.sent_at %}
-              <span class="editor-sent">Sent {{ post.sent_at.strftime('%B %-d, %Y') }}</span>
-            {% else %}
-              <form method="POST" action="/-/send/{{ post.slug }}">
-                <button type="submit" class="btn btn--outline">Send to {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}</button>
-              </form>
-            {% endif %}
-          {% endif %}
         </div>
       {% endif %}
     </article>
