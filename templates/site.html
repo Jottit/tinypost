@@ -27,8 +27,8 @@
       {% endif %}
       <div class="site-intro-text">
         <h2 class="site-intro-title p-name">{{ site.title }}</h2>
-        {% if site.bio %}
-          <p class="site-intro-bio p-note">{{ site.bio }}</p>
+        {% if site.bio or (site.social_links or []) %}
+          <p class="site-intro-bio p-note">{% if site.bio %}{{ site.bio }}{% endif %}{% set links = site.social_links or [] %}{% for link in links %}<a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>{% if not loop.last %}&ensp;{% endif %}{% endfor %}</p>
         {% endif %}
         {% if site.about %}
           <a class="site-intro-about" href="/about">About me</a>
@@ -36,6 +36,13 @@
       </div>
       <a class="u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
     </section>
+    <form action="/subscribe" method="post" class="site-intro-subscribe">
+      <div class="pill-input">
+        <input type="email" name="email" placeholder="Subscribe by email" required>
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
 
     <section class="site-stream h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
