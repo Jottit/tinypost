@@ -1,19 +1,13 @@
-import io
-import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
 from app import app
 from auth import hash_passcode
 from db import (
-    create_page,
     create_post,
-    create_subscriber,
     create_user_and_site,
-    get_page_by_slug,
     get_post_by_slug,
-    get_subscriber,
-    update_page,
+    toggle_post_pinned,
     update_site_avatar,
 )
 
@@ -223,19 +217,6 @@ def test_edit_existing_post_empty_body(client):
     assert b"body is required" in response.data
 
 
-def test_edit_post_page_slug_conflict(client):
-    _, site = _setup(client)
-    with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
-        page = create_page(site["id"], "about", "About")
-        update_page(page["id"], "About", "About body", is_draft=False)
-    response = client.post(
-        "/-/edit/hello", data={"title": "About", "body": "New body"}, headers=HOST
-    )
-    assert response.status_code == 200
-    assert b"reserved or already in use" in response.data
-
-
 # ── Delete post ─────────────────────────────────
 
 
@@ -275,25 +256,54 @@ def test_send_post_no_subscribers(mock_send, client):
     mock_send.assert_not_called()
 
 
-# ── Subscribers ─────────────────────────────────
+# ── Pin/unpin posts ────────────────────────────
 
 
-def test_subscribers_page(client):
+def test_pin_post_toggles(client):
     _, site = _setup(client)
     with app.app_context():
-        create_subscriber(site["id"], "a@example.com", "tok-a")
-    response = client.get("/-/subscribers", headers=HOST)
-    assert response.status_code == 200
-    assert b"a@example.com" in response.data
-
-
-def test_subscribers_delete(client):
-    _, site = _setup(client)
-    with app.app_context():
-        create_subscriber(site["id"], "a@example.com", "tok-a")
-        sub = get_subscriber(site["id"], "a@example.com")
-    response = client.post(f"/-/subscribers/delete/{sub['id']}", headers=HOST)
+        create_post(site["id"], "hello", "Hello", "Body")
+    response = client.post("/-/pin/hello", headers=HOST)
     assert response.status_code == 302
+    with app.app_context():
+        post = get_post_by_slug(site["id"], "hello")
+    assert post["is_pinned"] is True
+
+    response = client.post("/-/pin/hello", headers=HOST)
+    assert response.status_code == 302
+    with app.app_context():
+        post = get_post_by_slug(site["id"], "hello")
+    assert post["is_pinned"] is False
+
+
+def test_pinned_post_shown_first(client):
+    _, site = _setup(client)
+    with app.app_context():
+        create_post(site["id"], "old", "Old Post", "First post")
+        create_post(site["id"], "new", "New Post", "Second post")
+        old = get_post_by_slug(site["id"], "old")
+        toggle_post_pinned(old["id"])
+    response = client.get("/", headers=HOST)
+    html = response.data.decode()
+    old_pos = html.index("Old Post")
+    new_pos = html.index("New Post")
+    assert old_pos < new_pos
+
+
+def test_pinned_label_shown(client):
+    _, site = _setup(client)
+    with app.app_context():
+        create_post(site["id"], "hello", "Hello", "Body")
+        post = get_post_by_slug(site["id"], "hello")
+        toggle_post_pinned(post["id"])
+    response = client.get("/", headers=HOST)
+    assert b"pinned-icon" in response.data
+
+
+def test_pin_post_not_found(client):
+    _setup(client)
+    response = client.post("/-/pin/nonexistent", headers=HOST)
+    assert response.status_code == 404
 
 
 # ── Settings: avatar edge cases ─────────────────
@@ -316,32 +326,6 @@ def test_settings_avatar_delete_external_url(mock_delete, client):
     mock_delete.assert_called_once_with("myblog/avatar.png")
 
 
-# ── Settings: export pages ──────────────────────
-
-
-def test_export_contains_pages(client):
-    _, site = _setup(client)
-    with app.app_context():
-        page = create_page(site["id"], "about", "About")
-        update_page(page["id"], "About", "About me", is_draft=False)
-    response = client.get("/-/settings/export", headers=HOST)
-    zf = zipfile.ZipFile(io.BytesIO(response.data))
-    assert "pages/about.md" in zf.namelist()
-    content = zf.read("pages/about.md").decode()
-    assert "# About" in content
-    assert "About me" in content
-
-
-def test_export_page_without_body(client):
-    _, site = _setup(client)
-    with app.app_context():
-        create_page(site["id"], "empty", "Empty Page")
-    response = client.get("/-/settings/export", headers=HOST)
-    zf = zipfile.ZipFile(io.BytesIO(response.data))
-    content = zf.read("pages/empty.md").decode()
-    assert content == "# Empty Page"
-
-
 # ── Settings: domain verify without domain ──────
 
 
@@ -350,101 +334,6 @@ def test_domain_verify_no_domain_set(client):
     response = client.post("/-/settings/domain/verify", headers=HOST)
     assert response.status_code == 302
     assert "/-/settings" in response.headers["Location"]
-
-
-# ── Design: invalid font_body ───────────────────
-
-
-def test_design_invalid_font_body(client):
-    _setup(client)
-    response = client.post(
-        "/-/design",
-        data={"font_header": "", "font_body": "Comic Sans MS"},
-        headers=HOST,
-    )
-    assert response.status_code == 302
-
-
-# ── CSS upload: no file ─────────────────────────
-
-
-def test_upload_css_no_file(client):
-    _setup(client)
-    response = client.post("/-/design/upload-css", headers=HOST)
-    assert response.status_code == 302
-    assert "/-/design" in response.headers["Location"]
-
-
-# ── New page ────────────────────────────────────
-
-
-def test_new_page_get(client):
-    _setup(client)
-    response = client.get("/-/new-page", headers=HOST)
-    assert response.status_code == 200
-
-
-def test_new_page_success(client):
-    _, site = _setup(client)
-    response = client.post(
-        "/-/new-page",
-        data={"title": "Contact", "body": "Email me"},
-        headers=HOST,
-    )
-    assert response.status_code == 302
-    with app.app_context():
-        assert get_page_by_slug(site["id"], "contact") is not None
-
-
-def test_new_page_no_title(client):
-    _setup(client)
-    response = client.post("/-/new-page", data={"title": "", "body": "Body"}, headers=HOST)
-    assert response.status_code == 200
-    assert b"Title is required" in response.data
-
-
-def test_new_page_slug_conflict(client):
-    _, site = _setup(client)
-    with app.app_context():
-        create_post(site["id"], "contact", "Contact", "Body")
-    response = client.post(
-        "/-/new-page",
-        data={"title": "Contact", "body": "Page body"},
-        headers=HOST,
-    )
-    assert response.status_code == 200
-    assert b"already taken" in response.data
-
-
-def test_new_page_as_draft(client):
-    _, site = _setup(client)
-    response = client.post(
-        "/-/new-page",
-        data={"title": "Hidden", "body": "Secret", "is_draft": "on"},
-        headers=HOST,
-    )
-    assert response.status_code == 302
-    with app.app_context():
-        page = get_page_by_slug(site["id"], "hidden")
-    assert page["is_draft"] is True
-
-
-# ── Edit page ───────────────────────────────────
-
-
-def test_edit_page_not_found(client):
-    _setup(client)
-    response = client.get("/-/edit-page/nonexistent", headers=HOST)
-    assert response.status_code == 404
-
-
-def test_edit_page_get(client):
-    _, site = _setup(client)
-    with app.app_context():
-        create_page(site["id"], "about", "About")
-    response = client.get("/-/edit-page/about", headers=HOST)
-    assert response.status_code == 200
-    assert b"About" in response.data
 
 
 # ── Delete account GET ──────────────────────────

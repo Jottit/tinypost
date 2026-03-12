@@ -87,7 +87,7 @@ def get_posts_for_site(site_id, include_drafts=False, limit=30, offset=0):
     sql = "SELECT * FROM posts WHERE site_id = %s"
     if not include_drafts:
         sql += " AND is_draft = FALSE"
-    sql += " ORDER BY COALESCE(published_at, created_at) DESC LIMIT %s OFFSET %s"
+    sql += " ORDER BY is_pinned DESC, COALESCE(published_at, created_at) DESC LIMIT %s OFFSET %s"
     return query(sql, (site_id, limit, offset))
 
 
@@ -181,31 +181,11 @@ def update_site_blog(site_id, title, bio, license=None):
     return site
 
 
-def update_site_menu(site_id, menu):
-    db = get_db()
-    site = db.execute(
-        "UPDATE sites SET menu = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (menu, site_id),
-    ).fetchone()
-    db.commit()
-    return site
-
-
 def update_site_social_links(site_id, social_links):
     db = get_db()
     site = db.execute(
         "UPDATE sites SET social_links = %s, updated_at = NOW() WHERE id = %s RETURNING *",
         (Json(social_links or []), site_id),
-    ).fetchone()
-    db.commit()
-    return site
-
-
-def update_site_comments(site_id, comments_enabled):
-    db = get_db()
-    site = db.execute(
-        "UPDATE sites SET comments_enabled = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (comments_enabled, site_id),
     ).fetchone()
     db.commit()
     return site
@@ -241,21 +221,11 @@ def update_site_avatar(site_id, avatar_url):
     return site
 
 
-def update_site_custom_css(site_id, custom_css):
-    db = get_db()
-    site = db.execute(
-        "UPDATE sites SET custom_css = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (custom_css, site_id),
-    ).fetchone()
-    db.commit()
-    return site
-
-
-def update_site_design(site_id, design):
+def update_site_appearance(site_id, preset):
     db = get_db()
     site = db.execute(
         "UPDATE sites SET design = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (Json(design), site_id),
+        (Json({"preset": preset}), site_id),
     ).fetchone()
     db.commit()
     return site
@@ -345,52 +315,6 @@ def update_user(user_id, name, email):
     ).fetchone()
     db.commit()
     return user
-
-
-def get_pages_for_site(site_id, include_drafts=False):
-    sql = "SELECT * FROM pages WHERE site_id = %s"
-    if not include_drafts:
-        sql += " AND is_draft = FALSE"
-    sql += " ORDER BY sort_order"
-    return query(sql, (site_id,))
-
-
-def get_page_by_slug(site_id, slug):
-    return query("SELECT * FROM pages WHERE site_id = %s AND slug = %s", (site_id, slug), one=True)
-
-
-def get_page_by_id(page_id):
-    return query("SELECT * FROM pages WHERE id = %s", (page_id,), one=True)
-
-
-def create_page(site_id, slug, title, body="", is_draft=False):
-    db = get_db()
-    page = db.execute(
-        "INSERT INTO pages (site_id, slug, title, body, is_draft, sort_order)"
-        " VALUES (%s, %s, %s, %s, %s,"
-        " (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM pages WHERE site_id = %s))"
-        " RETURNING *",
-        (site_id, slug, title, body, is_draft, site_id),
-    ).fetchone()
-    db.commit()
-    return page
-
-
-def update_page(page_id, title, body, is_draft=False):
-    db = get_db()
-    page = db.execute(
-        "UPDATE pages SET title = %s, body = %s, is_draft = %s, updated_at = NOW()"
-        " WHERE id = %s RETURNING *",
-        (title, body, is_draft, page_id),
-    ).fetchone()
-    db.commit()
-    return page
-
-
-def delete_page(page_id):
-    db = get_db()
-    db.execute("DELETE FROM pages WHERE id = %s", (page_id,))
-    db.commit()
 
 
 def delete_site(site_id, commit=True):
@@ -561,6 +485,16 @@ def mark_post_sent(post_id):
     db = get_db()
     post = db.execute(
         "UPDATE posts SET sent_at = NOW() WHERE id = %s RETURNING *",
+        (post_id,),
+    ).fetchone()
+    db.commit()
+    return post
+
+
+def toggle_post_pinned(post_id):
+    db = get_db()
+    post = db.execute(
+        "UPDATE posts SET is_pinned = NOT is_pinned WHERE id = %s RETURNING *",
         (post_id,),
     ).fetchone()
     db.commit()

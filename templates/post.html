@@ -49,15 +49,34 @@
       <div class="e-content post-body">{{ post.body | markdown }}</div>
       <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if is_owner %}
-        <div class="actions mt-6">
-          <a href="/-/edit/{{ post.slug }}" class="btn btn--outline">Edit</a>
-          <form method="POST" action="/-/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
-            <button type="submit" class="btn btn--outline">Delete</button>
-          </form>
+        <div class="post-actions">
+          <button class="btn btn--pill btn--pin{% if post.is_pinned %} btn--pill-active{% endif %}" data-pin-url="/-/pin/{{ post.slug }}" data-pinned="{{ 'true' if post.is_pinned else 'false' }}">{{ 'Pinned' if post.is_pinned else 'Pin' }}</button>
+          <div class="post-actions-right">
+            <form method="POST" action="/-/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
+              <button type="submit" class="btn btn--pill">Delete</button>
+            </form>
+            <a href="/-/edit/{{ post.slug }}" class="btn btn--pill btn--dark">Edit</a>
+          </div>
         </div>
       {% endif %}
     </article>
     </div>
   </main>
   {% include "site_footer.html" %}
+  {% if is_owner %}
+  <script>
+    var pin = document.querySelector('[data-pin-url]');
+    if (pin) pin.addEventListener('click', function() {
+      var btn = this;
+      fetch(btn.dataset.pinUrl, {
+        method: 'POST',
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        btn.dataset.pinned = data.is_pinned;
+        btn.textContent = data.is_pinned ? 'Pinned' : 'Pin';
+        btn.classList.toggle('btn--pill-active', data.is_pinned);
+      });
+    });
+  </script>
+  {% endif %}
 {% endblock %}

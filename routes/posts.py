@@ -5,20 +5,17 @@ from app import app
 from db import (
     create_post,
     delete_post,
-    get_comment_count,
-    get_comments_for_post,
     get_confirmed_subscribers,
-    get_page_by_slug,
     get_post_by_slug,
     get_site_by_user,
     get_subscriber_count,
     get_user_by_id,
     mark_post_sent,
+    toggle_post_pinned,
     update_post,
 )
 from mailer import send_email
 from routes import require_owner
-from template_setup import parse_menu
 from utils import RESERVED_SLUGS, get_current_site, site_url, slugify
 
 
@@ -37,7 +34,7 @@ def edit():
             return jsonify(error="Post body is required."), 400
         return render_template("edit.html", site=site, error="Post body is required.")
     slug = slugify(title or body[:50]) or "post"
-    if slug in RESERVED_SLUGS or get_page_by_slug(site["id"], slug):
+    if slug in RESERVED_SLUGS:
         if is_ajax:
             return jsonify(error="That URL slug is reserved or already in use."), 400
         return render_template(
@@ -73,7 +70,7 @@ def edit_post(slug):
             error="Post body is required.",
         )
     new_slug = slugify(title or body[:50]) or "post"
-    if new_slug in RESERVED_SLUGS or get_page_by_slug(site["id"], new_slug):
+    if new_slug in RESERVED_SLUGS:
         return render_template(
             "edit.html",
             site=site,
@@ -94,6 +91,18 @@ def delete_post_route(slug):
         abort(404)
     delete_post(post["id"])
     return redirect("/")
+
+
+@app.route("/-/pin/<slug>", methods=["POST"])
+def pin_post(slug):
+    site = require_owner()
+    post = get_post_by_slug(site["id"], slug)
+    if not post:
+        abort(404)
+    updated = toggle_post_pinned(post["id"])
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify(is_pinned=updated["is_pinned"])
+    return redirect(f"/{slug}")
 
 
 @app.route("/-/send/<slug>", methods=["POST"])
@@ -151,8 +160,6 @@ def post(slug):
     if post:
         if post["is_draft"] and not is_owner:
             abort(404)
-        comments = get_comments_for_post(post["id"])
-        comment_count = get_comment_count(post["id"])
         user_id = session.get("user_id")
         user = get_user_by_id(user_id) if user_id else None
         user_site = get_site_by_user(user_id) if user_id else None
@@ -162,21 +169,8 @@ def post(slug):
             post=post,
             is_owner=is_owner,
             subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
-            comments=comments,
-            comment_count=comment_count,
             user=user,
             user_site=user_site,
         )
-
-    page = get_page_by_slug(site["id"], slug)
-    if page:
-        if page["is_draft"] and not is_owner:
-            abort(404)
-        return render_template("page.html", site=site, page=page, is_owner=is_owner)
-
-    if is_owner:
-        for item in parse_menu(site.get("menu")):
-            if item["slug"] == slug:
-                return redirect(f"/-/new-page?title={item['label']}")
 
     abort(404)

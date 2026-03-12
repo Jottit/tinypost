@@ -27,8 +27,12 @@
       {% endif %}
       <div class="site-intro-text">
         <h2 class="site-intro-title p-name">{{ site.title }}</h2>
-        {% if site.bio or (site.social_links or []) %}
-          <p class="site-intro-bio p-note">{% if site.bio %}{{ site.bio }}{% endif %}{% set links = site.social_links or [] %}{% for link in links %}<a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>{% if not loop.last %}&ensp;{% endif %}{% endfor %}</p>
+        {% if site.bio %}
+          <p class="site-intro-bio p-note">{{ site.bio }}</p>
+        {% endif %}
+        {% set links = site.social_links or [] %}
+        {% if links %}
+          <p class="site-intro-links">{% for link in links %}<a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>{% if not loop.last %}&ensp;{% endif %}{% endfor %}</p>
         {% endif %}
         {% if site.about %}
           <a class="site-intro-about" href="/about">About me</a>
@@ -36,6 +40,13 @@
       </div>
       <a class="u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
     </section>
+    <form action="/subscribe" method="post" class="site-intro-subscribe">
+      <div class="pill-input">
+        <input type="email" name="email" placeholder="Subscribe by email" required>
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
     <hr class="site-divider">
     <section class="site-stream h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
@@ -44,7 +55,7 @@
           <article class="h-entry{% if post.is_draft %} draft{% endif %}">
             <p class="post-meta"><time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at|timeago }}</time> · <span>{{ post.body|readtime }}</span></p>
             {% if post.title %}
-              <h2><a class="p-name u-url" href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
+              <h2>{% if post.is_pinned %}<span class="pinned-icon"></span>{% endif %}<a class="p-name u-url" href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
             {% elif post.is_draft %}
               <p class="draft-label text-center">Draft</p>
             {% endif %}
@@ -69,28 +80,19 @@
 
   </main>
   <footer class="site-footer">
-    <div class="site-footer-columns">
-      <form action="/subscribe" method="post" class="site-footer-subscribe">
-        <div class="pill-input">
-          <input type="email" name="email" placeholder="Subscribe by email" required>
-          <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-          <button type="submit">Subscribe</button>
-        </div>
-      </form>
-      {% if blogroll %}
-      <section class="site-blogroll">
-        <h3>Blogroll</h3>
-        <ul class="blogroll-list">
-          {% for item in blogroll[:3] %}
-            <li>{% include "blogroll_item.html" %}</li>
-          {% endfor %}
-        </ul>
-        {% if blogroll|length > 3 %}
-          <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
-        {% endif %}
-      </section>
+    {% if blogroll %}
+    <section class="site-blogroll">
+      <h3>Blogroll</h3>
+      <ul class="blogroll-list">
+        {% for item in blogroll[:6] %}
+          <li>{% include "blogroll_item.html" %}</li>
+        {% endfor %}
+      </ul>
+      {% if blogroll|length > 6 %}
+        <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
       {% endif %}
-    </div>
+    </section>
+    {% endif %}
     <div class="site-footer-meta">
       {% if site.license == 'all-rights-reserved' %}
         <div class="license">&copy; {{ now.year }} {{ site.title }}</div>
