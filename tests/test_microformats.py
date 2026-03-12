@@ -39,7 +39,7 @@ def test_site_header_has_h_card(client):
     assert "u-url" in html
 
 
-def test_social_links_have_rel_me(client):
+def test_social_links_not_in_homepage(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
         update_site(
@@ -51,9 +51,7 @@ def test_social_links_have_rel_me(client):
         create_post(site["id"], "hello", "Hello World", "Body text")
     response = client.get("/", headers={"Host": "myblog.tinypost.localhost:8000"})
     html = response.data.decode()
-    assert 'rel="me"' in html
-    assert 'class="u-url"' in html
-    assert "https://mastodon.social/@test" in html
+    assert "site-intro-links" not in html
 
 
 def test_custom_domain_in_u_url(client):

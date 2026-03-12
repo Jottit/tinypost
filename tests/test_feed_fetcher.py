@@ -437,4 +437,4 @@ def test_timeago_filter():
         now = datetime.now(timezone.utc)
         assert timeago(None) == ""
         assert timeago(now) == "just now"
-        assert timeago(now.replace(year=now.year - 2)) == "2y"
+        assert timeago(now.replace(year=now.year - 2)) == "2 years ago"

@@ -51,7 +51,7 @@ def test_empty_social_links_skipped(client):
     assert updated["social_links"][0]["label"] == "GitHub"
 
 
-def test_social_links_displayed_on_blog(client):
+def test_social_links_not_displayed_on_blog(client):
     with app.app_context():
         user, site = create_user_and_site("owner@example.com", "myblog")
         update_site(
@@ -66,9 +66,7 @@ def test_social_links_displayed_on_blog(client):
     response = client.get("/", headers={"Host": "myblog.tinypost.localhost:8000"})
     assert response.status_code == 200
     html = response.data.decode()
-    assert 'rel="me"' in html
-    assert "https://mastodon.social/@test" in html
-    assert "https://github.com/test" in html
+    assert "site-intro-links" not in html
 
 
 def test_social_links_in_settings_form(client):

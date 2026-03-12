@@ -16,41 +16,34 @@
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="/feed.xml">
   <link rel="alternate" type="application/feed+json" title="{{ site.title }}" href="/feed.json">
   {% include "indieauth_meta.html" %}
-  {% include "site_design.html" %}
+  {% include "site_appearance.html" %}
 {% endblock %}
-{% block body_attrs %} class="has-sidebar"{% endblock %}
 {% block body %}
   {% include "admin_banner.html" %}
-  {% set site_header_home = true %}
-  {% include "site_header.html" %}
-  <main>
-    <div class="site-layout">
-    <div class="site-content">
-    {% if is_owner %}
-      <div class="write-area{% if not posts %} write-area--open{% endif %}">
-        {% if posts %}
-          <div class="write-pill" onclick="openWriteModal()"><span class="write-pill-text">Write something...</span><button type="button" class="btn btn--primary btn--sm write-pill-btn">Publish</button></div>
+  <main class="site-home">
+    <section class="site-intro h-card">
+      {% if site.avatar %}
+        <img class="u-photo site-intro-avatar" src="{{ site.avatar }}" alt="avatar">
+      {% endif %}
+      <div class="site-intro-text">
+        <h2 class="site-intro-title p-name">{{ site.title }}</h2>
+        {% if site.bio %}
+          <p class="site-intro-bio p-note">{{ site.bio }}</p>
         {% endif %}
-        <div class="inline-editor">
-          <button type="button" class="inline-editor-expand" onclick="expandInlineEditor()" title="Fullscreen editor">expand</button>
-          <form id="inline-editor-form">
-            <input type="text" name="title" placeholder="Title (optional)" class="inline-editor-title">
-            <input type="hidden" name="body">
-            <div id="inline-editor-body" class="inline-editor-body"></div>
-            <div class="inline-editor-actions">
-              <button type="submit" class="btn btn--primary">Publish</button>
-            </div>
-          </form>
-        </div>
+        {% if site.about %}
+          <a class="site-intro-about" href="/about">About me</a>
+        {% endif %}
       </div>
-      <script type="module" src="/static/inline-editor.js"></script>
-    {% endif %}
-    <div class="h-feed">
+      <a class="u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
+    </section>
+
+    <section class="site-stream h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if posts %}
         {% for post in posts %}
+          {% if not loop.first %}<hr class="post-divider">{% endif %}
           <article class="h-entry{% if post.is_draft %} draft{% endif %}">
-            <time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time>{% if comment_counts.get(post.id) %} <span class="post-comment-count">{{ comment_counts[post.id] }} comment{{ 's' if comment_counts[post.id] != 1 }}</span>{% endif %}
+            <p class="post-meta"><time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at|timeago }}</time> · <span>{{ post.body|readtime }}</span></p>
             {% if post.title %}
               <h2><a class="p-name u-url" href="/{{ post.slug }}">{{ post.title }}{% if post.is_draft %} <span class="draft-label">Draft</span>{% endif %}</a></h2>
             {% elif post.is_draft %}
@@ -66,16 +59,28 @@
           <p class="empty-state-text">Nothing here yet.</p>
         </div>
       {% endif %}
-    </div>
+    </section>
+
     {% if has_next or page > 1 %}
     <nav class="pagination" aria-label="Posts navigation">
       {% if has_next %}<a href="?page={{ page + 1 }}">Older</a>{% endif %}
       {% if page > 1 %}<a href="{% if page == 2 %}?{% else %}?page={{ page - 1 }}{% endif %}">Newer</a>{% endif %}
     </nav>
     {% endif %}
-    </div>
-    {% include "site_sidebar.html" %}
-    </div>
+
+    {% if blogroll %}
+    <section class="site-blogroll">
+      <h3>Blogroll</h3>
+      <ul class="blogroll-list">
+        {% for item in blogroll[:5] %}
+          <li>{% include "blogroll_item.html" %}</li>
+        {% endfor %}
+      </ul>
+      {% if blogroll|length > 5 %}
+        <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
+      {% endif %}
+    </section>
+    {% endif %}
   </main>
   {% include "site_footer.html" %}
 {% endblock %}
