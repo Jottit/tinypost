@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Subscribed — {{ site.title }}{% endblock %}
-{% block theme_css %}{% endblock %}
-{% block body_attrs %} class="subscribe-page"{% endblock %}
+{% block theme_css %}{% include "theme_css.html" %}{% endblock %}
+{% block head_extra %}{% include "site_appearance.html" %}{% endblock %}
 {% block body %}
-  <main class="page-centered">
+  <main class="site-home subscribe-page">
     <div class="subscribe-identity">
       {% if site.avatar %}
         <img src="{{ site.avatar }}" alt="" class="subscribe-avatar">
