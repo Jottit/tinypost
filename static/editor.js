@@ -42,7 +42,7 @@ var jot = new Jot(editorEl, {
   }
 });
 
-editorEl.querySelector('.ProseMirror').focus();
+titleInput.focus();
 
 if (savedCursor) {
   jot.setCursor(savedCursor);

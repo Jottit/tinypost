@@ -179,10 +179,10 @@ table {
     --text: #ccc;
     --text-muted: #7a8a97;
     --text-bright: #eee;
-    --divider: #2a2a2a;
-    --code-bg: #222;
-    --input-bg: #252525;
-    --card-bg: #111;
+    --divider: #344050;
+    --code-bg: #253040;
+    --input-bg: #2a3540;
+    --card-bg: #151d25;
   }
 }
 
