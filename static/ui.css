@@ -105,6 +105,7 @@
   min-height: 100vh;
   padding: var(--space-4) var(--space-4) var(--space-10);
   text-align: center;
+  gap: var(--space-1);
 }
 
 .public-page {
@@ -312,6 +313,12 @@ body:has(.public-page) {
   color: var(--text);
 }
 
+.home-tagline {
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+  font-size: 1.1rem;
+}
+
 /* ── Email form ─────────────────────── */
 .email-form {
   display: flex;
@@ -416,6 +423,11 @@ input[type="email"].email-input:focus {
 .btn--sm {
   padding: var(--space-1) var(--space-2);
   font-size: var(--text-xs);
+}
+
+.btn-lg {
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--text-base);
 }
 
 .btn--outline {
