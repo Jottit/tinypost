@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Social links — {{ site.title }}{% endblock %}
+{% block title %}Links — {{ site.title }}{% endblock %}
 {% block body %}
   <div class="panel-page">
     <a href="/-/settings" class="panel-back">&larr; Settings</a>
-    <h1 class="panel-title">Social links</h1>
+    <h1 class="panel-title">Links</h1>
     <div class="panel panel--narrow">
       <form method="POST" action="/-/settings/social" class="settings-form auto-save" id="social-form">
-        <p class="text-muted">Links to your profiles elsewhere on the web.</p>
+        <p class="text-muted">Links to the rest of your home on the web.</p>
         {% set links = site.social_links or [] %}
         <div class="social-links-editor">
           {% for link in links %}

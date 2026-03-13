@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Appearance — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Appearance</h1>
+    <div class="panel panel--narrow">
+      <form method="POST" action="/-/settings/appearance" class="settings-form auto-save">
+        <div class="appearance-grid">
+          {% for value, preset in presets.items() %}
+            <label class="appearance-option">
+              <input type="radio" name="preset" value="{{ value }}" {% if current_preset == value %}checked{% endif %}>
+              <span class="appearance-swatch" style="--appearance-bg: {{ preset.bg }}; --appearance-text: {{ preset.text_bright }}; --appearance-accent: {{ preset.accent }};"></span>
+              <span class="appearance-label">{{ preset.label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="/static/auto-save.js"></script>
+{% endblock %}

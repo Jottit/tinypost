@@ -1,5 +1,3 @@
-import zipfile
-
 from flask import redirect, render_template, request, session
 
 from app import app, limiter
@@ -15,7 +13,6 @@ from db import (
     update_user_email,
 )
 from routes import require_owner
-from substack import import_posts, import_subscribers, rehost_images
 
 
 def render_account(site, user, **kwargs):
@@ -94,44 +91,8 @@ def account_email_verify():
 
 @app.route("/-/settings/export-import")
 def settings_export_import():
-    site = require_owner()
-    return render_template("settings_export_import.html", site=site, is_owner=True)
-
-
-@app.route("/-/settings/import", methods=["POST"])
-def settings_import():
-    site = require_owner()
-
-    file = request.files.get("archive")
-    if not file:
-        return render_template(
-            "settings_export_import.html",
-            site=site,
-            is_owner=True,
-            import_error="No file selected.",
-        )
-
-    try:
-        zf = zipfile.ZipFile(file)
-    except zipfile.BadZipFile:
-        return render_template(
-            "settings_export_import.html",
-            site=site,
-            is_owner=True,
-            import_error="Invalid zip file.",
-        )
-
-    with zf:
-        results = import_posts(zf, site["id"])
-        results.update(import_subscribers(zf, site["id"]))
-
-    results["images_rehosted"] = rehost_images(site["id"], site["subdomain"])
-    return render_template(
-        "settings_export_import.html",
-        site=site,
-        is_owner=True,
-        import_results=results,
-    )
+    require_owner()
+    return redirect("/-/settings/export")
 
 
 @app.route("/-/account/token", methods=["POST"])

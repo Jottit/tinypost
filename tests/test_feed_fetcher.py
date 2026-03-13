@@ -363,8 +363,8 @@ def test_sidebar_limits_to_five(client):
     response = client.get("/", headers=HOST)
     assert response.status_code == 200
     assert b"Blog 0" in response.data
-    assert b"Blog 4" in response.data
-    assert b"Blog 5" not in response.data
+    assert b"Blog 5" in response.data
+    assert b"Blog 6" not in response.data
     assert b"See all (8)" in response.data
 
 

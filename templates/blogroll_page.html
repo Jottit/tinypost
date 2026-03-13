@@ -2,15 +2,13 @@
 {% block title %}Blogroll — {{ site.title }}{% endblock %}
 {% block theme_css %}{% include "theme_css.html" %}{% endblock %}
 {% block head_extra %}
-  {% include "site_design.html" %}
+  {% include "site_appearance.html" %}
 {% endblock %}
-{% block body_attrs %} class="has-sidebar"{% endblock %}
 {% block body %}
   {% include "admin_banner.html" %}
   {% include "site_header.html" %}
-  <main>
-    <div class="site-layout">
-    <div class="site-content">
+  <main class="site-home">
+    <section class="site-stream">
     <article>
       <h2>Blogroll</h2>
       <ul class="blogroll-list">
@@ -19,9 +17,7 @@
         {% endfor %}
       </ul>
     </article>
-    </div>
-    {% include "site_sidebar.html" %}
-    </div>
+    </section>
   </main>
   {% include "site_footer.html" %}
 {% endblock %}

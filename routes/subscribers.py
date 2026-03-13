@@ -6,8 +6,6 @@ from app import app
 from db import (
     confirm_subscriber,
     create_subscriber,
-    delete_subscriber,
-    get_all_subscribers,
     get_site_by_id,
     get_subscriber,
     get_subscriber_by_token,
@@ -15,32 +13,7 @@ from db import (
     update_subscriber_token,
 )
 from mailer import send_email
-from routes import require_owner
 from utils import get_current_site, site_url
-
-
-@app.route("/-/subscribers")
-def subscribers():
-    site = require_owner()
-    subs = get_all_subscribers(site["id"])
-    confirmed = sum(1 for s in subs if s["confirmed"])
-    pending = len(subs) - confirmed
-    return render_template(
-        "subscribers.html",
-        site=site,
-        subscribers=subs,
-        total=len(subs),
-        confirmed_count=confirmed,
-        pending_count=pending,
-        is_owner=True,
-    )
-
-
-@app.route("/-/subscribers/delete/<int:subscriber_id>", methods=["POST"])
-def subscribers_delete(subscriber_id):
-    site = require_owner()
-    delete_subscriber(subscriber_id, site["id"])
-    return redirect("/-/subscribers")
 
 
 @app.route("/subscribe", methods=["POST"])

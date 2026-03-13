@@ -37,14 +37,14 @@
         <span class="settings-row-value">{{ site.subdomain }}.tinypost.blog</span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
-      <a href="/-/settings/menu" class="settings-row">
-        <span class="settings-row-label">Site menu</span>
-        <span class="settings-row-value"></span>
+      <a href="/-/settings/social" class="settings-row">
+        <span class="settings-row-label">Links</span>
+        <span class="settings-row-value">{% if site.social_links %}{{ site.social_links | length }}{% endif %}</span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
-      <a href="/-/settings/social" class="settings-row">
-        <span class="settings-row-label">Social links</span>
-        <span class="settings-row-value">{% if site.social_links %}{{ site.social_links | length }}{% endif %}</span>
+      <a href="/-/settings/appearance" class="settings-row">
+        <span class="settings-row-label">Theme</span>
+        <span class="settings-row-value"></span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
       <a href="/-/settings/domain" class="settings-row">
@@ -52,26 +52,21 @@
         <span class="settings-row-value">{% if site.custom_domain %}{{ site.custom_domain }}{% endif %}</span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
-      <a href="/-/settings/comments" class="settings-row">
-        <span class="settings-row-label">Comments</span>
-        <span class="settings-row-value">{{ "On" if site.comments_enabled else "Off" }}</span>
-        <span class="settings-chevron">&rsaquo;</span>
-      </a>
-      <a href="/-/design" class="settings-row">
-        <span class="settings-row-label">Design</span>
-        <span class="settings-row-value"></span>
-        <span class="settings-chevron">&rsaquo;</span>
-      </a>
       <a href="/-/blogroll" class="settings-row">
         <span class="settings-row-label">Blogroll</span>
         <span class="settings-row-value"></span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
-      <a href="/-/settings/export-import" class="settings-row settings-row--last">
-        <span class="settings-row-label">Import & Export</span>
+      <a href="/-/settings/export" class="settings-row">
+        <span class="settings-row-label">Export</span>
         <span class="settings-row-value"></span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
+      <form method="POST" action="/signout" class="settings-row-form">
+        <button type="submit" class="settings-row settings-row--last settings-row-button">
+          <span class="settings-row-label">Sign out</span>
+        </button>
+      </form>
     </div>
   </div>
 {% endblock %}

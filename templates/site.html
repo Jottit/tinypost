@@ -38,15 +38,15 @@
           <a class="site-intro-about" href="/about">About me</a>
         {% endif %}
       </div>
+      <form action="/subscribe" method="post" class="site-intro-subscribe">
+        <div class="pill-input">
+          <input type="email" name="email" placeholder="Subscribe by email" required>
+          <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+          <button type="submit">Subscribe</button>
+        </div>
+      </form>
       <a class="u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
     </section>
-    <form action="/subscribe" method="post" class="site-intro-subscribe">
-      <div class="pill-input">
-        <input type="email" name="email" placeholder="Subscribe by email" required>
-        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-        <button type="submit">Subscribe</button>
-      </div>
-    </form>
     <hr class="site-divider">
     <section class="site-stream h-feed">
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>

@@ -1,9 +1,7 @@
 from app import app
 from db import (
-    create_page,
     create_post,
     create_user_and_site,
-    update_page,
     update_site,
     update_site_avatar,
 )
@@ -47,18 +45,6 @@ def test_post_og_tags(client):
     assert '<meta property="og:image" content="https://example.com/avatar.jpg">' in html
     assert '<meta name="twitter:card" content="summary">' in html
     assert '<meta name="twitter:title" content="Hello World">' in html
-
-
-def test_page_og_tags(client):
-    _, site = _setup(client)
-    with app.app_context():
-        page = create_page(site["id"], "about", "About Me")
-        update_page(page["id"], "About Me", "All about me.", is_draft=False)
-    response = client.get("/about", headers={"Host": SITE_HOST})
-    html = response.data.decode()
-    assert '<meta property="og:title" content="About Me">' in html
-    assert '<meta property="og:type" content="website">' in html
-    assert '<meta property="og:url" content="http://myblog.tinypost.localhost:8000/about">' in html
 
 
 def test_site_homepage_og_tags(client):

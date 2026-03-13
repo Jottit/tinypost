@@ -1,23 +1,5 @@
 <header class="site-header h-card{% if site_header_home %} site-header-home{% endif %}">
   <div class="site-header-inner">
     <h1><a class="p-name u-url" href="/">{{ site.title }}</a></h1>
-    {% set menu_items = parse_menu(site.menu) %}
-    {% if menu_items %}
-      <nav class="page-nav">
-        {% for item in menu_items %}
-          <a href="{{ item.slug if item.slug.startswith('/') else '/' ~ item.slug }}">{{ item.label }}</a>
-        {% endfor %}
-      </nav>
-    {% elif is_owner %}
-      <a href="/-/settings/menu" class="btn btn--outline btn--sm">+ add menu</a>
-    {% endif %}
   </div>
-  {% set links = site.social_links or [] %}
-  {% if links %}
-    <div class="social-links">
-      {% for link in links %}
-        <a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>
-      {% endfor %}
-    </div>
-  {% endif %}
 </header>

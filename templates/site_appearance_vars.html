@@ -1,0 +1,10 @@
+{% macro render_appearance_vars(site) -%}
+  {%- set appearance = site_appearance_vars(site) -%}
+  --site-bg: {{ appearance.bg }};
+  --site-text: {{ appearance.text }};
+  --site-text-bright: {{ appearance.text_bright }};
+  --site-text-muted: {{ appearance.text_muted }};
+  --site-divider: {{ appearance.divider }};
+  --site-code-bg: {{ appearance.code_bg }};
+  --site-accent: {{ appearance.accent }};
+{%- endmacro %}

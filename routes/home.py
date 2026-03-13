@@ -4,12 +4,10 @@ from app import app
 from config import CADDY_ASK_TOKEN
 from db import (
     get_blogroll,
-    get_posts_with_comment_counts,
+    get_posts_for_site,
     get_site_by_custom_domain,
     get_site_by_subdomain,
-    get_site_with_owner,
     get_sites_by_user,
-    get_subscriber_count,
     get_user_by_id,
     subdomain_taken,
 )
@@ -74,31 +72,24 @@ def home():
     ):
         return redirect(f"https://{site['custom_domain']}", code=308)
 
-    site_with_owner = get_site_with_owner(site["id"])
-    owner = {"name": site_with_owner["owner_name"], "email": site_with_owner["owner_email"]}
-
     page = request.args.get("page", 1, type=int)
     if page < 1:
         page = 1
     per_page = 20
     offset = (page - 1) * per_page
-    fetched_posts = get_posts_with_comment_counts(
+    fetched_posts = get_posts_for_site(
         site["id"], include_drafts=is_owner, limit=per_page + 1, offset=offset
     )
     has_next = len(fetched_posts) > per_page
     posts = fetched_posts[:per_page]
-    comment_counts = {p["id"]: p["comment_count"] for p in posts if p["comment_count"]}
     return render_template(
         "site.html",
         site=site,
         posts=posts,
         is_owner=is_owner,
-        subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
         blogroll=get_blogroll(site["id"]),
-        comment_counts=comment_counts,
         page=page,
         has_next=has_next,
-        owner=owner,
     )
 
 

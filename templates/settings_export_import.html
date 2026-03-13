@@ -1,39 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Import & Export — {{ site.title }}{% endblock %}
+{% block title %}Export — {{ site.title }}{% endblock %}
 {% block body %}
   <div class="panel-page">
     <a href="/-/settings" class="panel-back">&larr; Settings</a>
-    <h1 class="panel-title">Import & Export</h1>
+    <h1 class="panel-title">Export</h1>
     <div class="panel panel--narrow">
       <h3>Export your data</h3>
       <p>Download all your posts and images as a zip file.</p>
       <a href="/-/settings/export" class="btn">Export</a>
-      <div class="panel-divider">
-      <h3>Import from Substack</h3>
-      {% if import_error %}
-        <p class="error">{{ import_error }}</p>
-      {% endif %}
-      {% if import_results %}
-        <p class="success">
-          {{ import_results.posts_imported }} posts imported{% if import_results.posts_skipped %}, {{ import_results.posts_skipped }} skipped{% endif %}.
-          {% if import_results.images_rehosted %}{{ import_results.images_rehosted }} images re-hosted.{% endif %}
-          {% if import_results.subscribers_imported %}{{ import_results.subscribers_imported }} subscribers imported.{% endif %}
-        </p>
-      {% endif %}
-      <p>Upload your Substack export zip file to import posts and subscribers.</p>
-      <form method="POST" action="/-/settings/import" enctype="multipart/form-data">
-        <input type="file" id="import-file" name="archive" accept=".zip" hidden>
-        <label for="import-file" class="btn">Choose file</label>
-        <span id="import-file-name" class="text-muted ph-2"></span>
-        <button type="submit" id="import-btn" class="btn hidden">Import</button>
-      </form>
-      <script>
-        document.getElementById("import-file").addEventListener("change", function () {
-          document.getElementById("import-file-name").textContent = this.files[0].name;
-          document.getElementById("import-btn").classList.remove("hidden");
-        });
-      </script>
-      </div>
     </div>
   </div>
 {% endblock %}

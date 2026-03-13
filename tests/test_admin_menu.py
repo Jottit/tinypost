@@ -15,7 +15,7 @@ def test_banner_visible_to_owner(client):
     login(client, user["id"])
     response = client.get("/", headers=HOST)
     assert b"admin-banner" in response.data
-    assert b"write-area" in response.data
+    assert b"/-/edit" in response.data
 
 
 def test_banner_not_visible_to_non_owner(client):
@@ -39,7 +39,7 @@ def test_banner_links_present(client):
     login(client, user["id"])
     response = client.get("/", headers=HOST)
     assert b"/-/settings" in response.data
-    assert b"/signout" in response.data
+    assert b"/-/edit" in response.data
 
 
 def test_banner_on_post_page(client):

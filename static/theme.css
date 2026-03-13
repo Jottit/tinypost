@@ -375,7 +375,7 @@ article {
   border-bottom: 1px solid var(--site-divider);
 }
 
-article:first-child {
+article:first-of-type {
   padding-top: 0;
 }
 
@@ -525,7 +525,7 @@ nav a:hover {
 .site-home {
   max-width: var(--site-measure);
   margin: 0 auto;
-  padding: var(--space-7) var(--space-5) var(--space-6);
+  padding: var(--space-8) var(--space-5) var(--space-6);
 }
 
 .site-intro {
@@ -534,7 +534,6 @@ nav a:hover {
   align-items: center;
   text-align: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-3);
 }
 
 .site-intro-avatar,
@@ -642,7 +641,7 @@ nav a:hover {
 }
 
 .site-divider {
-  margin: var(--space-4) 0 var(--space-5);
+  margin: var(--space-8) 0;
 }
 
 .site-stream {
@@ -675,7 +674,7 @@ nav a:hover {
 
 .site-intro-subscribe {
   max-width: 275px;
-  margin: 0 auto var(--space-6);
+  margin: 0 auto;
 }
 
 .site-intro-subscribe .pill-input {

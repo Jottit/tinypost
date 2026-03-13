@@ -6,12 +6,12 @@ import dns.resolver
 from flask import Response, flash, redirect, render_template, request, session
 
 from app import app
+from appearance import APPEARANCE_PRESETS, DEFAULT_APPEARANCE, get_appearance_preset
 from config import ALLOWED_IMAGE_TYPES, CUSTOM_DOMAIN_IPV4, CUSTOM_DOMAIN_IPV6
 from db import (
     delete_account,
     delete_site,
     get_all_posts_for_site,
-    get_pages_for_site,
     get_site_by_id,
     get_sites_by_user,
     get_user_by_id,
@@ -19,11 +19,10 @@ from db import (
     remove_custom_domain,
     set_custom_domain,
     subdomain_taken,
+    update_site_appearance,
     update_site_avatar,
     update_site_blog,
-    update_site_comments,
     update_site_license,
-    update_site_menu,
     update_site_social_links,
     update_site_subdomain,
     verify_custom_domain,
@@ -121,21 +120,6 @@ def settings_subdomain():
     return redirect("/-/settings/subdomain")
 
 
-@app.route("/-/settings/menu", methods=["GET", "POST"])
-def settings_menu():
-    site = require_owner()
-
-    if request.method == "GET":
-        return render_template("settings_menu.html", site=site, is_owner=True)
-
-    menu = request.form.get("menu", "").strip() or None
-    update_site_menu(site["id"], menu)
-    if request.headers.get("X-Auto-Save"):
-        return "", 204
-    flash("Menu updated.")
-    return redirect("/-/settings")
-
-
 @app.route("/-/settings/social", methods=["GET", "POST"])
 def settings_social():
     site = require_owner()
@@ -155,22 +139,32 @@ def settings_social():
     update_site_social_links(site["id"], social_links)
     if request.headers.get("X-Auto-Save"):
         return "", 204
-    flash("Social links updated.")
+    flash("Links updated.")
     return redirect("/-/settings")
 
 
-@app.route("/-/settings/comments", methods=["GET", "POST"])
-def settings_comments():
+@app.route("/-/settings/appearance", methods=["GET", "POST"])
+def settings_appearance():
     site = require_owner()
+    current_preset = get_appearance_preset(site)
 
     if request.method == "GET":
-        return render_template("settings_comments.html", site=site, is_owner=True)
+        return render_template(
+            "settings_appearance.html",
+            site=site,
+            is_owner=True,
+            presets=APPEARANCE_PRESETS,
+            current_preset=current_preset,
+        )
 
-    comments_enabled = request.form.get("comments_enabled") == "on"
-    update_site_comments(site["id"], comments_enabled)
+    preset = request.form.get("preset", "").strip()
+    if preset not in APPEARANCE_PRESETS:
+        preset = DEFAULT_APPEARANCE
+
+    update_site_appearance(site["id"], preset)
     if request.headers.get("X-Auto-Save"):
         return "", 204
-    flash("Comments settings updated.")
+    flash("Theme updated.")
     return redirect("/-/settings")
 
 
@@ -236,10 +230,6 @@ def settings_export():
             content = f"# {p['title']}\n\n{p['body']}" if p["title"] else p["body"]
             folder = "drafts/" if p["is_draft"] else ""
             zf.writestr(f"{folder}{p['slug']}.md", content)
-
-        for p in get_pages_for_site(site["id"], include_drafts=True):
-            content = f"# {p['title']}\n\n{p['body']}" if p["body"] else f"# {p['title']}"
-            zf.writestr(f"pages/{p['slug']}.md", content)
 
         for key in list_images(site["subdomain"]):
             data = download_image(key)

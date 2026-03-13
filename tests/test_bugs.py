@@ -47,17 +47,6 @@ def test_create_post_with_reserved_slug(client):
     assert b"reserved" in response.data
 
 
-def test_create_page_with_reserved_slug(client):
-    setup_site(client)
-    response = client.post(
-        "/-/new-page",
-        data={"title": "Subscribe", "body": "Some content"},
-        headers=HOST,
-    )
-    assert response.status_code == 200
-    assert b"reserved" in response.data
-
-
 # ── send_post marks sent before sending ──
 
 
