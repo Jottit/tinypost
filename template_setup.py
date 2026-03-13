@@ -71,6 +71,25 @@ def init_templates(app):
             return text
         return " ".join(words[:n]) + "…"
 
+    _img_re = re.compile(r"!\[[^\]]*\]\([^)]+\)")
+
+    @app.template_filter("first_image")
+    def first_image_filter(text):
+        if not text:
+            return ""
+        m = _img_re.search(text)
+        if not m:
+            return ""
+        md = m.group(0)
+        url = md.split("](", 1)[1].rstrip(")")
+        return url
+
+    @app.template_filter("strip_first_image")
+    def strip_first_image_filter(text):
+        if not text:
+            return text
+        return _img_re.sub("", text, count=1).strip()
+
     @app.template_filter("plain_text")
     def plain_text_filter(text):
         if not text:

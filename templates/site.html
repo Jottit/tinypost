@@ -61,6 +61,7 @@
       <a class="p-name u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
       {% if posts %}
         {% for post in posts %}
+          {% set thumb = post.body | first_image %}
           <article class="h-entry{% if post.is_draft %} draft{% endif %}">
             <p class="post-meta"><time class="dt-published" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at|timeago }}</time> · <span>{{ post.body|readtime }}</span></p>
             {% if post.title %}
@@ -68,7 +69,10 @@
             {% elif post.is_draft %}
               <p class="draft-label text-center">Draft</p>
             {% endif %}
-            <div class="p-summary post-body">{{ post.body | truncatewords(30) | markdown }}</div>
+            <div class="entry-body{% if thumb %} has-thumb{% endif %}">
+              <div class="p-summary post-body">{{ post.body | strip_first_image | truncatewords(30) | markdown }}</div>
+              {% if thumb %}<img class="entry-thumb" src="{{ thumb }}" alt="" loading="lazy">{% endif %}
+            </div>
             <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
             <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
           </article>

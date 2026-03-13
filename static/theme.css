@@ -405,6 +405,30 @@ article img {
   margin-bottom: var(--space-6);
 }
 
+.entry-body.has-thumb {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.entry-body.has-thumb .p-summary {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-thumb {
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.p-summary img {
+  display: none;
+}
+
 article h2 a {
   color: var(--site-text-bright);
   text-decoration: none;
