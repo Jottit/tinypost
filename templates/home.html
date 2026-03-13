@@ -1,22 +1,15 @@
 {% extends "base.html" %}
 {% block title %}tinypost — the simplest way to run your own site{% endblock %}
 {% block body %}
-  <nav class="top-nav">
-    {% include "user_menu.html" %}
+  <nav class="home-nav">
+    Already have an account? <a href="/signin">Sign in</a>
   </nav>
   <main class="page-centered">
     <header class="mb-4">
       <h1 class="logo"><span>tinypost</span></h1>
     </header>
-    <form action="/" method="post" class="mb-4">
-      <div class="pill-input pill-input-right">
-        <input type="text" name="subdomain" placeholder="yourname" value="{{ subdomain or '' }}" required>
-        <span class="pill-input-suffix">.tinypost.blog</span>
-        <button type="submit">Create</button>
-      </div>
-    </form>
-    <p class="{% if error %}error{% else %}text-muted{% endif %}">{{ error or "the simplest way to run your own site" }}</p>
+    <p class="text-muted mb-4">the simplest way to run your own site</p>
+    <a href="/signup" class="btn">Start your blog</a>
   </main>
   {% include "home_footer.html" %}
-  <script src="/static/home.js"></script>
 {% endblock %}

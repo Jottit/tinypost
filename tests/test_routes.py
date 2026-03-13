@@ -30,66 +30,77 @@ def test_require_owner_no_site(client):
     assert response.status_code == 404
 
 
-# ── Home POST (signup flow) ────────────────────
+# ── Signup flow ────────────────────────────────
 
 
-def test_home_post_invalid_subdomain(client):
-    response = client.post("/", data={"subdomain": "--invalid"})
+def test_signup_get(client):
+    response = client.get("/signup")
     assert response.status_code == 200
-    assert b"Invalid name" in response.data
-
-
-def test_home_post_taken_subdomain(client, taken_subdomain):
-    response = client.post("/", data={"subdomain": taken_subdomain})
-    assert response.status_code == 200
-    assert b"is not available" in response.data
-
-
-def test_home_post_valid_subdomain(client):
-    response = client.post("/", data={"subdomain": "newblog"})
-    assert response.status_code == 200
-    assert b"newblog" in response.data
-
-
-# ── Signup ──────────────────────────────────────
 
 
 @patch("routes.auth.send_passcode")
-def test_signup_post(mock_send, client):
-    response = client.post("/signup", data={"subdomain": "fresh", "email": "u@example.com"})
+def test_signup_email_send(mock_send, client):
+    with client.session_transaction() as sess:
+        sess["signup"] = {"name": "Test"}
+    response = client.post("/signup/email/send", data={"email": "u@example.com"})
     assert response.status_code == 200
-    assert b"u@example.com" in response.data
     mock_send.assert_called_once()
 
 
 def test_signup_verify_success(client):
     with client.session_transaction() as sess:
         sess["signup"] = {
-            "subdomain": "fresh",
+            "name": "Test",
             "email": "u@example.com",
             "passcode": hash_passcode("123456"),
         }
-    response = client.post("/verify", data={"passcode": "123456"})
-    assert response.status_code == 302
-    with client.session_transaction() as sess:
-        assert "user_id" in sess
+    response = client.post("/signup/verify", data={"passcode": "123456"})
+    assert response.status_code == 200
+    assert b"address" in response.data.lower() or b"tinypost.blog" in response.data
 
 
 def test_signup_verify_wrong_code(client):
     with client.session_transaction() as sess:
         sess["signup"] = {
-            "subdomain": "fresh",
+            "name": "Test",
             "email": "u@example.com",
             "passcode": hash_passcode("123456"),
         }
-    response = client.post("/verify", data={"passcode": "000000"})
+    response = client.post("/signup/verify", data={"passcode": "000000"})
     assert response.status_code == 200
     assert b"Wrong passcode" in response.data
 
 
 def test_signup_verify_no_session(client):
-    response = client.post("/verify", data={"passcode": "123456"})
+    response = client.post("/signup/verify", data={"passcode": "123456"})
     assert response.status_code == 302
+
+
+def test_signup_address_creates_user(client):
+    with client.session_transaction() as sess:
+        sess["signup"] = {
+            "name": "Test",
+            "email": "u@example.com",
+            "passcode": hash_passcode("123456"),
+            "verified": True,
+        }
+    response = client.post("/signup/address", data={"subdomain": "fresh"})
+    assert response.status_code == 302
+    with client.session_transaction() as sess:
+        assert "user_id" in sess
+
+
+def test_signup_address_rejects_invalid(client):
+    with client.session_transaction() as sess:
+        sess["signup"] = {
+            "name": "Test",
+            "email": "u@example.com",
+            "passcode": "x",
+            "verified": True,
+        }
+    response = client.post("/signup/address", data={"subdomain": "---"})
+    assert response.status_code == 200
+    assert b"Must be" in response.data
 
 
 # ── Signin ──────────────────────────────────────

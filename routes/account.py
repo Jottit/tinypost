@@ -29,16 +29,15 @@ def render_account(site, user, **kwargs):
 @app.route("/-/account", methods=["GET", "POST"])
 def account():
     site = require_owner()
-    user = get_user_by_id(session["user_id"])
 
     if request.method == "GET":
-        return render_account(site, user)
+        return render_account(site, site)
 
     name = request.form.get("name", "").strip() or None
-    update_user(user["id"], name, user["email"])
+    update_user(site["id"], name, site["email"])
     if request.headers.get("X-Auto-Save"):
         return "", 204
-    user = get_user_by_id(user["id"])
+    user = get_user_by_id(site["id"])
     return render_account(site, user, success="Account updated.")
 
 
@@ -69,7 +68,6 @@ def account_email():
 @limiter.limit("10/minute")
 def account_email_verify():
     site = require_owner()
-    user = get_user_by_id(session["user_id"])
 
     change = session.get("email_change")
     if not change:
@@ -81,7 +79,7 @@ def account_email_verify():
             "account_email_verify.html", site=site, email=change["email"], error="Invalid passcode."
         )
 
-    update_user_email(user["id"], change["email"])
+    update_user_email(site["id"], change["email"])
     session.pop("email_change", None)
     return redirect("/-/account")
 
@@ -95,9 +93,8 @@ def settings_export_import():
 @app.route("/-/account/token", methods=["POST"])
 def account_token():
     site = require_owner()
-    user = get_user_by_id(session["user_id"])
     token = create_personal_token(site["id"])
-    return render_account(site, user, new_token=token)
+    return render_account(site, site, new_token=token)
 
 
 @app.route("/-/account/token/revoke", methods=["POST"])

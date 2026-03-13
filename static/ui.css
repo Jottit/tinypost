@@ -296,6 +296,22 @@ body:has(.public-page) {
   opacity: 0.8;
 }
 
+/* ── Home page ─────────────────────── */
+.home-nav {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+.home-nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.home-nav a:hover {
+  color: var(--text);
+}
+
 /* ── Email form ─────────────────────── */
 .email-form {
   display: flex;

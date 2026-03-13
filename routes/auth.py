@@ -6,39 +6,87 @@ from db import create_user, get_user_by_email, get_user_by_id, subdomain_taken
 from utils import is_valid_subdomain, subdomain_url
 
 
-@app.route("/signup", methods=["POST"])
+@app.route("/signup")
+def signup():
+    return render_template("signup_name.html")
+
+
+@app.route("/signup/email", methods=["GET", "POST"])
+def signup_email():
+    if request.method == "GET":
+        name = request.args.get("name", "").strip()
+        if not name:
+            return redirect("/signup")
+        return render_template("signup_email.html", name=name)
+
+    name = request.form.get("name", "").strip()
+    if not name:
+        return redirect("/signup")
+    session["signup"] = {"name": name}
+    return render_template("signup_email.html", name=name)
+
+
+@app.route("/signup/email/send", methods=["POST"])
 @limiter.limit("5/minute")
-def signup_post():
-    subdomain = request.form["subdomain"].strip().lower()
-    email = request.form["email"].strip().lower()
-    if not is_valid_subdomain(subdomain) or subdomain_taken(subdomain):
-        return redirect("/")
+def signup_email_send():
+    signup = session.get("signup")
+    if not signup or not signup.get("name"):
+        return redirect("/signup")
+
+    email = request.form.get("email", "").strip().lower()
+    if not email:
+        return render_template("signup_email.html", name=signup["name"], error="Email is required.")
+
     if get_user_by_email(email):
         return render_template(
-            "signup.html",
-            subdomain=subdomain,
+            "signup_email.html",
+            name=signup["name"],
             error="That email is already registered. Try signing in instead.",
         )
+
     passcode = generate_passcode()
-    session["signup"] = {
-        "subdomain": subdomain,
-        "email": email,
-        "passcode": hash_passcode(passcode),
-    }
+    session["signup"] = {**signup, "email": email, "passcode": hash_passcode(passcode)}
     send_passcode(email, passcode)
     return render_template("signup_verify.html", email=email)
 
 
-@app.route("/verify", methods=["POST"])
+@app.route("/signup/verify", methods=["POST"])
 @limiter.limit("10/minute")
 def signup_verify():
     signup = session.get("signup")
-    if not signup:
-        return redirect("/")
+    if not signup or not signup.get("email"):
+        return redirect("/signup")
+
     code = request.form["passcode"]
     if not verify_passcode(code, signup["passcode"]):
         return render_template("signup_verify.html", email=signup["email"], error="Wrong passcode.")
-    user = create_user(signup["email"], signup["subdomain"])
+
+    session["signup"] = {**signup, "verified": True}
+    return render_template("signup_address.html")
+
+
+@app.route("/signup/address", methods=["POST"])
+def signup_address():
+    signup = session.get("signup")
+    if not signup or not signup.get("verified"):
+        return redirect("/signup")
+
+    subdomain = request.form.get("subdomain", "").strip().lower()
+    if not is_valid_subdomain(subdomain):
+        return render_template(
+            "signup_address.html",
+            error="Must be 1-32 characters: lowercase letters, numbers, and hyphens.",
+        )
+    if subdomain_taken(subdomain):
+        return render_template(
+            "signup_address.html",
+            error=f"{subdomain}.tinypost.blog is not available.",
+        )
+
+    user = create_user(signup["email"], subdomain)
+    from db import update_user
+
+    update_user(user["id"], signup["name"], signup["email"])
     session.pop("signup")
     session["user_id"] = user["id"]
     return redirect(subdomain_url(user))

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Choose your address — tinypost{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <h1 class="title">Choose your address</h1>
+    <p class="subtitle">This will be your blog's URL</p>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <form action="/signup/address" method="post" class="email-form">
+      <div class="pill-input pill-input-right">
+        <input type="text" name="subdomain" placeholder="yourname" value="{{ subdomain or '' }}" required autofocus>
+        <span class="pill-input-suffix">.tinypost.blog</span>
+      </div>
+      <button type="submit" class="btn btn--outline">Create my blog</button>
+    </form>
+  </main>
+  <script>
+    (function() {
+      var input = document.querySelector('.pill-input input');
+      var form = input.closest('form');
+      var subtitle = document.querySelector('.subtitle');
+      var errorEl = document.querySelector('.error');
+      var timer;
+      var available = true;
+
+      form.addEventListener('submit', function(e) {
+        if (!available) e.preventDefault();
+      });
+
+      input.addEventListener('input', function() {
+        clearTimeout(timer);
+        available = true;
+        if (errorEl) { errorEl.remove(); errorEl = null; }
+        var name = input.value.toLowerCase().trim();
+        if (!name || !/^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$/.test(name)) {
+          subtitle.textContent = "This will be your blog's URL";
+          subtitle.className = 'subtitle';
+          return;
+        }
+        timer = setTimeout(function() {
+          fetch('/check-subdomain?name=' + encodeURIComponent(name))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (input.value.toLowerCase().trim() !== name) return;
+              if (data.available) {
+                subtitle.textContent = name + '.tinypost.blog is available';
+                subtitle.className = 'subtitle success';
+              } else {
+                available = false;
+                subtitle.textContent = name + '.tinypost.blog is not available';
+                subtitle.className = 'subtitle error';
+              }
+            });
+        }, 300);
+      });
+    })();
+  </script>
+{% endblock %}

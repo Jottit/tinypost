@@ -18,13 +18,19 @@ def setup_site(client):
 # ── Signup checks subdomain_taken ────────
 
 
-@patch("routes.auth.send_passcode")
-def test_signup_rejects_taken_subdomain(mock_send, client):
+def test_signup_rejects_taken_subdomain(client):
     with app.app_context():
         create_user("taken@example.com", "taken")
-    response = client.post("/signup", data={"subdomain": "taken", "email": "new@example.com"})
-    assert response.status_code == 302
-    mock_send.assert_not_called()
+    with client.session_transaction() as sess:
+        sess["signup"] = {
+            "name": "Test",
+            "email": "new@example.com",
+            "passcode": "x",
+            "verified": True,
+        }
+    response = client.post("/signup/address", data={"subdomain": "taken"})
+    assert response.status_code == 200
+    assert b"not available" in response.data
 
 
 # ── Reserved slug protection ─────────────

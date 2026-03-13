@@ -32,19 +32,29 @@ def test_verify_passcode_wrong():
     assert verify_passcode("000000", h) is False
 
 
-# ── Signup subdomain validation ──────────
+# ── Signup validation ──────────
 
 
 @patch("routes.auth.send_passcode")
 def test_signup_rejects_invalid_subdomain(mock_send, client):
-    response = client.post("/signup", data={"subdomain": "---", "email": "u@example.com"})
-    assert response.status_code == 302
+    with client.session_transaction() as sess:
+        sess["signup"] = {
+            "name": "Test",
+            "email": "u@example.com",
+            "passcode": "x",
+            "verified": True,
+        }
+    response = client.post("/signup/address", data={"subdomain": "---"})
+    assert response.status_code == 200
+    assert b"Must be" in response.data
     mock_send.assert_not_called()
 
 
 @patch("routes.auth.send_passcode")
-def test_signup_accepts_valid_subdomain(mock_send, client):
-    response = client.post("/signup", data={"subdomain": "goodname", "email": "u@example.com"})
+def test_signup_sends_passcode_for_valid_email(mock_send, client):
+    with client.session_transaction() as sess:
+        sess["signup"] = {"name": "Test"}
+    response = client.post("/signup/email/send", data={"email": "u@example.com"})
     assert response.status_code == 200
     mock_send.assert_called_once()
 

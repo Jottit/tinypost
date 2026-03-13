@@ -37,23 +37,11 @@ def healthz():
     return "ok"
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def home():
     host, base = host_and_base()
 
     if host == base:
-        if request.method == "POST":
-            subdomain = request.form.get("subdomain", "").lower().strip()
-            if not is_valid_subdomain(subdomain):
-                return render_template("home.html", error="Invalid name", subdomain=subdomain)
-            if subdomain_taken(subdomain):
-                return render_template(
-                    "home.html",
-                    error=f"{subdomain}.tinypost.blog is not available",
-                    subdomain=subdomain,
-                )
-            return render_template("signup.html", subdomain=subdomain)
-
         user_id = session.get("user_id")
         if user_id:
             user = get_user_by_id(user_id)

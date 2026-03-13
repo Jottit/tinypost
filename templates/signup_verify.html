@@ -2,11 +2,11 @@
 {% block title %}Verify — tinypost{% endblock %}
 {% block body %}
   <main class="page-centered">
-    <p>We sent a 6-digit code to <strong>{{ email }}</strong>.<br>Enter it below to verify your account.</p>
+    <p>We sent a 6-digit code to <strong>{{ email }}</strong>.<br>Enter it below to verify your email.</p>
     {% if error %}
       <p class="error">{{ error }}</p>
     {% endif %}
-    <form action="/verify" method="post" class="passcode-form">
+    <form action="/signup/verify" method="post" class="passcode-form">
       <input type="hidden" name="passcode" id="passcode-value">
       <div class="passcode-inputs">
         <input type="text" inputmode="numeric" maxlength="1" required autofocus>

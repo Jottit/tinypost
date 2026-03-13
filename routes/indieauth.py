@@ -43,13 +43,12 @@ def _validate_params(params):
 
 def _consent_template(site, step, params, **kwargs):
     me = site_url(site)
-    user = get_user_by_id(site["id"])
     return render_template(
         "indieauth_consent.html",
         site=site,
         me=me,
         step=step,
-        masked_email=mask_email(user["email"]),
+        masked_email=mask_email(site["email"]),
         **params,
         **kwargs,
     )
@@ -106,10 +105,9 @@ def indieauth_authorize_post():
     action = request.form.get("action", "")
 
     if action == "send_passcode":
-        user = get_user_by_id(site["id"])
         passcode = generate_passcode()
         token = _serializer.dumps({"passcode": passcode, "user_id": site["id"]})
-        send_passcode(user["email"], passcode)
+        send_passcode(site["email"], passcode)
         return _consent_template(site, "verify_passcode", params, passcode_token=token)
 
     if action == "verify_passcode":

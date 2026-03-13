@@ -1,7 +1,7 @@
 from flask import abort, flash, redirect, render_template, request, session
 
 from app import app
-from db import get_blogroll, get_user_by_id, update_blogroll
+from db import get_blogroll, update_blogroll
 from routes import require_owner
 from utils import get_current_site
 
@@ -13,9 +13,8 @@ def blogroll():
         abort(404)
     is_owner = session.get("user_id") == site["id"]
     items = get_blogroll(site["id"])
-    owner = get_user_by_id(site["id"])
     return render_template(
-        "blogroll_page.html", site=site, blogroll=items, is_owner=is_owner, owner=owner
+        "blogroll_page.html", site=site, blogroll=items, is_owner=is_owner, owner=site
     )
 
 

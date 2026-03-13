@@ -8,7 +8,6 @@ from db import (
     get_confirmed_subscribers,
     get_post_by_slug,
     get_subscriber_count,
-    get_user_by_id,
     mark_post_sent,
     toggle_post_pinned,
     update_post,
@@ -159,16 +158,12 @@ def post(slug):
     if post:
         if post["is_draft"] and not is_owner:
             abort(404)
-        user_id = session.get("user_id")
-        user = get_user_by_id(user_id) if user_id else None
         return render_template(
             "post.html",
             site=site,
             post=post,
             is_owner=is_owner,
             subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
-            user=user,
-            user_site=user,
         )
 
     abort(404)

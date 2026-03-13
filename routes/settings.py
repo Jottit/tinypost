@@ -49,11 +49,10 @@ LICENSE_LABELS = {
 @app.route("/-/settings")
 def settings():
     site = require_owner()
-    user = get_user_by_id(session["user_id"])
     return render_template(
         "settings.html",
         site=site,
-        user=user,
+        user=site,
         is_owner=True,
         license_label=LICENSE_LABELS.get(site.get("license"), ""),
     )
