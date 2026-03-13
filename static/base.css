@@ -173,6 +173,19 @@ table {
   --content-width: 60rem;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e2730;
+    --text: #ccc;
+    --text-muted: #7a8a97;
+    --text-bright: #eee;
+    --divider: #2a2a2a;
+    --code-bg: #222;
+    --input-bg: #252525;
+    --card-bg: #111;
+  }
+}
+
 @media (max-width: 640px) {
   :root {
     --text-2xl: 1.35rem;
