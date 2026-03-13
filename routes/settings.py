@@ -143,7 +143,7 @@ def settings_social():
     return redirect("/-/settings")
 
 
-@app.route("/-/settings/appearance", methods=["GET", "POST"])
+@app.route("/-/settings/theme", methods=["GET", "POST"])
 def settings_appearance():
     site = require_owner()
     current_preset = get_appearance_preset(site)
