@@ -16,20 +16,18 @@ from utils import get_current_site, host_and_base, is_valid_subdomain, mask_emai
 def _user_menu_context():
     user_id = session.get("user_id")
     user = get_user_by_id(user_id) if user_id else None
+    if not user:
+        return {"user_email": None, "sites": [], "site": None}
     return {
-        "user_email": mask_email(user["email"]) if user and user.get("subdomain") else None,
-        "sites": (
-            [
-                {
-                    "title": user["title"],
-                    "url": subdomain_url(user),
-                    "avatar": user.get("avatar"),
-                    "address": user.get("custom_domain") or f"{user['subdomain']}.tinypost.blog",
-                }
-            ]
-            if user and user.get("subdomain")
-            else []
-        ),
+        "user_email": mask_email(user["email"]),
+        "sites": [
+            {
+                "title": user["title"],
+                "url": subdomain_url(user),
+                "avatar": user.get("avatar"),
+                "address": user.get("custom_domain") or f"{user['subdomain']}.tinypost.blog",
+            }
+        ],
         "site": user,
     }
 
@@ -56,7 +54,13 @@ def home():
                 )
             return render_template("signup.html", subdomain=subdomain)
 
-        return render_template("home.html", **_user_menu_context())
+        user_id = session.get("user_id")
+        if user_id:
+            user = get_user_by_id(user_id)
+            if user and user.get("subdomain"):
+                return redirect(subdomain_url(user))
+
+        return render_template("home.html")
 
     site = get_current_site()
     if not site:
