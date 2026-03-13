@@ -270,6 +270,10 @@ input[type="submit"] {
   margin-bottom: var(--space-8);
 }
 
+.mt-2 {
+  margin-top: var(--space-2);
+}
+
 .mt-4 {
   margin-top: var(--space-4);
 }

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Add a photo — tinypost{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <h1 class="title">Add a profile photo</h1>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <form action="/-/welcome/photo" method="post" enctype="multipart/form-data" class="email-form">
+      <label class="welcome-photo-upload">
+        <span class="welcome-photo-placeholder">
+          <svg class="welcome-photo-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
+        </span>
+        <span class="welcome-photo-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </span>
+        <input type="file" name="avatar" accept="image/*" hidden>
+      </label>
+      <button type="submit" class="btn btn--outline btn--lg">Next</button>
+    </form>
+    <a href="/-/welcome/bio" class="welcome-skip mt-2">Skip</a>
+  </main>
+  <script>
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var placeholder = document.querySelector('.welcome-photo-placeholder');
+        placeholder.innerHTML = '<img src="' + ev.target.result + '">';
+        document.querySelector('.welcome-photo-badge').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+{% endblock %}

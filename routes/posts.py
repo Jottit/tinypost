@@ -42,7 +42,7 @@ def edit():
     create_post(site["id"], slug, title or None, body, is_draft=is_draft)
     if is_ajax:
         return jsonify(slug=slug)
-    return redirect(f"/{slug}")
+    return redirect("/")
 
 
 @app.route("/-/edit/<slug>", methods=["GET", "POST"])

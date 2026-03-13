@@ -324,3 +324,38 @@ def settings_delete_account():
     delete_account(session["user_id"])
     session.clear()
     return redirect(f"http://{app.config['BASE_DOMAIN']}")
+
+
+# ── Welcome (post-signup onboarding) ─────────
+
+
+@app.route("/-/welcome/photo", methods=["GET", "POST"])
+def welcome_photo():
+    site = require_owner()
+    if request.method == "GET":
+        return render_template("welcome_photo.html", site=site, is_owner=True)
+
+    file = request.files.get("avatar")
+    if file:
+        error = validate_image(file)
+        if error:
+            return render_template("welcome_photo.html", site=site, is_owner=True, error=error)
+        ext = ALLOWED_IMAGE_TYPES[file.content_type]
+        fmt = file.content_type.split("/")[-1].upper()
+        cropped = crop_square(file, fmt)
+        key = f"{site['subdomain']}/avatar.{ext}"
+        url = upload_image(key, cropped, file.content_type)
+        update_user_avatar(site["id"], url)
+    return redirect("/-/welcome/bio")
+
+
+@app.route("/-/welcome/bio", methods=["GET", "POST"])
+def welcome_bio():
+    site = require_owner()
+    if request.method == "GET":
+        return render_template("welcome_bio.html", site=site, is_owner=True)
+
+    bio = request.form.get("bio", "").strip()
+    if bio:
+        update_user_blog(site["id"], site["title"], bio)
+    return redirect("/-/edit")

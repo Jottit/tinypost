@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Add a bio — tinypost{% endblock %}
+{% block body %}
+  <main class="page-centered">
+    <h1 class="title">Add a short bio</h1>
+    <form action="/-/welcome/bio" method="post" class="email-form">
+      <textarea name="bio" class="welcome-bio" rows="3" autofocus></textarea>
+      <button type="submit" class="btn btn--outline btn--lg">Next, write your first post</button>
+    </form>
+    <a href="/-/edit" class="welcome-skip mt-2">Skip</a>
+  </main>
+{% endblock %}

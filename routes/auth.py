@@ -1,9 +1,25 @@
+import re
+
 from flask import redirect, render_template, request, session
 
 from app import app, limiter
 from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
 from db import create_user, get_user_by_email, get_user_by_id, subdomain_taken
 from utils import is_valid_subdomain, subdomain_url
+
+
+def _slugify_name(name):
+    first = name.split()[0] if name.split() else name
+    slug = re.sub(r"[^a-z0-9]", "", first.lower())[:32]
+    if not slug:
+        return ""
+    if not subdomain_taken(slug):
+        return slug
+    for i in range(2, 100):
+        candidate = f"{slug[:29]}{i}"
+        if not subdomain_taken(candidate):
+            return candidate
+    return slug
 
 
 @app.route("/signup")
@@ -62,7 +78,8 @@ def signup_verify():
         return render_template("signup_verify.html", email=signup["email"], error="Wrong passcode.")
 
     session["signup"] = {**signup, "verified": True}
-    return render_template("signup_address.html")
+    suggested = _slugify_name(signup.get("name", ""))
+    return render_template("signup_address.html", suggested=suggested)
 
 
 @app.route("/signup/address", methods=["POST"])
@@ -84,12 +101,13 @@ def signup_address():
         )
 
     user = create_user(signup["email"], subdomain)
-    from db import update_user
+    from db import update_user, update_user_blog
 
     update_user(user["id"], signup["name"], signup["email"])
+    update_user_blog(user["id"], signup["name"], None)
     session.pop("signup")
     session["user_id"] = user["id"]
-    return redirect(subdomain_url(user))
+    return redirect(subdomain_url(user, path="/-/welcome/photo"))
 
 
 @app.route("/signin")

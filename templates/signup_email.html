@@ -3,11 +3,10 @@
 {% block body %}
   <main class="page-centered">
     <h1 class="title">What's your email?</h1>
-    <p class="subtitle">We'll send you a passcode</p>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup/email/send" method="post" class="email-form">
       <input type="email" name="email" class="email-input" placeholder="" required autofocus>
-      <button type="submit" class="btn btn--outline">Send passcode</button>
+      <button type="submit" class="btn btn--outline btn--lg">Send passcode</button>
     </form>
   </main>
 {% endblock %}

@@ -6,16 +6,16 @@
     <p class="subtitle">This will be your blog's URL</p>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup/address" method="post" class="email-form">
-      <div class="pill-input pill-input-right">
-        <input type="text" name="subdomain" placeholder="yourname" value="{{ subdomain or '' }}" required autofocus>
-        <span class="pill-input-suffix">.tinypost.blog</span>
+      <div class="address-input">
+        <input type="text" name="subdomain" class="email-input" placeholder="yourname" value="{{ suggested or subdomain or '' }}" required autofocus>
+        <span class="address-suffix">.tinypost.blog</span>
       </div>
-      <button type="submit" class="btn btn--outline">Create my blog</button>
+      <button type="submit" class="btn btn--outline btn--lg">Next</button>
     </form>
   </main>
   <script>
     (function() {
-      var input = document.querySelector('.pill-input input');
+      var input = document.querySelector('.address-input input');
       var form = input.closest('form');
       var subtitle = document.querySelector('.subtitle');
       var errorEl = document.querySelector('.error');
@@ -26,7 +26,32 @@
         if (!available) e.preventDefault();
       });
 
+      function checkAvailability() {
+        var name = input.value.toLowerCase().trim();
+        if (!name || !/^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$/.test(name)) return;
+        fetch('/check-subdomain?name=' + encodeURIComponent(name))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (input.value.toLowerCase().trim() !== name) return;
+            if (data.available) {
+              subtitle.textContent = name + '.tinypost.blog is available';
+              subtitle.className = 'subtitle success';
+            } else {
+              available = false;
+              subtitle.textContent = name + '.tinypost.blog is not available';
+              subtitle.className = 'subtitle error';
+            }
+          });
+      }
+      function resize() {
+        input.style.width = Math.max(3, input.value.length || input.placeholder.length) + 'ch';
+      }
+      resize();
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+
       input.addEventListener('input', function() {
+        resize();
         clearTimeout(timer);
         available = true;
         if (errorEl) { errorEl.remove(); errorEl = null; }
@@ -36,21 +61,7 @@
           subtitle.className = 'subtitle';
           return;
         }
-        timer = setTimeout(function() {
-          fetch('/check-subdomain?name=' + encodeURIComponent(name))
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-              if (input.value.toLowerCase().trim() !== name) return;
-              if (data.available) {
-                subtitle.textContent = name + '.tinypost.blog is available';
-                subtitle.className = 'subtitle success';
-              } else {
-                available = false;
-                subtitle.textContent = name + '.tinypost.blog is not available';
-                subtitle.className = 'subtitle error';
-              }
-            });
-        }, 300);
+        timer = setTimeout(checkAvailability, 300);
       });
     })();
   </script>

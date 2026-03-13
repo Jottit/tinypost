@@ -329,22 +329,140 @@ body:has(.public-page) {
   max-width: 350px;
 }
 
-input[type="email"].email-input {
+input.email-input {
   width: 100%;
   border: none;
   border-bottom: 2px dashed var(--text-muted);
   border-radius: 0;
   background: transparent;
   text-align: center;
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
+  font-weight: 600;
   padding: var(--space-2) 0;
   margin-bottom: var(--space-4);
 }
 
-input[type="email"].email-input:focus {
+input.email-input:focus {
   outline: none;
   border-color: transparent;
   border-bottom-color: var(--text-bright);
+}
+
+.address-input {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  border-bottom: 2px dashed var(--text-muted);
+  margin-bottom: var(--space-4);
+  padding: 0 var(--space-3);
+}
+
+.address-input input.email-input {
+  width: 6ch;
+  min-width: 3ch;
+  flex: 0 0 auto;
+  text-align: right;
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.address-suffix {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  padding: var(--space-2) 0;
+}
+
+.welcome-photo-upload {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  margin-bottom: var(--space-4);
+}
+
+.welcome-photo-upload:hover .welcome-photo-placeholder {
+  border-color: var(--text-muted);
+}
+
+.welcome-photo-placeholder {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: var(--input-bg);
+  border: 2px dashed var(--divider);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color var(--speed-fast);
+}
+
+.welcome-photo-person {
+  width: 56px;
+  height: 56px;
+}
+
+.welcome-photo-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.welcome-photo-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--text-bright);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-photo-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+textarea.welcome-bio[name] {
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-lg);
+  background: #fff;
+  text-align: left;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  resize: none;
+}
+
+textarea.welcome-bio[name]:focus {
+  outline: none;
+  border-color: #ddd;
+}
+
+.welcome-skip {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.welcome-skip:hover {
+  color: var(--text);
+}
+
+input.email-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+  -webkit-text-fill-color: var(--text-bright);
 }
 
 .btn--outline {
@@ -425,7 +543,7 @@ input[type="email"].email-input:focus {
   font-size: var(--text-xs);
 }
 
-.btn-lg {
+.btn--lg {
   padding: var(--space-2) var(--space-5);
   font-size: var(--text-base);
 }
