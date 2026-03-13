@@ -30,8 +30,6 @@ def test_send_passcode(mock_send_email):
 def test_signup_rejects_existing_email(client):
     with app.app_context():
         create_user("taken@example.com", "taken")
-    with client.session_transaction() as sess:
-        sess["signup"] = {"name": "Test"}
     resp = client.post(
         "/signup/email/send",
         data={"email": "taken@example.com"},

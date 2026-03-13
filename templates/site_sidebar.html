@@ -2,12 +2,7 @@
   {% if site.avatar %}
     <a href="/"><img class="u-photo sidebar-avatar" src="{{ site.avatar }}" alt="avatar"></a>
   {% elif is_owner %}
-    <a href="/-/settings/blog" class="sidebar-avatar-placeholder">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="30" r="14" fill="currentColor"/>
-        <ellipse cx="40" cy="68" rx="24" ry="20" fill="currentColor"/>
-      </svg>
-    </a>
+    <a href="/-/settings/blog" class="sidebar-avatar-placeholder">{% include "_avatar_placeholder.html" %}</a>
   {% endif %}
   {% if site.avatar or is_owner %}<p class="sidebar-title">{{ owner.name if owner and owner.name else site.title }}</p>{% endif %}
   {% if site.bio %}

@@ -6,7 +6,8 @@
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup/email/send" method="post" class="email-form">
       <input type="email" name="email" class="email-input" placeholder="" required autofocus>
-      <button type="submit" class="btn btn--outline btn--lg">Send passcode</button>
+      <button type="submit" class="btn btn--outline btn--lg">Next</button>
     </form>
+    <p class="text-muted mt-4">Already have an account? <a href="/signin">Sign in</a></p>
   </main>
 {% endblock %}

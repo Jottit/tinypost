@@ -346,16 +346,4 @@ def welcome_photo():
         key = f"{site['subdomain']}/avatar.{ext}"
         url = upload_image(key, cropped, file.content_type)
         update_user_avatar(site["id"], url)
-    return redirect("/-/welcome/bio")
-
-
-@app.route("/-/welcome/bio", methods=["GET", "POST"])
-def welcome_bio():
-    site = require_owner()
-    if request.method == "GET":
-        return render_template("welcome_bio.html", site=site, is_owner=True)
-
-    bio = request.form.get("bio", "").strip()
-    if bio:
-        update_user_blog(site["id"], site["title"], bio)
-    return redirect("/-/edit")
+    return redirect("/")

@@ -40,8 +40,6 @@ def test_signup_get(client):
 
 @patch("routes.auth.send_passcode")
 def test_signup_email_send(mock_send, client):
-    with client.session_transaction() as sess:
-        sess["signup"] = {"name": "Test"}
     response = client.post("/signup/email/send", data={"email": "u@example.com"})
     assert response.status_code == 200
     mock_send.assert_called_once()
@@ -50,25 +48,35 @@ def test_signup_email_send(mock_send, client):
 def test_signup_verify_success(client):
     with client.session_transaction() as sess:
         sess["signup"] = {
-            "name": "Test",
             "email": "u@example.com",
             "passcode": hash_passcode("123456"),
         }
     response = client.post("/signup/verify", data={"passcode": "123456"})
     assert response.status_code == 200
-    assert b"address" in response.data.lower() or b"tinypost.blog" in response.data
+    assert b"name" in response.data.lower()
 
 
 def test_signup_verify_wrong_code(client):
     with client.session_transaction() as sess:
         sess["signup"] = {
-            "name": "Test",
             "email": "u@example.com",
             "passcode": hash_passcode("123456"),
         }
     response = client.post("/signup/verify", data={"passcode": "000000"})
     assert response.status_code == 200
     assert b"Wrong passcode" in response.data
+
+
+def test_signup_name(client):
+    with client.session_transaction() as sess:
+        sess["signup"] = {
+            "email": "u@example.com",
+            "passcode": hash_passcode("123456"),
+            "verified": True,
+        }
+    response = client.post("/signup/name", data={"name": "Test User"})
+    assert response.status_code == 200
+    assert b"tinypost.blog" in response.data
 
 
 def test_signup_verify_no_session(client):

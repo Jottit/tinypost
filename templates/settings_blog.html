@@ -14,12 +14,7 @@
           {% if site.avatar %}
             <img src="{{ site.avatar }}" alt="avatar" class="avatar-preview">
           {% else %}
-            <div class="avatar-placeholder">
-              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="30" r="14" fill="currentColor"/>
-                <ellipse cx="40" cy="68" rx="24" ry="20" fill="currentColor"/>
-              </svg>
-            </div>
+            <div class="avatar-placeholder">{% include "_avatar_placeholder.html" %}</div>
           {% endif %}
           <div class="avatar-detail">
             <div class="avatar-actions">

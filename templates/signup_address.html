@@ -3,7 +3,7 @@
 {% block body %}
   <main class="page-centered">
     <h1 class="title">Choose your address</h1>
-    <p class="subtitle">This will be your blog's URL</p>
+    <p class="subtitle" id="status"></p>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup/address" method="post" class="email-form">
       <div class="address-input">
@@ -17,7 +17,7 @@
     (function() {
       var input = document.querySelector('.address-input input');
       var form = input.closest('form');
-      var subtitle = document.querySelector('.subtitle');
+      var subtitle = document.getElementById('status');
       var errorEl = document.querySelector('.error');
       var timer;
       var available = true;
@@ -57,7 +57,7 @@
         if (errorEl) { errorEl.remove(); errorEl = null; }
         var name = input.value.toLowerCase().trim();
         if (!name || !/^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$/.test(name)) {
-          subtitle.textContent = "This will be your blog's URL";
+          subtitle.textContent = '';
           subtitle.className = 'subtitle';
           return;
         }

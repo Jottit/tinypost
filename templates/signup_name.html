@@ -4,10 +4,9 @@
   <main class="page-centered">
     <h1 class="title">What's your name?</h1>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
-    <form action="/signup/email" method="post" class="email-form">
+    <form action="/signup/name" method="post" class="email-form">
       <input type="text" name="name" class="email-input" placeholder="" required autofocus>
       <button type="submit" class="btn btn--outline btn--lg">Next</button>
     </form>
-    <p class="text-muted mt-4">Already have an account? <a href="/signin">Sign in</a></p>
   </main>
 {% endblock %}

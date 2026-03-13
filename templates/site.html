@@ -24,11 +24,20 @@
     <section class="site-intro h-card">
       {% if site.avatar %}
         <img class="u-photo site-intro-avatar" src="{{ site.avatar }}" alt="avatar">
+      {% elif is_owner %}
+        <a href="/-/settings/blog" class="site-intro-avatar-placeholder">
+          {% include "_avatar_placeholder.html" %}
+          <span class="site-intro-avatar-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+          </span>
+        </a>
       {% endif %}
       <div class="site-intro-text">
         <h2 class="site-intro-title p-name">{{ site.title }}</h2>
         {% if site.bio %}
           <p class="site-intro-bio p-note">{{ site.bio }}</p>
+        {% elif is_owner %}
+          <a href="/-/settings/blog" class="site-intro-add-bio">Add bio</a>
         {% endif %}
         {% set links = site.links or [] %}
         {% if links %}
@@ -38,13 +47,13 @@
           <a class="site-intro-about" href="/about">About me</a>
         {% endif %}
       </div>
-      <form action="/subscribe" method="post" class="site-intro-subscribe">
+      {% if posts %}<form action="/subscribe" method="post" class="site-intro-subscribe">
         <div class="pill-input">
           <input type="email" name="email" placeholder="Subscribe by email" required>
           <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
           <button type="submit">Subscribe</button>
         </div>
-      </form>
+      </form>{% endif %}
       <a class="u-url" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
     </section>
     <hr class="site-divider">
@@ -64,7 +73,14 @@
             <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
           </article>
         {% endfor %}
-      {% elif not is_owner %}
+      {% elif is_owner %}
+        <div class="empty-state">
+          <div class="empty-state-quote">&ldquo;</div>
+          <h2 class="empty-state-heading">Your blog is ready</h2>
+          <p class="empty-state-text">What will your first post be about?</p>
+          <a href="/new" class="btn btn--primary btn--lg">Write your first post</a>
+        </div>
+      {% else %}
         <div class="empty-state">
           <p class="empty-state-text">Nothing here yet.</p>
         </div>

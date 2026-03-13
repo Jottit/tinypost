@@ -24,44 +24,24 @@ def _slugify_name(name):
 
 @app.route("/signup")
 def signup():
-    return render_template("signup_name.html")
-
-
-@app.route("/signup/email", methods=["GET", "POST"])
-def signup_email():
-    if request.method == "GET":
-        name = request.args.get("name", "").strip()
-        if not name:
-            return redirect("/signup")
-        return render_template("signup_email.html", name=name)
-
-    name = request.form.get("name", "").strip()
-    if not name:
-        return redirect("/signup")
-    session["signup"] = {"name": name}
-    return render_template("signup_email.html", name=name)
+    return render_template("signup_email.html")
 
 
 @app.route("/signup/email/send", methods=["POST"])
 @limiter.limit("5/minute")
 def signup_email_send():
-    signup = session.get("signup")
-    if not signup or not signup.get("name"):
-        return redirect("/signup")
-
     email = request.form.get("email", "").strip().lower()
     if not email:
-        return render_template("signup_email.html", name=signup["name"], error="Email is required.")
+        return render_template("signup_email.html", error="Email is required.")
 
     if get_user_by_email(email):
         return render_template(
             "signup_email.html",
-            name=signup["name"],
             error="That email is already registered. Try signing in instead.",
         )
 
     passcode = generate_passcode()
-    session["signup"] = {**signup, "email": email, "passcode": hash_passcode(passcode)}
+    session["signup"] = {"email": email, "passcode": hash_passcode(passcode)}
     send_passcode(email, passcode)
     return render_template("signup_verify.html", email=email)
 
@@ -78,14 +58,28 @@ def signup_verify():
         return render_template("signup_verify.html", email=signup["email"], error="Wrong passcode.")
 
     session["signup"] = {**signup, "verified": True}
-    suggested = _slugify_name(signup.get("name", ""))
+    return render_template("signup_name.html")
+
+
+@app.route("/signup/name", methods=["POST"])
+def signup_name():
+    signup = session.get("signup")
+    if not signup or not signup.get("verified"):
+        return redirect("/signup")
+
+    name = request.form.get("name", "").strip()
+    if not name:
+        return render_template("signup_name.html", error="Name is required.")
+
+    session["signup"] = {**signup, "name": name}
+    suggested = _slugify_name(name)
     return render_template("signup_address.html", suggested=suggested)
 
 
 @app.route("/signup/address", methods=["POST"])
 def signup_address():
     signup = session.get("signup")
-    if not signup or not signup.get("verified"):
+    if not signup or not signup.get("name"):
         return redirect("/signup")
 
     subdomain = request.form.get("subdomain", "").strip().lower()

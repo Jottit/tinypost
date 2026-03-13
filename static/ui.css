@@ -450,6 +450,42 @@ textarea.welcome-bio[name]:focus {
   border-color: #ddd;
 }
 
+.welcome-add-bio {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.welcome-bio-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.welcome-blog-url {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.welcome-preview-title {
+  margin-bottom: var(--space-6);
+}
+
+.welcome-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+}
+
+.welcome-preview-actions {
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
 .welcome-skip {
   font-size: var(--text-sm);
   color: var(--text-muted);
@@ -546,6 +582,10 @@ input.email-input:-webkit-autofill {
 .btn--lg {
   padding: var(--space-2) var(--space-5);
   font-size: var(--text-base);
+}
+
+.btn--primary {
+  background: var(--brand-1);
 }
 
 .btn--outline {
