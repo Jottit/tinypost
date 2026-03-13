@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from app import app
 from auth import send_passcode
+from db import create_user
 
 
 @patch("auth.send_email")
@@ -24,3 +25,15 @@ def test_send_passcode(mock_send_email):
             f"https://{app.config['BASE_DOMAIN']}"
         ),
     )
+
+
+def test_signup_rejects_existing_email(client):
+    with app.app_context():
+        create_user("taken@example.com", "taken")
+    resp = client.post(
+        "/signup",
+        data={"subdomain": "newblog", "email": "taken@example.com"},
+        headers={"Host": "tinypost.localhost:8000"},
+    )
+    assert resp.status_code == 200
+    assert b"already registered" in resp.data

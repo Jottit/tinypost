@@ -13,6 +13,12 @@ def signup_post():
     email = request.form["email"].strip().lower()
     if not is_valid_subdomain(subdomain) or subdomain_taken(subdomain):
         return redirect("/")
+    if get_user_by_email(email):
+        return render_template(
+            "signup.html",
+            subdomain=subdomain,
+            error="That email is already registered. Try signing in instead.",
+        )
     passcode = generate_passcode()
     session["signup"] = {
         "subdomain": subdomain,

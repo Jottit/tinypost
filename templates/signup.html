@@ -4,6 +4,7 @@
   <main class="page-centered">
     <h1 class="title">What's your email?</h1>
     <p class="subtitle">We'll send you a passcode</p>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup" method="post" class="email-form">
       <input type="hidden" name="subdomain" value="{{ subdomain }}">
       <input type="email" name="email" class="email-input" placeholder="" required autofocus>

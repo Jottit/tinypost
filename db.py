@@ -62,9 +62,7 @@ def subdomain_taken(subdomain):
 def create_user(email, subdomain):
     db = get_db()
     user = db.execute(
-        "INSERT INTO users (email, subdomain, title) VALUES (%s, %s, %s)"
-        " ON CONFLICT (email) DO UPDATE SET subdomain = EXCLUDED.subdomain, title = EXCLUDED.title"
-        " RETURNING *",
+        "INSERT INTO users (email, subdomain, title) VALUES (%s, %s, %s) RETURNING *",
         (email, subdomain, subdomain),
     ).fetchone()
     db.commit()
