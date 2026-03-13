@@ -307,6 +307,7 @@ body:has(.public-page) {
 }
 
 input[type="email"].email-input {
+  width: 100%;
   border: none;
   border-bottom: 2px dashed var(--text-muted);
   border-radius: 0;
