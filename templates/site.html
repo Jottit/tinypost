@@ -68,7 +68,7 @@
             {% elif post.is_draft %}
               <p class="draft-label text-center">Draft</p>
             {% endif %}
-            <div class="p-summary post-body">{{ post.body | truncatewords(25) | markdown }}</div>
+            <div class="p-summary post-body">{{ post.body | truncatewords(30) | markdown }}</div>
             <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
             <a class="p-author h-card" href="{{ site_url(site) }}" hidden>{{ site.title }}</a>
           </article>
