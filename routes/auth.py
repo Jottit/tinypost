@@ -140,4 +140,4 @@ def signin_verify():
 @app.route("/signout", methods=["POST"])
 def signout():
     session.clear()
-    return redirect("/")
+    return redirect(f"http://{app.config['BASE_DOMAIN']}")
