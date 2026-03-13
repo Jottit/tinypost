@@ -18,3 +18,4 @@ primary_region = "ams"
 
 [processes]
   app = "gunicorn app:app -w 2 --threads 2 --bind 0.0.0.0:8080"
+  cron = "sh -c 'while true; do flask refresh-feeds; sleep 3600; done'"
