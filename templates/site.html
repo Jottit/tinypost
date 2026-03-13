@@ -30,7 +30,7 @@
         {% if site.bio %}
           <p class="site-intro-bio p-note">{{ site.bio }}</p>
         {% endif %}
-        {% set links = site.social_links or [] %}
+        {% set links = site.links or [] %}
         {% if links %}
           <p class="site-intro-links">{% for link in links %}<a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>{% if not loop.last %}&ensp;{% endif %}{% endfor %}</p>
         {% endif %}

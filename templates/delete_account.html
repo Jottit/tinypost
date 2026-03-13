@@ -5,14 +5,7 @@
     <a href="/-/account" class="panel-back">&larr; Account</a>
     <h1 class="panel-title">Delete account</h1>
     <div class="panel panel--narrow">
-      <p>This will permanently delete your account, all your sites, posts, and images. This cannot be undone.</p>
-      {% if sites|length > 1 %}
-      <ul>
-        {% for s in sites %}
-          <li>{{ s.subdomain }}.tinypost.blog</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+      <p>This will permanently delete your account, all your posts, and images. This cannot be undone.</p>
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}

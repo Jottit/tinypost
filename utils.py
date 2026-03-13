@@ -80,13 +80,13 @@ def host_and_base():
 
 
 def get_current_site():
-    from db import get_site_by_custom_domain, get_site_by_subdomain
+    from db import get_user_by_custom_domain, get_user_by_subdomain
 
     host, base = host_and_base()
     suffix = "." + base
     if host.endswith(suffix):
         subdomain = host.removesuffix(suffix)
-        return get_site_by_subdomain(subdomain)
+        return get_user_by_subdomain(subdomain)
     if host != base:
-        return get_site_by_custom_domain(host)
+        return get_user_by_custom_domain(host)
     return None

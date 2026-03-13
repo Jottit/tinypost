@@ -1,9 +1,9 @@
 from app import app
 from db import (
     create_post,
-    create_user_and_site,
-    update_site,
-    update_site_avatar,
+    create_user,
+    update_user_avatar,
+    update_user_blog,
 )
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
@@ -11,10 +11,10 @@ SITE_HOST = "myblog.tinypost.localhost:8000"
 
 def _setup(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess.clear()
-    return user, site
+    return user
 
 
 def test_plain_text_filter_strips_markdown():
@@ -32,10 +32,10 @@ def test_plain_text_filter_handles_empty():
 
 
 def test_post_og_tags(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        update_site_avatar(site["id"], "https://example.com/avatar.jpg")
-        create_post(site["id"], "hello", "Hello World", "This is my **first** post.")
+        update_user_avatar(user["id"], "https://example.com/avatar.jpg")
+        create_post(user["id"], "hello", "Hello World", "This is my **first** post.")
     response = client.get("/hello", headers={"Host": SITE_HOST})
     html = response.data.decode()
     assert '<meta property="og:title" content="Hello World">' in html
@@ -48,9 +48,9 @@ def test_post_og_tags(client):
 
 
 def test_site_homepage_og_tags(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        update_site(site["id"], "My Blog", "A blog about things")
+        update_user_blog(user["id"], "My Blog", "A blog about things")
     response = client.get("/", headers={"Host": SITE_HOST})
     html = response.data.decode()
     assert '<meta property="og:title" content="My Blog">' in html
@@ -61,19 +61,19 @@ def test_site_homepage_og_tags(client):
 
 
 def test_description_falls_back_to_bio(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        update_site(site["id"], "My Blog", "My site bio")
-        create_post(site["id"], "hello", "Hello", "")
+        update_user_blog(user["id"], "My Blog", "My site bio")
+        create_post(user["id"], "hello", "Hello", "")
     response = client.get("/hello", headers={"Host": SITE_HOST})
     html = response.data.decode()
     assert '<meta property="og:description" content="My site bio">' in html
 
 
 def test_og_image_omitted_without_avatar(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Some content")
+        create_post(user["id"], "hello", "Hello", "Some content")
     response = client.get("/hello", headers={"Host": SITE_HOST})
     html = response.data.decode()
     assert "og:image" not in html
@@ -81,10 +81,10 @@ def test_og_image_omitted_without_avatar(client):
 
 
 def test_description_truncated(client):
-    _, site = _setup(client)
+    user = _setup(client)
     long_body = "Word " * 100
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", long_body)
+        create_post(user["id"], "hello", "Hello", long_body)
     response = client.get("/hello", headers={"Host": SITE_HOST})
     html = response.data.decode()
     for line in html.split("\n"):

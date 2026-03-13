@@ -1,5 +1,5 @@
 from app import app
-from db import create_user_and_site, get_site_by_subdomain, update_site
+from db import create_user, get_user_by_subdomain, update_user_links
 
 
 def login(client, user):
@@ -9,7 +9,7 @@ def login(client, user):
 
 def test_social_links_saved(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user)
     response = client.post(
         "/-/settings/social",
@@ -23,16 +23,16 @@ def test_social_links_saved(client):
     )
     assert response.status_code == 302
     with app.app_context():
-        updated = get_site_by_subdomain("myblog")
-    assert len(updated["social_links"]) == 2
-    assert updated["social_links"][0]["label"] == "Mastodon"
-    assert updated["social_links"][0]["url"] == "https://mastodon.social/@test"
-    assert updated["social_links"][1]["label"] == "GitHub"
+        updated = get_user_by_subdomain("myblog")
+    assert len(updated["links"]) == 2
+    assert updated["links"][0]["label"] == "Mastodon"
+    assert updated["links"][0]["url"] == "https://mastodon.social/@test"
+    assert updated["links"][1]["label"] == "GitHub"
 
 
 def test_empty_social_links_skipped(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user)
     response = client.post(
         "/-/settings/social",
@@ -46,19 +46,17 @@ def test_empty_social_links_skipped(client):
     )
     assert response.status_code == 302
     with app.app_context():
-        updated = get_site_by_subdomain("myblog")
-    assert len(updated["social_links"]) == 1
-    assert updated["social_links"][0]["label"] == "GitHub"
+        updated = get_user_by_subdomain("myblog")
+    assert len(updated["links"]) == 1
+    assert updated["links"][0]["label"] == "GitHub"
 
 
 def test_social_links_displayed_on_blog(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-        update_site(
-            site["id"],
-            "My Blog",
-            None,
-            social_links=[
+        user = create_user("owner@example.com", "myblog")
+        update_user_links(
+            user["id"],
+            [
                 {"label": "Mastodon", "url": "https://mastodon.social/@test"},
                 {"label": "GitHub", "url": "https://github.com/test"},
             ],
@@ -73,12 +71,10 @@ def test_social_links_displayed_on_blog(client):
 
 def test_social_links_in_settings_form(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-        update_site(
-            site["id"],
-            "My Blog",
-            None,
-            social_links=[{"label": "GitHub", "url": "https://github.com/test"}],
+        user = create_user("owner@example.com", "myblog")
+        update_user_links(
+            user["id"],
+            [{"label": "GitHub", "url": "https://github.com/test"}],
         )
     login(client, user)
     response = client.get("/-/settings/social", headers={"Host": "myblog.tinypost.localhost:8000"})

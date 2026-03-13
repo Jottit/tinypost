@@ -5,10 +5,10 @@ from app import app
 from auth import hash_passcode
 from db import (
     create_post,
-    create_user_and_site,
+    create_user,
     get_post_by_slug,
     toggle_post_pinned,
-    update_site_avatar,
+    update_user_avatar,
 )
 
 HOST = {"Host": "myblog.tinypost.localhost:8000"}
@@ -16,10 +16,10 @@ HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 def _setup(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    return user, site
+    return user
 
 
 # ── require_owner: no site ──────────────────────
@@ -103,7 +103,7 @@ def test_signin_get(client):
 @patch("routes.auth.send_passcode")
 def test_signin_post_success(mock_send, client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.post("/signin", data={"email": "owner@example.com"})
     assert response.status_code == 200
     mock_send.assert_called_once()
@@ -117,7 +117,7 @@ def test_signin_post_unknown_email(client):
 
 def test_signin_verify_success(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["signin"] = {
             "email": "owner@example.com",
@@ -170,23 +170,23 @@ def test_edit_new_post_empty_body(client):
 
 
 def test_edit_create_post_success(client):
-    _, site = _setup(client)
+    user = _setup(client)
     response = client.post("/-/edit", data={"title": "Hello", "body": "World"}, headers=HOST)
     assert response.status_code == 302
     with app.app_context():
-        post = get_post_by_slug(site["id"], "hello")
+        post = get_post_by_slug(user["id"], "hello")
     assert post is not None
     assert post["title"] == "Hello"
 
 
 def test_edit_create_draft(client):
-    _, site = _setup(client)
+    user = _setup(client)
     response = client.post(
         "/-/edit", data={"title": "Draft", "body": "Content", "is_draft": "on"}, headers=HOST
     )
     assert response.status_code == 302
     with app.app_context():
-        post = get_post_by_slug(site["id"], "draft")
+        post = get_post_by_slug(user["id"], "draft")
     assert post["is_draft"] is True
 
 
@@ -200,18 +200,18 @@ def test_edit_post_not_found(client):
 
 
 def test_edit_post_get(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
+        create_post(user["id"], "hello", "Hello", "Body")
     response = client.get("/-/edit/hello", headers=HOST)
     assert response.status_code == 200
     assert b"Hello" in response.data
 
 
 def test_edit_existing_post_empty_body(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
+        create_post(user["id"], "hello", "Hello", "Body")
     response = client.post("/-/edit/hello", data={"title": "Hello", "body": ""}, headers=HOST)
     assert response.status_code == 200
     assert b"body is required" in response.data
@@ -221,13 +221,13 @@ def test_edit_existing_post_empty_body(client):
 
 
 def test_delete_post(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
+        create_post(user["id"], "hello", "Hello", "Body")
     response = client.post("/-/delete/hello", headers=HOST)
     assert response.status_code == 302
     with app.app_context():
-        assert get_post_by_slug(site["id"], "hello") is None
+        assert get_post_by_slug(user["id"], "hello") is None
 
 
 def test_delete_post_not_found(client):
@@ -248,9 +248,9 @@ def test_send_post_not_found(mock_send, client):
 
 @patch("routes.posts.send_email")
 def test_send_post_no_subscribers(mock_send, client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
+        create_post(user["id"], "hello", "Hello", "Body")
     response = client.post("/-/send/hello", headers=HOST)
     assert response.status_code == 302
     mock_send.assert_not_called()
@@ -260,28 +260,28 @@ def test_send_post_no_subscribers(mock_send, client):
 
 
 def test_pin_post_toggles(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
+        create_post(user["id"], "hello", "Hello", "Body")
     response = client.post("/-/pin/hello", headers=HOST)
     assert response.status_code == 302
     with app.app_context():
-        post = get_post_by_slug(site["id"], "hello")
+        post = get_post_by_slug(user["id"], "hello")
     assert post["is_pinned"] is True
 
     response = client.post("/-/pin/hello", headers=HOST)
     assert response.status_code == 302
     with app.app_context():
-        post = get_post_by_slug(site["id"], "hello")
+        post = get_post_by_slug(user["id"], "hello")
     assert post["is_pinned"] is False
 
 
 def test_pinned_post_shown_first(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "old", "Old Post", "First post")
-        create_post(site["id"], "new", "New Post", "Second post")
-        old = get_post_by_slug(site["id"], "old")
+        create_post(user["id"], "old", "Old Post", "First post")
+        create_post(user["id"], "new", "New Post", "Second post")
+        old = get_post_by_slug(user["id"], "old")
         toggle_post_pinned(old["id"])
     response = client.get("/", headers=HOST)
     html = response.data.decode()
@@ -291,10 +291,10 @@ def test_pinned_post_shown_first(client):
 
 
 def test_pinned_label_shown(client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
-        post = get_post_by_slug(site["id"], "hello")
+        create_post(user["id"], "hello", "Hello", "Body")
+        post = get_post_by_slug(user["id"], "hello")
         toggle_post_pinned(post["id"])
     response = client.get("/", headers=HOST)
     assert b"pinned-icon" in response.data
@@ -318,9 +318,9 @@ def test_settings_avatar_no_file(client):
 
 @patch("routes.settings.delete_image")
 def test_settings_avatar_delete_external_url(mock_delete, client):
-    _, site = _setup(client)
+    user = _setup(client)
     with app.app_context():
-        update_site_avatar(site["id"], "https://cdn.example.com/myblog/avatar.png")
+        update_user_avatar(user["id"], "https://cdn.example.com/myblog/avatar.png")
     response = client.post("/-/settings/avatar/delete", headers=HOST)
     assert response.status_code == 302
     mock_delete.assert_called_once_with("myblog/avatar.png")
@@ -357,7 +357,7 @@ def test_subscribe_no_site(client):
 @patch("routes.subscribers.send_email")
 def test_subscribe_empty_email(mock_send, client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.post("/subscribe", data={"email": ""}, headers=HOST)
     assert response.status_code == 302
     mock_send.assert_not_called()
@@ -368,7 +368,7 @@ def test_subscribe_empty_email(mock_send, client):
 
 def test_slug_not_found(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/nonexistent-slug", headers=HOST)
     assert response.status_code == 404
 
@@ -392,7 +392,7 @@ def test_uploaded_file(client):
 
 def test_404_site_page(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/nonexistent-path", headers=HOST)
     assert response.status_code == 404
     assert b"Page not found" in response.data
@@ -411,7 +411,7 @@ def test_404_tinypost_page(client):
 
 def test_500_error_page(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
 
     app.config["TESTING"] = False
     try:

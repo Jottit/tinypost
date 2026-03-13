@@ -14,7 +14,7 @@ def upload():
     site = get_current_site()
     if not site:
         abort(404)
-    if session.get("user_id") != site["user_id"]:
+    if session.get("user_id") != site["id"]:
         return jsonify({"error": "Unauthorized"}), 401
 
     file = request.files.get("file")

@@ -11,9 +11,9 @@ def blogroll():
     site = get_current_site()
     if not site:
         abort(404)
-    is_owner = session.get("user_id") == site["user_id"]
+    is_owner = session.get("user_id") == site["id"]
     items = get_blogroll(site["id"])
-    owner = get_user_by_id(site["user_id"])
+    owner = get_user_by_id(site["id"])
     return render_template(
         "blogroll_page.html", site=site, blogroll=items, is_owner=is_owner, owner=owner
     )

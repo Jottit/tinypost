@@ -16,7 +16,7 @@
   {% if is_owner and not site.avatar and not site.bio %}
     <a href="/-/settings/blog" class="btn btn--outline btn--sm">+ add profile</a>
   {% endif %}
-  {% set links = site.social_links or [] %}
+  {% set links = site.links or [] %}
   {% if links %}
     <div class="social-links">
       {% for link in links %}

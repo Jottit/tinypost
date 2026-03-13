@@ -7,7 +7,7 @@
     <div class="panel panel--narrow">
       <form method="POST" action="/-/settings/social" class="settings-form auto-save" id="social-form">
         <p class="text-muted">Links to the rest of your home on the web.</p>
-        {% set links = site.social_links or [] %}
+        {% set links = site.links or [] %}
         <div class="social-links-editor">
           {% for link in links %}
             <div class="social-link-row">

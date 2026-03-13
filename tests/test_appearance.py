@@ -1,5 +1,5 @@
 from app import app
-from db import create_user_and_site, get_site_by_subdomain
+from db import create_user, get_user_by_subdomain
 
 
 def login(client, user):
@@ -9,7 +9,7 @@ def login(client, user):
 
 def test_appearance_requires_auth(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/-/settings/theme", headers={"Host": "myblog.tinypost.localhost:8000"})
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
@@ -17,7 +17,7 @@ def test_appearance_requires_auth(client):
 
 def test_appearance_page_renders(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user)
     response = client.get("/-/settings/theme", headers={"Host": "myblog.tinypost.localhost:8000"})
     assert response.status_code == 200
@@ -27,7 +27,7 @@ def test_appearance_page_renders(client):
 
 def test_appearance_save_updates_preset(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user)
     response = client.post(
         "/-/settings/theme",
@@ -36,13 +36,13 @@ def test_appearance_save_updates_preset(client):
     )
     assert response.status_code == 302
     with app.app_context():
-        updated = get_site_by_subdomain("myblog")
-    assert updated["design"]["preset"] == "cool"
+        updated = get_user_by_subdomain("myblog")
+    assert updated["theme"] == "cool"
 
 
 def test_appearance_applies_to_homepage(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user)
     client.post(
         "/-/settings/theme",

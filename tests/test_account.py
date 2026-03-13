@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from app import app
-from db import create_user_and_site, get_user_by_id
+from db import create_user, get_user_by_id
 
 HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
@@ -13,7 +13,7 @@ def login(client, user_id):
 
 def test_account_requires_auth(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/-/account", headers=HOST)
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
@@ -21,7 +21,7 @@ def test_account_requires_auth(client):
 
 def test_account_shows_email_as_text_with_update_link(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/account", headers=HOST)
     assert response.status_code == 200
@@ -32,7 +32,7 @@ def test_account_shows_email_as_text_with_update_link(client):
 
 def test_account_post_only_updates_name(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     client.post(
         "/-/account",
@@ -48,7 +48,7 @@ def test_account_post_only_updates_name(client):
 @patch("routes.account.send_passcode")
 def test_account_update_email_with_passcode(mock_send, client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
         "/-/account/email",
@@ -73,7 +73,7 @@ def test_account_update_email_with_passcode(mock_send, client):
 
 def test_account_email_wrong_passcode(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     client.post(
         "/-/account/email",
@@ -94,7 +94,7 @@ def test_account_email_wrong_passcode(client):
 
 def test_account_email_required(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
         "/-/account/email",
@@ -107,7 +107,7 @@ def test_account_email_required(client):
 
 def test_account_page_has_token_section(client):
     with app.app_context():
-        user, _ = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/account", headers=HOST)
     assert b"name" in response.data

@@ -6,9 +6,9 @@ from app import app
 from db import (
     confirm_subscriber,
     create_subscriber,
-    get_site_by_id,
     get_subscriber,
     get_subscriber_by_token,
+    get_user_by_id,
     unsubscribe,
     update_subscriber_token,
 )
@@ -66,7 +66,7 @@ def confirm(token):
     if not subscriber:
         abort(404)
     confirm_subscriber(token)
-    site = get_site_by_id(subscriber["site_id"])
+    site = get_user_by_id(subscriber["user_id"])
     return render_template(
         "confirmed.html",
         site=site,
@@ -80,6 +80,6 @@ def unsubscribe_route(token):
     subscriber = get_subscriber_by_token(token)
     if not subscriber:
         abort(404)
-    site = get_site_by_id(subscriber["site_id"])
+    site = get_user_by_id(subscriber["user_id"])
     unsubscribe(token)
     return render_template("unsubscribed.html", site=site, base_url=site_url(site))

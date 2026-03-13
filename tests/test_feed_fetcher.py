@@ -5,7 +5,7 @@ import feedparser as _feedparser
 import pytest
 
 from app import app
-from db import create_user_and_site, get_blogroll, get_db, update_blogroll
+from db import create_user, get_blogroll, get_db, update_blogroll
 from feed_fetcher import discover_feed_url, fetch_feed, refresh_all_feeds
 
 HOST = {"Host": "myblog.tinypost.localhost:8000"}
@@ -122,8 +122,8 @@ def test_discover_feed_url_network_error():
 
 def _setup():
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-    return user, site
+        user = create_user("owner@example.com", "myblog")
+    return user
 
 
 def _mock_favicon_response(mock_urlopen, content_type="image/x-icon"):
@@ -215,11 +215,11 @@ def test_favicon_head_non_image(mock_parse, mock_urlopen):
 
 @patch("feed_fetcher.fetch_feed")
 def test_refresh_all_feeds_updates_db(mock_fetch, client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         update_blogroll(
-            site["id"],
+            user["id"],
             [
                 {
                     "name": "Test Blog",
@@ -240,7 +240,7 @@ def test_refresh_all_feeds_updates_db(mock_fetch, client):
     refresh_all_feeds()
 
     with app.app_context():
-        items = get_blogroll(site["id"])
+        items = get_blogroll(user["id"])
         assert len(items) == 1
         assert items[0]["feed_title"] == "Test Blog Title"
         assert items[0]["latest_post_title"] == "Latest Post"
@@ -252,11 +252,11 @@ def test_refresh_all_feeds_updates_db(mock_fetch, client):
 @patch("feed_fetcher.fetch_feed")
 @patch("feed_fetcher.discover_feed_url")
 def test_refresh_all_feeds_discovers_missing_feed_url(mock_discover, mock_fetch, client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         update_blogroll(
-            site["id"],
+            user["id"],
             [{"name": "No Feed Blog", "url": "https://nofeed.example.com"}],
         )
 
@@ -272,17 +272,17 @@ def test_refresh_all_feeds_discovers_missing_feed_url(mock_discover, mock_fetch,
     refresh_all_feeds()
 
     with app.app_context():
-        items = get_blogroll(site["id"])
+        items = get_blogroll(user["id"])
         assert items[0]["feed_url"] == "https://nofeed.example.com/rss"
         assert items[0]["feed_title"] == "Discovered Blog"
 
 
 def test_sidebar_renders_feed_metadata(client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         update_blogroll(
-            site["id"],
+            user["id"],
             [
                 {
                     "name": "Cool Blog",
@@ -306,11 +306,11 @@ def test_sidebar_renders_feed_metadata(client):
 
 
 def test_sidebar_renders_initial_fallback(client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         update_blogroll(
-            site["id"],
+            user["id"],
             [
                 {"name": "No Icon Blog", "url": "https://noicon.example.com"},
             ],
@@ -323,11 +323,11 @@ def test_sidebar_renders_initial_fallback(client):
 
 
 def test_sidebar_links_latest_post(client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         update_blogroll(
-            site["id"],
+            user["id"],
             [
                 {
                     "name": "Linked Blog",
@@ -354,11 +354,11 @@ def test_sidebar_links_latest_post(client):
 
 
 def test_sidebar_limits_to_five(client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         items = [{"name": f"Blog {i}", "url": f"https://blog{i}.example.com"} for i in range(8)]
-        update_blogroll(site["id"], items)
+        update_blogroll(user["id"], items)
 
     response = client.get("/", headers=HOST)
     assert response.status_code == 200
@@ -369,11 +369,11 @@ def test_sidebar_limits_to_five(client):
 
 
 def test_blogroll_page_public(client):
-    _, site = _setup()
+    user = _setup()
 
     with app.app_context():
         update_blogroll(
-            site["id"],
+            user["id"],
             [
                 {"name": "Public Blog", "url": "https://public.example.com"},
             ],
@@ -387,11 +387,11 @@ def test_blogroll_page_public(client):
 
 @patch("feed_fetcher.fetch_feed")
 def test_refresh_deduplicates_shared_feed(mock_fetch, client):
-    _, site1 = _setup()
+    user = _setup()
     with app.app_context():
-        _, site2 = create_user_and_site("other@example.com", "otherblog")
+        user2 = create_user("other@example.com", "otherblog")
         update_blogroll(
-            site1["id"],
+            user["id"],
             [
                 {
                     "name": "Shared",
@@ -401,7 +401,7 @@ def test_refresh_deduplicates_shared_feed(mock_fetch, client):
             ],
         )
         update_blogroll(
-            site2["id"],
+            user2["id"],
             [
                 {
                     "name": "Shared Too",
@@ -424,8 +424,8 @@ def test_refresh_deduplicates_shared_feed(mock_fetch, client):
     mock_fetch.assert_called_once_with("https://shared.example.com/rss")
 
     with app.app_context():
-        items1 = get_blogroll(site1["id"])
-        items2 = get_blogroll(site2["id"])
+        items1 = get_blogroll(user["id"])
+        items2 = get_blogroll(user2["id"])
         assert items1[0]["latest_post_title"] == "Post"
         assert items2[0]["latest_post_title"] == "Post"
 

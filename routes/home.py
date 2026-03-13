@@ -4,11 +4,10 @@ from app import app
 from config import CADDY_ASK_TOKEN
 from db import (
     get_blogroll,
-    get_posts_for_site,
-    get_site_by_custom_domain,
-    get_site_by_subdomain,
-    get_sites_by_user,
+    get_posts_for_user,
+    get_user_by_custom_domain,
     get_user_by_id,
+    get_user_by_subdomain,
     subdomain_taken,
 )
 from utils import get_current_site, host_and_base, is_valid_subdomain, mask_email, subdomain_url
@@ -17,20 +16,21 @@ from utils import get_current_site, host_and_base, is_valid_subdomain, mask_emai
 def _user_menu_context():
     user_id = session.get("user_id")
     user = get_user_by_id(user_id) if user_id else None
-    sites = get_sites_by_user(user_id) if user else []
-    site = sites[0] if sites else None
     return {
-        "user_email": mask_email(user["email"]) if sites else None,
-        "sites": [
-            {
-                "title": s["title"],
-                "url": subdomain_url(s),
-                "avatar": s.get("avatar"),
-                "address": s.get("custom_domain") or f"{s['subdomain']}.tinypost.blog",
-            }
-            for s in sites
-        ],
-        "site": site,
+        "user_email": mask_email(user["email"]) if user and user.get("subdomain") else None,
+        "sites": (
+            [
+                {
+                    "title": user["title"],
+                    "url": subdomain_url(user),
+                    "avatar": user.get("avatar"),
+                    "address": user.get("custom_domain") or f"{user['subdomain']}.tinypost.blog",
+                }
+            ]
+            if user and user.get("subdomain")
+            else []
+        ),
+        "site": user,
     }
 
 
@@ -61,7 +61,7 @@ def home():
     site = get_current_site()
     if not site:
         abort(404)
-    is_owner = session.get("user_id") == site["user_id"]
+    is_owner = session.get("user_id") == site["id"]
 
     # Redirect unauthenticated subdomain visitors to custom domain
     if (
@@ -77,7 +77,7 @@ def home():
         page = 1
     per_page = 20
     offset = (page - 1) * per_page
-    fetched_posts = get_posts_for_site(
+    fetched_posts = get_posts_for_user(
         site["id"], include_drafts=is_owner, limit=per_page + 1, offset=offset
     )
     has_next = len(fetched_posts) > per_page
@@ -138,9 +138,9 @@ def tls_ask():
 
     suffix = "." + base
     if domain.endswith(suffix):
-        site = get_site_by_subdomain(domain.removesuffix(suffix))
+        site = get_user_by_subdomain(domain.removesuffix(suffix))
     else:
-        site = get_site_by_custom_domain(domain.removeprefix("www."))
+        site = get_user_by_custom_domain(domain.removeprefix("www."))
 
     if not site:
         return "", 403

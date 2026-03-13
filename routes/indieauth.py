@@ -8,7 +8,7 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from app import app, limiter
 from auth import generate_passcode, send_passcode
-from db import create_auth_code, exchange_auth_code, get_auth_code, get_site_by_id, get_user_by_id
+from db import create_auth_code, exchange_auth_code, get_auth_code, get_user_by_id
 from utils import get_current_site, mask_email, site_url
 
 _serializer = URLSafeTimedSerializer(app.secret_key, salt="indieauth-passcode")
@@ -43,7 +43,7 @@ def _validate_params(params):
 
 def _consent_template(site, step, params, **kwargs):
     me = site_url(site)
-    user = get_user_by_id(site["user_id"])
+    user = get_user_by_id(site["id"])
     return render_template(
         "indieauth_consent.html",
         site=site,
@@ -84,9 +84,9 @@ def indieauth_authorize():
     if error:
         abort(400, error)
 
-    is_owner = session.get("user_id") == site["user_id"]
+    is_owner = session.get("user_id") == site["id"]
     if is_owner:
-        auth_token = _serializer.dumps({"site_id": site["id"], "authenticated": True})
+        auth_token = _serializer.dumps({"user_id": site["id"], "authenticated": True})
         return _consent_template(site, "approve", params, auth_token=auth_token)
     return _consent_template(site, "send_passcode", params)
 
@@ -106,9 +106,9 @@ def indieauth_authorize_post():
     action = request.form.get("action", "")
 
     if action == "send_passcode":
-        user = get_user_by_id(site["user_id"])
+        user = get_user_by_id(site["id"])
         passcode = generate_passcode()
-        token = _serializer.dumps({"passcode": passcode, "site_id": site["id"]})
+        token = _serializer.dumps({"passcode": passcode, "user_id": site["id"]})
         send_passcode(user["email"], passcode)
         return _consent_template(site, "verify_passcode", params, passcode_token=token)
 
@@ -124,7 +124,7 @@ def indieauth_authorize_post():
                 params,
                 error="Code expired. Try again.",
             )
-        if data["site_id"] != site["id"] or data["passcode"] != passcode:
+        if data["user_id"] != site["id"] or data["passcode"] != passcode:
             return _consent_template(
                 site,
                 "verify_passcode",
@@ -132,8 +132,8 @@ def indieauth_authorize_post():
                 passcode_token=token,
                 error="Wrong passcode.",
             )
-        auth_token = _serializer.dumps({"site_id": site["id"], "authenticated": True})
-        session["user_id"] = site["user_id"]
+        auth_token = _serializer.dumps({"user_id": site["id"], "authenticated": True})
+        session["user_id"] = site["id"]
         return _consent_template(site, "approve", params, auth_token=auth_token)
 
     if action == "deny":
@@ -141,12 +141,12 @@ def indieauth_authorize_post():
         return redirect(f"{params['redirect_uri']}?{qs}")
 
     if action == "approve":
-        is_owner = session.get("user_id") == site["user_id"]
+        is_owner = session.get("user_id") == site["id"]
         if not is_owner:
             token = request.form.get("auth_token", "")
             try:
                 data = _serializer.loads(token, max_age=600)
-                is_owner = data.get("site_id") == site["id"] and data.get("authenticated")
+                is_owner = data.get("user_id") == site["id"] and data.get("authenticated")
             except (BadSignature, SignatureExpired):
                 pass
         if not is_owner:
@@ -196,12 +196,11 @@ def indieauth_token():
         if expected != auth_code["code_challenge"]:
             return jsonify({"error": "invalid_grant"}), 400
 
-    site = get_site_by_id(auth_code["site_id"])
+    site = get_user_by_id(auth_code["user_id"])
     me = site_url(site)
 
     scope = auth_code["scope"]
     if not scope:
-        # Identity-only verification (no token needed)
         exchange_auth_code(code, "used")
         return jsonify({"me": me})
 

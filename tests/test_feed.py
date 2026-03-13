@@ -2,16 +2,16 @@ import json
 import xml.etree.ElementTree as ET
 
 from app import app
-from db import create_post, create_user_and_site
+from db import create_post, create_user
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _setup_site_with_posts(n=3):
     with app.app_context():
-        _, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
         for i in range(n):
-            create_post(site["id"], f"post-{i}", f"Post {i}", f"Body of post {i}")
+            create_post(user["id"], f"post-{i}", f"Post {i}", f"Body of post {i}")
 
 
 def test_rss_feed_content_type(client):

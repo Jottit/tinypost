@@ -6,7 +6,7 @@ from db import (
     create_auth_code,
     create_personal_token,
     create_post,
-    create_user_and_site,
+    create_user,
     exchange_auth_code,
     get_personal_token,
     get_post_by_slug,
@@ -16,14 +16,14 @@ from db import (
 
 def make_site(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-    return user, site
+        user = create_user("owner@example.com", "myblog")
+    return user
 
 
-def make_token(site, scope="create"):
+def make_token(user, scope="create"):
     with app.app_context():
         create_auth_code(
-            site["id"],
+            user["id"],
             "testcode",
             "https://app.example.com",
             "https://app.example.com/cb",
@@ -40,8 +40,8 @@ BASE = "http://myblog.tinypost.localhost:8000"
 
 class TestMicropubCreate:
     def test_create_post_form(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub",
             data={"h": "entry", "name": "Hello World", "content": "This is my post."},
@@ -51,14 +51,14 @@ class TestMicropubCreate:
         assert resp.status_code == 201
         assert "/hello-world" in resp.headers["Location"]
         with app.app_context():
-            post = get_post_by_slug(site["id"], "hello-world")
+            post = get_post_by_slug(user["id"], "hello-world")
             assert post["title"] == "Hello World"
             assert post["body"] == "This is my post."
             assert post["is_draft"] is False
 
     def test_create_post_json(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub",
             data=json.dumps(
@@ -78,8 +78,8 @@ class TestMicropubCreate:
         assert "/json-post" in resp.headers["Location"]
 
     def test_create_draft(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub",
             data={"name": "Draft Post", "content": "WIP", "post-status": "draft"},
@@ -88,12 +88,12 @@ class TestMicropubCreate:
         )
         assert resp.status_code == 201
         with app.app_context():
-            post = get_post_by_slug(site["id"], "draft-post")
+            post = get_post_by_slug(user["id"], "draft-post")
             assert post["is_draft"] is True
 
     def test_create_with_mp_slug(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub",
             data={"name": "My Title", "content": "Body", "mp-slug": "custom-slug"},
@@ -104,8 +104,8 @@ class TestMicropubCreate:
         assert "/custom-slug" in resp.headers["Location"]
 
     def test_extract_title_from_markdown_heading(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub",
             data={"content": "# Yo\n\nSome text"},
@@ -115,13 +115,13 @@ class TestMicropubCreate:
         assert resp.status_code == 201
         assert "/yo" in resp.headers["Location"]
         with app.app_context():
-            post = get_post_by_slug(site["id"], "yo")
+            post = get_post_by_slug(user["id"], "yo")
             assert post["title"] == "Yo"
             assert post["body"] == "Some text"
 
     def test_create_untitled_post(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub",
             data={"content": "Just a note."},
@@ -132,10 +132,10 @@ class TestMicropubCreate:
         assert resp.headers["Location"]
 
     def test_duplicate_slug_gets_suffix(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         with app.app_context():
-            create_post(site["id"], "hello", "Hello", "First")
+            create_post(user["id"], "hello", "Hello", "First")
         resp = client.post(
             "/micropub",
             data={"name": "Hello", "content": "Second"},
@@ -164,8 +164,8 @@ class TestMicropubAuth:
         assert resp.status_code == 401
 
     def test_insufficient_scope(self, client):
-        _, site = make_site(client)
-        token = make_token(site, scope="profile")
+        user = make_site(client)
+        token = make_token(user, scope="profile")
         resp = client.post(
             "/micropub",
             data={"content": "test"},
@@ -177,8 +177,8 @@ class TestMicropubAuth:
 
 class TestMicropubQuery:
     def test_config(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.get(
             "/micropub?q=config",
             headers={"Authorization": f"Bearer {token}"},
@@ -188,8 +188,8 @@ class TestMicropubQuery:
         assert resp.get_json()["syndicate-to"] == []
 
     def test_syndicate_to(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.get(
             "/micropub?q=syndicate-to",
             headers={"Authorization": f"Bearer {token}"},
@@ -199,10 +199,10 @@ class TestMicropubQuery:
         assert resp.get_json()["syndicate-to"] == []
 
     def test_source(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         with app.app_context():
-            create_post(site["id"], "my-post", "My Post", "The body")
+            create_post(user["id"], "my-post", "My Post", "The body")
         resp = client.get(
             f"/micropub?q=source&url={BASE}/my-post",
             headers={"Authorization": f"Bearer {token}"},
@@ -215,8 +215,8 @@ class TestMicropubQuery:
         assert data["properties"]["content"] == ["The body"]
 
     def test_source_not_found(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.get(
             f"/micropub?q=source&url={BASE}/nonexistent",
             headers={"Authorization": f"Bearer {token}"},
@@ -228,8 +228,8 @@ class TestMicropubQuery:
 class TestMicropubMedia:
     @patch("routes.micropub.upload_image")
     def test_upload(self, mock_upload, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         mock_upload.return_value = "https://cdn.example.com/myblog/test.jpg"
         from io import BytesIO
 
@@ -246,8 +246,8 @@ class TestMicropubMedia:
         mock_upload.assert_called_once()
 
     def test_upload_no_file(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         resp = client.post(
             "/micropub/media",
             headers={"Authorization": f"Bearer {token}"},
@@ -256,8 +256,8 @@ class TestMicropubMedia:
         assert resp.status_code == 400
 
     def test_upload_bad_type(self, client):
-        _, site = make_site(client)
-        token = make_token(site)
+        user = make_site(client)
+        token = make_token(user)
         from io import BytesIO
 
         data = {"file": (BytesIO(b"not an image"), "file.txt", "text/plain")}
@@ -286,11 +286,11 @@ class TestMicropubMedia:
 
 class TestPersonalToken:
     def test_create_and_use_personal_token(self, client):
-        _, site = make_site(client)
+        user = make_site(client)
         with app.app_context():
-            token = create_personal_token(site["id"])
+            token = create_personal_token(user["id"])
             assert token
-            row = get_personal_token(site["id"])
+            row = get_personal_token(user["id"])
             assert row["token"] == token
             assert row["client_id"] == "personal-token"
             assert row["scope"] == "create"
@@ -305,11 +305,11 @@ class TestPersonalToken:
         assert "/token-post" in resp.headers["Location"]
 
     def test_revoke_personal_token(self, client):
-        _, site = make_site(client)
+        user = make_site(client)
         with app.app_context():
-            token = create_personal_token(site["id"])
-            revoke_personal_token(site["id"])
-            assert get_personal_token(site["id"]) is None
+            token = create_personal_token(user["id"])
+            revoke_personal_token(user["id"])
+            assert get_personal_token(user["id"]) is None
 
         resp = client.post(
             "/micropub",
@@ -320,30 +320,30 @@ class TestPersonalToken:
         assert resp.status_code == 401
 
     def test_create_replaces_existing_token(self, client):
-        _, site = make_site(client)
+        user = make_site(client)
         with app.app_context():
-            token1 = create_personal_token(site["id"])
-            token2 = create_personal_token(site["id"])
+            token1 = create_personal_token(user["id"])
+            token2 = create_personal_token(user["id"])
             assert token1 != token2
-            assert get_personal_token(site["id"])["token"] == token2
+            assert get_personal_token(user["id"])["token"] == token2
 
     def test_account_token_route(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
         resp = client.post("/-/account/token", base_url=BASE)
         assert resp.status_code == 200
         assert b"Token created" in resp.data
         with app.app_context():
-            assert get_personal_token(site["id"]) is not None
+            assert get_personal_token(user["id"]) is not None
 
     def test_account_token_revoke_route(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         with app.app_context():
-            create_personal_token(site["id"])
+            create_personal_token(user["id"])
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
         resp = client.post("/-/account/token/revoke", base_url=BASE, follow_redirects=True)
         assert resp.status_code == 200
         with app.app_context():
-            assert get_personal_token(site["id"]) is None
+            assert get_personal_token(user["id"]) is None

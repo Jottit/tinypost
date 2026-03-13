@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from app import app
-from db import create_post, create_user_and_site
+from db import create_post, create_user
 from utils import RESERVED_SLUGS
 
 HOST = {"Host": "myblog.tinypost.localhost:8000"}
@@ -9,10 +9,10 @@ HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 def setup_site(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    return user, site
+    return user
 
 
 # ── Signup checks subdomain_taken ────────
@@ -21,7 +21,7 @@ def setup_site(client):
 @patch("routes.auth.send_passcode")
 def test_signup_rejects_taken_subdomain(mock_send, client):
     with app.app_context():
-        create_user_and_site("taken@example.com", "taken")
+        create_user("taken@example.com", "taken")
     response = client.post("/signup", data={"subdomain": "taken", "email": "new@example.com"})
     assert response.status_code == 302
     mock_send.assert_not_called()
@@ -52,12 +52,12 @@ def test_create_post_with_reserved_slug(client):
 
 @patch("routes.posts.send_email")
 def test_send_post_marks_sent_before_emails(mock_send, client):
-    _, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
+        create_post(user["id"], "hello", "Hello", "Body")
         from db import create_subscriber
 
-        create_subscriber(site["id"], "sub@example.com", "tok-1")
+        create_subscriber(user["id"], "sub@example.com", "tok-1")
         from db import confirm_subscriber
 
         confirm_subscriber("tok-1")
@@ -66,7 +66,7 @@ def test_send_post_marks_sent_before_emails(mock_send, client):
         with app.app_context():
             from db import get_post_by_slug
 
-            p = get_post_by_slug(site["id"], "hello")
+            p = get_post_by_slug(user["id"], "hello")
             assert p["sent_at"] is not None
 
     mock_send.side_effect = check_sent_at

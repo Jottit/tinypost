@@ -31,14 +31,11 @@ def create_test_db():
 @pytest.fixture(autouse=True)
 def clean_tables():
     conn = psycopg.connect(f"dbname={TEST_DB}")
-    conn.execute("DELETE FROM comments")
     conn.execute("DELETE FROM indieauth_codes")
     conn.execute("DELETE FROM blogroll")
     conn.execute("DELETE FROM feeds")
     conn.execute("DELETE FROM subscribers")
-    conn.execute("DELETE FROM pages")
     conn.execute("DELETE FROM posts")
-    conn.execute("DELETE FROM sites")
     conn.execute("DELETE FROM users")
     conn.commit()
     conn.close()
@@ -61,19 +58,19 @@ SITE_HOST = "myblog.tinypost.localhost:8000"
 
 @pytest.fixture
 def owner(client):
-    from db import create_user_and_site
+    from db import create_user
 
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    return user, site
+    return user
 
 
 @pytest.fixture
 def taken_subdomain(client):
-    from db import create_user_and_site
+    from db import create_user
 
     with app.app_context():
-        create_user_and_site("taken@example.com", "taken")
+        create_user("taken@example.com", "taken")
     return "taken"

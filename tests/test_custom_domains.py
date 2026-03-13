@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 from app import app
 from db import (
     create_post,
-    create_user_and_site,
-    get_site_by_subdomain,
+    create_user,
+    get_user_by_subdomain,
     set_custom_domain,
     verify_custom_domain,
 )
@@ -14,12 +14,12 @@ SITE_HOST = "myblog.tinypost.localhost:8000"
 
 def _setup_site():
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-    return user, site
+        user = create_user("owner@example.com", "myblog")
+    return user
 
 
 def test_add_domain_generates_token(client):
-    user, site = _setup_site()
+    user = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
@@ -28,14 +28,14 @@ def test_add_domain_generates_token(client):
         headers={"Host": SITE_HOST},
     )
     with app.app_context():
-        updated = get_site_by_subdomain("myblog")
+        updated = get_user_by_subdomain("myblog")
     assert updated["custom_domain"] == "example.com"
     assert updated["domain_verification_token"] is not None
     assert updated["domain_verified_at"] is None
 
 
 def test_add_domain_shown_in_settings(client):
-    user, site = _setup_site()
+    user = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
@@ -49,7 +49,7 @@ def test_add_domain_shown_in_settings(client):
 
 
 def test_add_domain_invalid_format(client):
-    user, _ = _setup_site()
+    user = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
@@ -61,7 +61,7 @@ def test_add_domain_invalid_format(client):
 
 
 def test_add_domain_rejects_protocol_prefix(client):
-    user, _ = _setup_site()
+    user = _setup_site()
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
@@ -73,10 +73,10 @@ def test_add_domain_rejects_protocol_prefix(client):
 
 
 def test_add_domain_already_claimed(client):
-    user, _ = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        create_user_and_site("other@example.com", "other")
-        other = get_site_by_subdomain("other")
+        create_user("other@example.com", "other")
+        other = get_user_by_subdomain("other")
         set_custom_domain(other["id"], "taken.com", "tok")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
@@ -89,9 +89,9 @@ def test_add_domain_already_claimed(client):
 
 
 def test_verify_with_correct_txt_record(client):
-    user, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "mytoken123")
+        set_custom_domain(user["id"], "example.com", "mytoken123")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
 
@@ -105,14 +105,14 @@ def test_verify_with_correct_txt_record(client):
 
     assert response.status_code == 302
     with app.app_context():
-        verified = get_site_by_subdomain("myblog")
+        verified = get_user_by_subdomain("myblog")
     assert verified["domain_verified_at"] is not None
 
 
 def test_verify_with_missing_txt_record(client):
-    user, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "mytoken123")
+        set_custom_domain(user["id"], "example.com", "mytoken123")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
 
@@ -126,34 +126,34 @@ def test_verify_with_missing_txt_record(client):
 
 
 def test_remove_domain(client):
-    user, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post("/-/settings/domain/remove", headers={"Host": SITE_HOST})
     with app.app_context():
-        updated = get_site_by_subdomain("myblog")
+        updated = get_user_by_subdomain("myblog")
     assert updated["custom_domain"] is None
     assert updated["domain_verified_at"] is None
     assert updated["domain_verification_token"] is None
 
 
 def test_tls_ask_returns_200_for_verified_domain(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=example.com")
     assert response.status_code == 200
 
 
 def test_tls_ask_returns_403_for_unverified_domain(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
+        set_custom_domain(user["id"], "example.com", "tok")
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=example.com")
     assert response.status_code == 403
@@ -187,41 +187,41 @@ def test_tls_ask_returns_403_for_unknown_subdomain(client):
 
 
 def test_tls_ask_returns_403_for_wrong_token(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=wrong&domain=example.com")
     assert response.status_code == 403
 
 
 def test_custom_domain_routes_to_correct_site(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        create_post(site["id"], "hello", "Hello World", "Body text")
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        create_post(user["id"], "hello", "Hello World", "Body text")
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     response = client.get("/", headers={"Host": "example.com"})
     assert response.status_code == 200
     assert b"Hello World" in response.data
 
 
 def test_subdomain_redirects_unauthenticated_to_custom_domain(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     response = client.get("/", headers={"Host": SITE_HOST})
     assert response.status_code == 308
     assert "example.com" in response.headers["Location"]
 
 
 def test_subdomain_no_redirect_for_authenticated_owner(client):
-    user, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.get("/", headers={"Host": SITE_HOST})
@@ -229,20 +229,20 @@ def test_subdomain_no_redirect_for_authenticated_owner(client):
 
 
 def test_tls_ask_returns_200_for_www_custom_domain(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     with patch("routes.home.CADDY_ASK_TOKEN", "secret"):
         response = client.get("/_tls/ask?token=secret&domain=www.example.com")
     assert response.status_code == 200
 
 
 def test_www_custom_domain_redirects_to_bare(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     response = client.get("/some/path", headers={"Host": "www.example.com"})
     assert response.status_code == 301
     assert "https://example.com/some/path" in response.headers["Location"]
@@ -250,12 +250,12 @@ def test_www_custom_domain_redirects_to_bare(client):
 
 
 def test_drafts_hidden_on_custom_domain(client):
-    _, site = _setup_site()
+    user = _setup_site()
     with app.app_context():
-        create_post(site["id"], "my-draft", "My Draft", "Secret", is_draft=True)
-        create_post(site["id"], "published", "Published", "Public")
-        set_custom_domain(site["id"], "example.com", "tok")
-        verify_custom_domain(site["id"])
+        create_post(user["id"], "my-draft", "My Draft", "Secret", is_draft=True)
+        create_post(user["id"], "published", "Published", "Public")
+        set_custom_domain(user["id"], "example.com", "tok")
+        verify_custom_domain(user["id"])
     response = client.get("/", headers={"Host": "example.com"})
     assert b"Published" in response.data
     assert b"My Draft" not in response.data

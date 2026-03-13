@@ -5,7 +5,6 @@ from auth import generate_passcode, hash_passcode, send_passcode, verify_passcod
 from db import (
     create_personal_token,
     get_personal_token,
-    get_sites_by_user,
     get_user_by_email,
     get_user_by_id,
     revoke_personal_token,
@@ -17,12 +16,10 @@ from routes import require_owner
 
 def render_account(site, user, **kwargs):
     token = get_personal_token(site["id"])
-    sites = get_sites_by_user(user["id"])
     return render_template(
         "account.html",
         site=site,
         user=user,
-        sites=sites,
         is_owner=True,
         personal_token=token,
         **kwargs,

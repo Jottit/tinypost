@@ -4,17 +4,17 @@ from io import BytesIO
 from unittest.mock import patch
 
 from app import app
-from db import create_user_and_site, update_site_avatar
+from db import create_user, update_user_avatar
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _login(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    return site
+    return user
 
 
 def _make_image(content_type="image/png", size=1024, filename="test.png"):
@@ -72,9 +72,9 @@ def test_upload_avatar_rejects_oversized(mock_upload, mock_crop, client):
 
 @patch("routes.settings.delete_image")
 def test_remove_avatar(mock_delete, client):
-    site = _login(client)
+    user = _login(client)
     with app.app_context():
-        update_site_avatar(site["id"], "/uploads/myblog/avatar.png")
+        update_user_avatar(user["id"], "/uploads/myblog/avatar.png")
     response = client.post(
         "/-/settings/avatar/delete",
         headers={"Host": SITE_HOST},
@@ -86,7 +86,7 @@ def test_remove_avatar(mock_delete, client):
 
 def test_upload_avatar_requires_auth(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.post(
         "/-/settings/avatar",
         data={"avatar": _make_image()},
@@ -99,7 +99,7 @@ def test_upload_avatar_requires_auth(client):
 
 def test_delete_avatar_requires_auth(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.post(
         "/-/settings/avatar/delete",
         headers={"Host": SITE_HOST},
@@ -110,8 +110,8 @@ def test_delete_avatar_requires_auth(client):
 
 def test_rss_feed_includes_avatar(client):
     with app.app_context():
-        _, site = create_user_and_site("owner@example.com", "myblog")
-        update_site_avatar(site["id"], "https://example.com/myblog/avatar.png")
+        user = create_user("owner@example.com", "myblog")
+        update_user_avatar(user["id"], "https://example.com/myblog/avatar.png")
     response = client.get("/feed.xml", headers={"Host": SITE_HOST})
     root = ET.fromstring(response.data)
     image = root.find("channel/image")
@@ -122,7 +122,7 @@ def test_rss_feed_includes_avatar(client):
 
 def test_rss_feed_no_image_without_avatar(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/feed.xml", headers={"Host": SITE_HOST})
     root = ET.fromstring(response.data)
     image = root.find("channel/image")
@@ -131,8 +131,8 @@ def test_rss_feed_no_image_without_avatar(client):
 
 def test_json_feed_includes_avatar(client):
     with app.app_context():
-        _, site = create_user_and_site("owner@example.com", "myblog")
-        update_site_avatar(site["id"], "https://example.com/myblog/avatar.png")
+        user = create_user("owner@example.com", "myblog")
+        update_user_avatar(user["id"], "https://example.com/myblog/avatar.png")
     response = client.get("/feed.json", headers={"Host": SITE_HOST})
     data = json.loads(response.data)
     assert data["icon"] == "https://example.com/myblog/avatar.png"
@@ -140,7 +140,7 @@ def test_json_feed_includes_avatar(client):
 
 def test_json_feed_no_icon_without_avatar(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/feed.json", headers={"Host": SITE_HOST})
     data = json.loads(response.data)
     assert "icon" not in data

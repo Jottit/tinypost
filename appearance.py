@@ -45,8 +45,7 @@ DEFAULT_APPEARANCE = "light"
 
 
 def get_appearance_preset(site):
-    design = site.get("design") or {}
-    preset = design.get("preset") or DEFAULT_APPEARANCE
+    preset = site.get("theme") or DEFAULT_APPEARANCE
     return preset if preset in APPEARANCE_PRESETS else DEFAULT_APPEARANCE
 
 

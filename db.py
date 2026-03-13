@@ -56,61 +56,19 @@ def query(sql, args=(), one=False):
 
 
 def subdomain_taken(subdomain):
-    return query("SELECT id FROM sites WHERE subdomain = %s", (subdomain,), one=True)
+    return query("SELECT id FROM users WHERE subdomain = %s", (subdomain,), one=True)
 
 
-def create_user_and_site(email, subdomain):
+def create_user(email, subdomain):
     db = get_db()
     user = db.execute(
-        "INSERT INTO users (email) VALUES (%s) ON CONFLICT (email) DO NOTHING RETURNING id",
-        (email,),
-    ).fetchone()
-    if not user:
-        user = db.execute("SELECT id FROM users WHERE email = %s", (email,)).fetchone()
-    site = db.execute(
-        "INSERT INTO sites (subdomain, user_id, title) VALUES (%s, %s, %s) RETURNING *",
-        (subdomain, user["id"], subdomain),
+        "INSERT INTO users (email, subdomain, title) VALUES (%s, %s, %s)"
+        " ON CONFLICT (email) DO UPDATE SET subdomain = EXCLUDED.subdomain, title = EXCLUDED.title"
+        " RETURNING *",
+        (email, subdomain, subdomain),
     ).fetchone()
     db.commit()
-    return user, site
-
-
-def get_site_by_id(site_id):
-    return query("SELECT * FROM sites WHERE id = %s", (site_id,), one=True)
-
-
-def get_site_by_subdomain(subdomain):
-    return query("SELECT * FROM sites WHERE subdomain = %s", (subdomain,), one=True)
-
-
-def get_posts_for_site(site_id, include_drafts=False, limit=30, offset=0):
-    sql = "SELECT * FROM posts WHERE site_id = %s"
-    if not include_drafts:
-        sql += " AND is_draft = FALSE"
-    sql += " ORDER BY is_pinned DESC, COALESCE(published_at, created_at) DESC LIMIT %s OFFSET %s"
-    return query(sql, (site_id, limit, offset))
-
-
-def get_posts_with_comment_counts(site_id, include_drafts=False, limit=30, offset=0):
-    sql = (
-        "SELECT p.*, COALESCE(c.count, 0) AS comment_count"
-        " FROM posts p"
-        " LEFT JOIN (SELECT post_id, COUNT(*) AS count FROM comments GROUP BY post_id) c"
-        " ON c.post_id = p.id"
-        " WHERE p.site_id = %s"
-    )
-    if not include_drafts:
-        sql += " AND p.is_draft = FALSE"
-    sql += " ORDER BY COALESCE(p.published_at, p.created_at) DESC LIMIT %s OFFSET %s"
-    return query(sql, (site_id, limit, offset))
-
-
-def get_all_posts_for_site(site_id, limit=1000):
-    return query(
-        "SELECT * FROM posts WHERE site_id = %s ORDER BY COALESCE(published_at, created_at) DESC"
-        " LIMIT %s",
-        (site_id, limit),
-    )
+    return user
 
 
 def get_user_by_id(user_id):
@@ -121,24 +79,44 @@ def get_user_by_email(email):
     return query("SELECT * FROM users WHERE email = %s", (email,), one=True)
 
 
-def get_site_by_user(user_id):
-    return query("SELECT * FROM sites WHERE user_id = %s", (user_id,), one=True)
+def get_user_by_subdomain(subdomain):
+    return query("SELECT * FROM users WHERE subdomain = %s", (subdomain,), one=True)
 
 
-def get_sites_by_user(user_id):
-    return query("SELECT * FROM sites WHERE user_id = %s ORDER BY created_at", (user_id,))
+def get_user_by_custom_domain(domain):
+    return query(
+        "SELECT * FROM users WHERE custom_domain = %s AND domain_verified_at IS NOT NULL",
+        (domain,),
+        one=True,
+    )
 
 
-def get_post_by_slug(site_id, slug):
-    return query("SELECT * FROM posts WHERE site_id = %s AND slug = %s", (site_id, slug), one=True)
+def get_posts_for_user(user_id, include_drafts=False, limit=30, offset=0):
+    sql = "SELECT * FROM posts WHERE user_id = %s"
+    if not include_drafts:
+        sql += " AND is_draft = FALSE"
+    sql += " ORDER BY is_pinned DESC, COALESCE(published_at, created_at) DESC LIMIT %s OFFSET %s"
+    return query(sql, (user_id, limit, offset))
 
 
-def create_post(site_id, slug, title, body, is_draft=False):
+def get_all_posts_for_user(user_id, limit=1000):
+    return query(
+        "SELECT * FROM posts WHERE user_id = %s ORDER BY COALESCE(published_at, created_at) DESC"
+        " LIMIT %s",
+        (user_id, limit),
+    )
+
+
+def get_post_by_slug(user_id, slug):
+    return query("SELECT * FROM posts WHERE user_id = %s AND slug = %s", (user_id, slug), one=True)
+
+
+def create_post(user_id, slug, title, body, is_draft=False):
     db = get_db()
     post = db.execute(
-        "INSERT INTO posts (site_id, slug, title, body, is_draft, published_at)"
+        "INSERT INTO posts (user_id, slug, title, body, is_draft, published_at)"
         " VALUES (%s, %s, %s, %s, %s, CASE WHEN %s THEN NULL ELSE NOW() END) RETURNING *",
-        (site_id, slug, title, body, is_draft, is_draft),
+        (user_id, slug, title, body, is_draft, is_draft),
     ).fetchone()
     db.commit()
     return post
@@ -156,79 +134,65 @@ def update_post(post_id, slug, title, body, is_draft=False):
     return post
 
 
-def update_site(
-    site_id, title, bio, license=None, social_links=None, comments_enabled=False, menu=None
-):
+def update_user_blog(user_id, title, bio, license=None):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET title = %s, bio = %s, license = %s, social_links = %s,"
-        " comments_enabled = %s, menu = %s, updated_at = NOW()"
-        " WHERE id = %s RETURNING *",
-        (title, bio, license, Json(social_links or []), comments_enabled, menu, site_id),
-    ).fetchone()
-    db.commit()
-    return site
-
-
-def update_site_blog(site_id, title, bio, license=None):
-    db = get_db()
-    site = db.execute(
-        "UPDATE sites SET title = %s, bio = %s, license = %s,"
+    user = db.execute(
+        "UPDATE users SET title = %s, bio = %s, license = %s,"
         " updated_at = NOW() WHERE id = %s RETURNING *",
-        (title, bio, license, site_id),
+        (title, bio, license, user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def update_site_social_links(site_id, social_links):
+def update_user_links(user_id, links):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET social_links = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (Json(social_links or []), site_id),
+    user = db.execute(
+        "UPDATE users SET links = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (Json(links or []), user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def update_site_license(site_id, license):
+def update_user_license(user_id, license):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET license = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (license, site_id),
+    user = db.execute(
+        "UPDATE users SET license = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (license, user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def update_site_subdomain(site_id, subdomain):
+def update_user_subdomain(user_id, subdomain):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET subdomain = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (subdomain, site_id),
+    user = db.execute(
+        "UPDATE users SET subdomain = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (subdomain, user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def update_site_avatar(site_id, avatar_url):
+def update_user_avatar(user_id, avatar_url):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET avatar = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (avatar_url, site_id),
+    user = db.execute(
+        "UPDATE users SET avatar = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (avatar_url, user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def update_site_appearance(site_id, preset):
+def update_user_theme(user_id, theme):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET design = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (Json({"preset": preset}), site_id),
+    user = db.execute(
+        "UPDATE users SET theme = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (theme, user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
 def delete_post(post_id):
@@ -237,64 +201,47 @@ def delete_post(post_id):
     db.commit()
 
 
-def get_site_by_custom_domain(domain):
-    return query(
-        "SELECT * FROM sites WHERE custom_domain = %s AND domain_verified_at IS NOT NULL",
-        (domain,),
-        one=True,
-    )
-
-
-def get_site_with_owner(site_id):
-    return query(
-        "SELECT s.*, u.name AS owner_name, u.email AS owner_email"
-        " FROM sites s JOIN users u ON s.user_id = u.id WHERE s.id = %s",
-        (site_id,),
-        one=True,
-    )
-
-
-def set_custom_domain(site_id, domain, token):
+def set_custom_domain(user_id, domain, token):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET custom_domain = %s, domain_verification_token = %s,"
+    user = db.execute(
+        "UPDATE users SET custom_domain = %s, domain_verification_token = %s,"
         " domain_verified_at = NULL, updated_at = NOW() WHERE id = %s RETURNING *",
-        (domain, token, site_id),
+        (domain, token, user_id),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def verify_custom_domain(site_id):
+def verify_custom_domain(user_id):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET domain_verified_at = NOW(), updated_at = NOW()"
+    user = db.execute(
+        "UPDATE users SET domain_verified_at = NOW(), updated_at = NOW()"
         " WHERE id = %s RETURNING *",
-        (site_id,),
+        (user_id,),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def remove_custom_domain(site_id):
+def remove_custom_domain(user_id):
     db = get_db()
-    site = db.execute(
-        "UPDATE sites SET custom_domain = NULL, domain_verified_at = NULL,"
+    user = db.execute(
+        "UPDATE users SET custom_domain = NULL, domain_verified_at = NULL,"
         " domain_verification_token = NULL, updated_at = NOW() WHERE id = %s RETURNING *",
-        (site_id,),
+        (user_id,),
     ).fetchone()
     db.commit()
-    return site
+    return user
 
 
-def is_domain_taken(domain, exclude_site_id=None):
-    if exclude_site_id is not None:
+def is_domain_taken(domain, exclude_user_id=None):
+    if exclude_user_id is not None:
         return query(
-            "SELECT id FROM sites WHERE custom_domain = %s AND id != %s",
-            (domain, exclude_site_id),
+            "SELECT id FROM users WHERE custom_domain = %s AND id != %s",
+            (domain, exclude_user_id),
             one=True,
         )
-    return query("SELECT id FROM sites WHERE custom_domain = %s", (domain,), one=True)
+    return query("SELECT id FROM users WHERE custom_domain = %s", (domain,), one=True)
 
 
 def update_user_email(user_id, email):
@@ -317,41 +264,29 @@ def update_user(user_id, name, email):
     return user
 
 
-def delete_site(site_id, commit=True):
-    db = get_db()
-    db.execute("DELETE FROM comments WHERE site_id = %s", (site_id,))
-    db.execute("DELETE FROM indieauth_codes WHERE site_id = %s", (site_id,))
-    db.execute("DELETE FROM blogroll WHERE site_id = %s", (site_id,))
-    db.execute("DELETE FROM subscribers WHERE site_id = %s", (site_id,))
-    db.execute("DELETE FROM pages WHERE site_id = %s", (site_id,))
-    db.execute("DELETE FROM posts WHERE site_id = %s", (site_id,))
-    db.execute("DELETE FROM sites WHERE id = %s", (site_id,))
-    if commit:
-        db.commit()
-
-
 def delete_account(user_id):
     db = get_db()
-    for site in get_sites_by_user(user_id):
-        delete_site(site["id"], commit=False)
-    db.execute("UPDATE comments SET user_id = NULL WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM indieauth_codes WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM blogroll WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM subscribers WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM posts WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))
     db.commit()
 
 
-def get_subscriber(site_id, email):
+def get_subscriber(user_id, email):
     return query(
-        "SELECT * FROM subscribers WHERE site_id = %s AND email = %s",
-        (site_id, email),
+        "SELECT * FROM subscribers WHERE user_id = %s AND email = %s",
+        (user_id, email),
         one=True,
     )
 
 
-def create_subscriber(site_id, email, token):
+def create_subscriber(user_id, email, token):
     db = get_db()
     subscriber = db.execute(
-        "INSERT INTO subscribers (site_id, email, token) VALUES (%s, %s, %s) RETURNING *",
-        (site_id, email, token),
+        "INSERT INTO subscribers (user_id, email, token) VALUES (%s, %s, %s) RETURNING *",
+        (user_id, email, token),
     ).fetchone()
     db.commit()
     return subscriber
@@ -387,67 +322,67 @@ def unsubscribe(token):
     db.commit()
 
 
-def delete_subscriber(subscriber_id, site_id):
+def delete_subscriber(subscriber_id, user_id):
     db = get_db()
     db.execute(
-        "DELETE FROM subscribers WHERE id = %s AND site_id = %s",
-        (subscriber_id, site_id),
+        "DELETE FROM subscribers WHERE id = %s AND user_id = %s",
+        (subscriber_id, user_id),
     )
     db.commit()
 
 
-def get_all_subscribers(site_id):
+def get_all_subscribers(user_id):
     return query(
-        "SELECT * FROM subscribers WHERE site_id = %s ORDER BY created_at DESC",
-        (site_id,),
+        "SELECT * FROM subscribers WHERE user_id = %s ORDER BY created_at DESC",
+        (user_id,),
     )
 
 
-def get_confirmed_subscribers(site_id):
+def get_confirmed_subscribers(user_id):
     return query(
-        "SELECT * FROM subscribers WHERE site_id = %s AND confirmed = TRUE",
-        (site_id,),
+        "SELECT * FROM subscribers WHERE user_id = %s AND confirmed = TRUE",
+        (user_id,),
     )
 
 
-def get_subscriber_count(site_id):
+def get_subscriber_count(user_id):
     row = query(
-        "SELECT COUNT(*) AS count FROM subscribers WHERE site_id = %s AND confirmed = TRUE",
-        (site_id,),
+        "SELECT COUNT(*) AS count FROM subscribers WHERE user_id = %s AND confirmed = TRUE",
+        (user_id,),
         one=True,
     )
     return row["count"]
 
 
-def has_blogroll(site_id):
+def has_blogroll(user_id):
     row = query(
-        "SELECT EXISTS(SELECT 1 FROM blogroll WHERE site_id = %s) AS has",
-        (site_id,),
+        "SELECT EXISTS(SELECT 1 FROM blogroll WHERE user_id = %s) AS has",
+        (user_id,),
         one=True,
     )
     return row["has"]
 
 
-def get_blogroll(site_id):
+def get_blogroll(user_id):
     return query(
-        "SELECT b.id, b.site_id, b.name, b.sort_order, b.created_at,"
+        "SELECT b.id, b.user_id, b.name, b.sort_order, b.created_at,"
         " f.url, f.feed_url, f.feed_title, f.feed_icon_url,"
         " f.latest_post_title, f.latest_post_url, f.last_updated, f.last_fetched"
         " FROM blogroll b JOIN feeds f ON b.feed_id = f.id"
-        " WHERE b.site_id = %s"
+        " WHERE b.user_id = %s"
         " ORDER BY f.last_updated DESC NULLS LAST, b.sort_order",
-        (site_id,),
+        (user_id,),
     )
 
 
-def update_blogroll(site_id, items):
+def update_blogroll(user_id, items):
     db = get_db()
     existing = {
         row["url"]: row
         for row in query(
             "SELECT b.id, f.url FROM blogroll b JOIN feeds f ON b.feed_id = f.id"
-            " WHERE b.site_id = %s",
-            (site_id,),
+            " WHERE b.user_id = %s",
+            (user_id,),
         )
     }
     new_urls = {item["url"] for item in items}
@@ -464,9 +399,9 @@ def update_blogroll(site_id, items):
             )
         else:
             db.execute(
-                "INSERT INTO blogroll (site_id, name, feed_id, sort_order)"
+                "INSERT INTO blogroll (user_id, name, feed_id, sort_order)"
                 " VALUES (%s, %s, %s, %s)",
-                (site_id, item["name"], feed_id, i),
+                (user_id, item["name"], feed_id, i),
             )
     db.commit()
 
@@ -501,59 +436,8 @@ def toggle_post_pinned(post_id):
     return post
 
 
-def get_comments_for_post(post_id):
-    return query(
-        "SELECT * FROM comments WHERE post_id = %s ORDER BY created_at ASC",
-        (post_id,),
-    )
-
-
-def get_comment_counts(post_ids):
-    if not post_ids:
-        return {}
-    rows = query(
-        "SELECT post_id, COUNT(*) AS count FROM comments"
-        " WHERE post_id = ANY(%s) GROUP BY post_id",
-        (list(post_ids),),
-    )
-    return {row["post_id"]: row["count"] for row in rows}
-
-
-def get_comment_count(post_id):
-    row = query(
-        "SELECT COUNT(*) AS count FROM comments WHERE post_id = %s",
-        (post_id,),
-        one=True,
-    )
-    return row["count"]
-
-
-def create_comment(post_id, site_id, name, email_hash, body, user_id=None, author_url=None):
-    db = get_db()
-    comment = db.execute(
-        "INSERT INTO comments (post_id, site_id, name, email_hash, body, user_id, author_url)"
-        " VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *",
-        (post_id, site_id, name, email_hash, body, user_id, author_url),
-    ).fetchone()
-    db.commit()
-    return comment
-
-
-def get_comment_by_id(comment_id):
-    return query("SELECT * FROM comments WHERE id = %s", (comment_id,), one=True)
-
-
-def delete_comment(comment_id, site_id):
-    db = get_db()
-    db.execute(
-        "DELETE FROM comments WHERE id = %s AND site_id = %s",
-        (comment_id, site_id),
-    )
-    db.commit()
-
-
 def create_auth_code(
-    site_id,
+    user_id,
     code,
     client_id,
     redirect_uri,
@@ -564,11 +448,11 @@ def create_auth_code(
     db = get_db()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     db.execute(
-        "INSERT INTO indieauth_codes (site_id, code, client_id, redirect_uri, scope,"
+        "INSERT INTO indieauth_codes (user_id, code, client_id, redirect_uri, scope,"
         " code_challenge, code_challenge_method, expires_at)"
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
         (
-            site_id,
+            user_id,
             code,
             client_id,
             redirect_uri,
@@ -608,34 +492,34 @@ def get_token(token):
     )
 
 
-def get_personal_token(site_id):
+def get_personal_token(user_id):
     return query(
-        "SELECT * FROM indieauth_codes WHERE site_id = %s AND client_id = 'personal-token'",
-        (site_id,),
+        "SELECT * FROM indieauth_codes WHERE user_id = %s AND client_id = 'personal-token'",
+        (user_id,),
         one=True,
     )
 
 
-def create_personal_token(site_id):
-    revoke_personal_token(site_id)
+def create_personal_token(user_id):
+    revoke_personal_token(user_id)
     db = get_db()
     token = secrets.token_urlsafe(32)
     code = secrets.token_urlsafe(16)
     expires_at = datetime.now(timezone.utc) + timedelta(days=365 * 10)
     db.execute(
-        "INSERT INTO indieauth_codes (site_id, code, client_id, redirect_uri, scope,"
+        "INSERT INTO indieauth_codes (user_id, code, client_id, redirect_uri, scope,"
         " code_challenge, code_challenge_method, token, used_at, expires_at)"
         " VALUES (%s, %s, 'personal-token', '', 'create', '', 'S256', %s, NOW(), %s)",
-        (site_id, code, token, expires_at),
+        (user_id, code, token, expires_at),
     )
     db.commit()
     return token
 
 
-def revoke_personal_token(site_id):
+def revoke_personal_token(user_id):
     db = get_db()
     db.execute(
-        "DELETE FROM indieauth_codes WHERE site_id = %s AND client_id = 'personal-token'",
-        (site_id,),
+        "DELETE FROM indieauth_codes WHERE user_id = %s AND client_id = 'personal-token'",
+        (user_id,),
     )
     db.commit()

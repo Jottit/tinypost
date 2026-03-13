@@ -2,15 +2,15 @@ from unittest.mock import patch
 
 from app import app
 from auth import hash_passcode, verify_passcode
-from db import create_user_and_site
+from db import create_user
 
 HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
 
 def setup_site(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-    return user, site
+        user = create_user("owner@example.com", "myblog")
+    return user
 
 
 # ── Passcode hashing ────────────────────

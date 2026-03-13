@@ -4,7 +4,7 @@ import re
 from unittest.mock import patch
 
 from app import app
-from db import create_user_and_site
+from db import create_user
 
 
 def extract_hidden(html, name):
@@ -14,8 +14,8 @@ def extract_hidden(html, name):
 
 def make_site(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-    return user, site
+        user = create_user("owner@example.com", "myblog")
+    return user
 
 
 def pkce_pair():
@@ -88,7 +88,7 @@ class TestAuthorizeGet:
         assert b"Send code to" in resp.data
 
     def test_shows_approve_when_authenticated(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         with client.session_transaction() as sess:
             sess["user_id"] = user["id"]
         _, challenge = pkce_pair()
@@ -179,7 +179,7 @@ class TestApproveAndDeny:
         return extract_hidden(resp.data.decode(), "auth_token")
 
     def test_approve_redirects_with_code(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         _, challenge = pkce_pair()
         auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
@@ -195,7 +195,7 @@ class TestApproveAndDeny:
         assert "iss=" in location
 
     def test_deny_redirects_with_error(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         _, challenge = pkce_pair()
         resp = client.post(
             "/auth",
@@ -247,7 +247,7 @@ class TestTokenExchange:
         return qs["code"][0]
 
     def test_valid_exchange(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         verifier, challenge = pkce_pair()
         code = self._get_code(client, user, challenge)
         resp = client.post(
@@ -269,7 +269,7 @@ class TestTokenExchange:
         assert "me" in data
 
     def test_wrong_verifier(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         _, challenge = pkce_pair()
         code = self._get_code(client, user, challenge)
         resp = client.post(
@@ -286,7 +286,7 @@ class TestTokenExchange:
         assert resp.status_code == 400
 
     def test_wrong_client_id(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         verifier, challenge = pkce_pair()
         code = self._get_code(client, user, challenge)
         resp = client.post(
@@ -303,7 +303,7 @@ class TestTokenExchange:
         assert resp.status_code == 400
 
     def test_wrong_redirect_uri(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         verifier, challenge = pkce_pair()
         code = self._get_code(client, user, challenge)
         resp = client.post(
@@ -320,7 +320,7 @@ class TestTokenExchange:
         assert resp.status_code == 400
 
     def test_code_single_use(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         verifier, challenge = pkce_pair()
         code = self._get_code(client, user, challenge)
         # First exchange succeeds
@@ -351,7 +351,7 @@ class TestTokenExchange:
         assert resp.status_code == 400
 
     def test_identity_only_no_access_token(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         verifier, challenge = pkce_pair()
         auth_token = self._get_auth_token(client, user, challenge)
         resp = client.post(
@@ -399,11 +399,11 @@ class TestLinkTags:
         assert 'href="http://myblog.tinypost.localhost:8000/auth/token"' in html
 
     def test_post_page_has_indieauth_links(self, client):
-        user, site = make_site(client)
+        user = make_site(client)
         from db import create_post
 
         with app.app_context():
-            create_post(site["id"], "hello", "Hello", "World")
+            create_post(user["id"], "hello", "Hello", "World")
         resp = client.get("/hello", base_url="http://myblog.tinypost.localhost:8000")
         html = resp.data.decode()
         assert 'rel="indieauth-metadata"' in html

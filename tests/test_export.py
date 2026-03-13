@@ -3,17 +3,17 @@ from io import BytesIO
 from unittest.mock import patch
 
 from app import app
-from db import create_post, create_user_and_site
+from db import create_post, create_user
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _login(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
-    return user, site
+    return user
 
 
 def _get_zip(response):
@@ -22,17 +22,17 @@ def _get_zip(response):
 
 def test_export_requires_auth(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     response = client.get("/-/settings/export", headers={"Host": SITE_HOST})
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
 
 def test_export_contains_published_posts(client):
-    user, site = _login(client)
+    user = _login(client)
     with app.app_context():
-        create_post(site["id"], "hello-world", "Hello World", "This is my first post.")
-        create_post(site["id"], "second", "Second Post", "Another post.")
+        create_post(user["id"], "hello-world", "Hello World", "This is my first post.")
+        create_post(user["id"], "second", "Second Post", "Another post.")
     response = client.get("/-/settings/export", headers={"Host": SITE_HOST})
     assert response.status_code == 200
     assert response.content_type == "application/zip"
@@ -42,10 +42,10 @@ def test_export_contains_published_posts(client):
 
 
 def test_export_drafts_in_subfolder(client):
-    user, site = _login(client)
+    user = _login(client)
     with app.app_context():
-        create_post(site["id"], "published", "Published", "Public post.")
-        create_post(site["id"], "my-draft", "My Draft", "Draft content.", is_draft=True)
+        create_post(user["id"], "published", "Published", "Public post.")
+        create_post(user["id"], "my-draft", "My Draft", "Draft content.", is_draft=True)
     response = client.get("/-/settings/export", headers={"Host": SITE_HOST})
     zf = _get_zip(response)
     assert "published.md" in zf.namelist()
@@ -53,9 +53,9 @@ def test_export_drafts_in_subfolder(client):
 
 
 def test_export_markdown_has_title_and_body(client):
-    user, site = _login(client)
+    user = _login(client)
     with app.app_context():
-        create_post(site["id"], "titled", "My Title", "Body text here.")
+        create_post(user["id"], "titled", "My Title", "Body text here.")
     response = client.get("/-/settings/export", headers={"Host": SITE_HOST})
     zf = _get_zip(response)
     content = zf.read("titled.md").decode()

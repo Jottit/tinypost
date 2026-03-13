@@ -6,7 +6,7 @@ import markdown as md
 from flask import Response, abort, jsonify
 
 from app import app
-from db import get_blogroll, get_posts_for_site, has_blogroll
+from db import get_blogroll, get_posts_for_user, has_blogroll
 from utils import get_current_site, site_url
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
@@ -42,7 +42,7 @@ def feed():
     site = get_current_site()
     if not site:
         abort(404)
-    posts = get_posts_for_site(site["id"], limit=20)
+    posts = get_posts_for_user(site["id"], limit=20)
     base_url = site_url(site)
 
     rss = ET.Element("rss", version="2.0")
@@ -86,7 +86,7 @@ def feed_json():
     site = get_current_site()
     if not site:
         abort(404)
-    posts = get_posts_for_site(site["id"], limit=20)
+    posts = get_posts_for_user(site["id"], limit=20)
     base_url = site_url(site)
 
     items = []

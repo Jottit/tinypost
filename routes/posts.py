@@ -7,7 +7,6 @@ from db import (
     delete_post,
     get_confirmed_subscribers,
     get_post_by_slug,
-    get_site_by_user,
     get_subscriber_count,
     get_user_by_id,
     mark_post_sent,
@@ -154,7 +153,7 @@ def post(slug):
     site = get_current_site()
     if not site:
         abort(404)
-    is_owner = session.get("user_id") == site["user_id"]
+    is_owner = session.get("user_id") == site["id"]
 
     post = get_post_by_slug(site["id"], slug)
     if post:
@@ -162,7 +161,6 @@ def post(slug):
             abort(404)
         user_id = session.get("user_id")
         user = get_user_by_id(user_id) if user_id else None
-        user_site = get_site_by_user(user_id) if user_id else None
         return render_template(
             "post.html",
             site=site,
@@ -170,7 +168,7 @@ def post(slug):
             is_owner=is_owner,
             subscriber_count=get_subscriber_count(site["id"]) if is_owner else 0,
             user=user,
-            user_site=user_site,
+            user_site=user,
         )
 
     abort(404)

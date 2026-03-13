@@ -16,7 +16,7 @@ def _verify_token(site):
         return None, (jsonify({"error": "unauthorized"}), 401)
     token_str = auth[7:]
     token = get_token(token_str)
-    if not token or token["site_id"] != site["id"]:
+    if not token or token["user_id"] != site["id"]:
         return None, (jsonify({"error": "unauthorized"}), 401)
     if "create" not in token["scope"].split():
         return None, (jsonify({"error": "insufficient_scope"}), 403)

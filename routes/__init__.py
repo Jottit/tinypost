@@ -8,7 +8,7 @@ def require_owner():
     site = get_current_site()
     if not site:
         abort(404)
-    if session.get("user_id") != site["user_id"]:
+    if session.get("user_id") != site["id"]:
         abort(redirect("/signin"))
     return site
 

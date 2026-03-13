@@ -5,10 +5,11 @@ from db import (
     confirm_subscriber,
     create_post,
     create_subscriber,
-    create_user_and_site,
+    create_user,
     get_post_by_slug,
     get_subscriber,
     get_subscriber_by_token,
+    get_user_by_subdomain,
 )
 
 HEADERS = {"Host": "myblog.tinypost.localhost:8000"}
@@ -16,8 +17,8 @@ HEADERS = {"Host": "myblog.tinypost.localhost:8000"}
 
 def setup_site(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
-    return user, site
+        user = create_user("owner@example.com", "myblog")
+    return user
 
 
 @patch("routes.subscribers.send_email")
@@ -35,17 +36,17 @@ def test_subscribe(mock_send, client):
 
 @patch("routes.subscribers.send_email")
 def test_subscribe_creates_subscriber(mock_send, client):
-    _, site = setup_site(client)
+    user = setup_site(client)
     client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
     with app.app_context():
-        sub = get_subscriber(site["id"], "reader@example.com")
+        sub = get_subscriber(user["id"], "reader@example.com")
     assert sub is not None
     assert sub["confirmed"] is False
 
 
 @patch("routes.subscribers.send_email")
 def test_subscribe_duplicate_resends_confirmation(mock_send, client):
-    _, site = setup_site(client)
+    setup_site(client)
     client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
     client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
     assert mock_send.call_count == 2
@@ -53,9 +54,9 @@ def test_subscribe_duplicate_resends_confirmation(mock_send, client):
 
 @patch("routes.subscribers.send_email")
 def test_subscribe_already_confirmed_no_email(mock_send, client):
-    _, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_subscriber(site["id"], "reader@example.com", "tok123")
+        create_subscriber(user["id"], "reader@example.com", "tok123")
         confirm_subscriber("tok123")
     response = client.post("/subscribe", data={"email": "reader@example.com"}, headers=HEADERS)
     assert response.status_code == 200
@@ -76,9 +77,9 @@ def test_honeypot_rejects(mock_send, client):
 
 @patch("routes.subscribers.send_email")
 def test_confirm_subscription(mock_send, client):
-    _, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_subscriber(site["id"], "reader@example.com", "confirmtok")
+        create_subscriber(user["id"], "reader@example.com", "confirmtok")
     response = client.get("/confirm/confirmtok", headers=HEADERS)
     assert response.status_code == 200
     assert b"on the list" in response.data.lower()
@@ -96,9 +97,9 @@ def test_confirm_invalid_token(client):
 
 @patch("routes.subscribers.send_email")
 def test_unsubscribe(mock_send, client):
-    _, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_subscriber(site["id"], "reader@example.com", "unsub-tok")
+        create_subscriber(user["id"], "reader@example.com", "unsub-tok")
     response = client.get("/unsubscribe/unsub-tok", headers=HEADERS)
     assert response.status_code == 200
     assert b"unsubscribed" in response.data.lower()
@@ -118,12 +119,12 @@ def test_unsubscribe_invalid_token(client):
 
 @patch("routes.posts.send_email")
 def test_send_post_to_subscribers(mock_send, client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Post body here")
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_post(user["id"], "hello", "Hello", "Post body here")
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
-        create_subscriber(site["id"], "b@example.com", "tok-b")
+        create_subscriber(user["id"], "b@example.com", "tok-b")
         confirm_subscriber("tok-b")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
@@ -136,12 +137,12 @@ def test_send_post_to_subscribers(mock_send, client):
 
 @patch("routes.posts.send_email")
 def test_send_skips_unconfirmed(mock_send, client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
-        create_subscriber(site["id"], "confirmed@example.com", "tok-c")
+        create_post(user["id"], "hello", "Hello", "Body")
+        create_subscriber(user["id"], "confirmed@example.com", "tok-c")
         confirm_subscriber("tok-c")
-        create_subscriber(site["id"], "unconfirmed@example.com", "tok-u")
+        create_subscriber(user["id"], "unconfirmed@example.com", "tok-u")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post("/-/send/hello", headers=HEADERS)
@@ -151,25 +152,25 @@ def test_send_skips_unconfirmed(mock_send, client):
 
 @patch("routes.posts.send_email")
 def test_send_marks_post_sent(mock_send, client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_post(user["id"], "hello", "Hello", "Body")
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post("/-/send/hello", headers=HEADERS)
     with app.app_context():
-        post = get_post_by_slug(site["id"], "hello")
+        post = get_post_by_slug(user["id"], "hello")
     assert post["sent_at"] is not None
 
 
 @patch("routes.posts.send_email")
 def test_send_prevents_double_send(mock_send, client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_post(user["id"], "hello", "Hello", "Body")
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
@@ -181,10 +182,10 @@ def test_send_prevents_double_send(mock_send, client):
 
 @patch("routes.posts.send_email")
 def test_send_draft_not_allowed(mock_send, client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body", is_draft=True)
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_post(user["id"], "hello", "Hello", "Body", is_draft=True)
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
@@ -196,29 +197,27 @@ def test_send_draft_not_allowed(mock_send, client):
 def test_send_requires_auth(client):
     setup_site(client)
     with app.app_context():
-        from db import get_site_by_subdomain
-
-        site = get_site_by_subdomain("myblog")
-        create_post(site["id"], "hello", "Hello", "Body")
+        user = get_user_by_subdomain("myblog")
+        create_post(user["id"], "hello", "Hello", "Body")
     response = client.post("/-/send/hello", headers=HEADERS)
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
 
 def test_subscriber_count_hidden_for_visitors(client):
-    _, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
     response = client.get("/", headers=HEADERS)
     assert b"subscriber" not in response.data
 
 
 def test_send_button_shown_on_post(client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body")
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_post(user["id"], "hello", "Hello", "Body")
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
@@ -227,10 +226,10 @@ def test_send_button_shown_on_post(client):
 
 
 def test_send_button_hidden_for_draft(client):
-    user, site = setup_site(client)
+    user = setup_site(client)
     with app.app_context():
-        create_post(site["id"], "hello", "Hello", "Body", is_draft=True)
-        create_subscriber(site["id"], "a@example.com", "tok-a")
+        create_post(user["id"], "hello", "Hello", "Body", is_draft=True)
+        create_subscriber(user["id"], "a@example.com", "tok-a")
         confirm_subscriber("tok-a")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]

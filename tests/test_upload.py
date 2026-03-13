@@ -2,14 +2,14 @@ from io import BytesIO
 from unittest.mock import patch
 
 from app import app
-from db import create_user_and_site
+from db import create_user
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
 def _login(client):
     with app.app_context():
-        user, site = create_user_and_site("owner@example.com", "myblog")
+        user = create_user("owner@example.com", "myblog")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
 
@@ -39,7 +39,7 @@ def test_upload_success(mock_upload, client):
 
 def test_upload_requires_auth(client):
     with app.app_context():
-        create_user_and_site("owner@example.com", "myblog")
+        create_user("owner@example.com", "myblog")
     data, filename, content_type = _make_image()
     response = _post_upload(client, file=(data, filename, content_type))
     assert response.status_code == 401

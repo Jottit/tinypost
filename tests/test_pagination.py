@@ -1,14 +1,14 @@
 from app import app
-from db import create_post, create_user_and_site
+from db import create_post, create_user
 from tests.conftest import SITE_HOST
 
 
 def _create_posts(n):
     with app.app_context():
-        user, site = create_user_and_site("page@example.com", "myblog")
+        user = create_user("page@example.com", "myblog")
         for i in range(n):
-            create_post(site["id"], f"post-{i}", f"Post {i}", f"Body {i}")
-    return user, site
+            create_post(user["id"], f"post-{i}", f"Post {i}", f"Body {i}")
+    return user
 
 
 def test_page_1_shows_20_posts(client):
