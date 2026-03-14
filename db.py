@@ -32,10 +32,11 @@ def get_db():
         db_name = current_app.config.get("DATABASE")
         if db_name:
             g.db = psycopg.connect(f"dbname={db_name}", row_factory=dict_row)
-            g.db_from_pool = False
+            g.db_pool = None
         else:
-            g.db = get_pool().getconn()
-            g.db_from_pool = True
+            pool = get_pool()
+            g.db = pool.getconn()
+            g.db_pool = pool
     return g.db
 
 
@@ -43,8 +44,9 @@ def close_db(e=None):
     db = g.pop("db", None)
     if db is None:
         return
-    if g.pop("db_from_pool", False):
-        get_pool().putconn(db)
+    pool = g.pop("db_pool", None)
+    if pool is not None:
+        pool.putconn(db)
     else:
         db.close()
 
