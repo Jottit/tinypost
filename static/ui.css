@@ -421,7 +421,7 @@ input.email-input:focus {
   height: 32px;
   border-radius: 50%;
   background: var(--text-bright);
-  color: #fff;
+  color: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
