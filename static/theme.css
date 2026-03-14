@@ -550,6 +550,10 @@ nav a:hover {
 
 /* ── Page nav ────────────────────────── */
 /* ── Homepage layout ────────────────── */
+.site-content {
+  padding: var(--space-8) var(--space-5) var(--space-6);
+}
+
 .site-home {
   max-width: var(--site-measure);
   margin: 0 auto;
