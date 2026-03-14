@@ -559,25 +559,24 @@ nav a:hover {
 .site-intro {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
 }
 
-.site-intro-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-}
 
 .site-intro-meta {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
+  justify-content: center;
+  gap: var(--space-4);
 }
+
 
 .site-intro-avatar,
 .site-intro-avatar-placeholder {
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
@@ -632,7 +631,7 @@ nav a:hover {
 }
 
 .site-intro-bio {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   color: var(--site-text-muted);
   margin-bottom: var(--space-1);
 }
@@ -661,6 +660,41 @@ nav a:hover {
   margin: 0 auto;
   padding: var(--space-8) var(--space-5) var(--space-10);
   border-top: 1px solid var(--site-divider);
+}
+
+.site-footer-subscribe {
+  max-width: 320px;
+  margin: 0 auto var(--space-8);
+  text-align: center;
+}
+
+.site-footer-subscribe-text {
+  font-size: var(--text-sm);
+  color: var(--site-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.site-footer-subscribe-text a {
+  color: var(--site-text-muted);
+}
+
+.site-footer-subscribe .pill-input {
+  font-family: var(--font-mono);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  background: var(--site-bg);
+  border-color: var(--site-divider);
+  font-size: var(--text-sm);
+}
+
+.site-footer-subscribe .pill-input button {
+  color: #fff;
+  background: var(--site-accent);
+  font-size: var(--text-xs);
+}
+
+.site-footer-subscribe input[type="email"] {
+  width: 150px;
+  font-size: var(--text-xs);
 }
 
 
@@ -819,7 +853,7 @@ img.blogroll-avatar {
 .blogroll-list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: var(--space-6) 0 0;
 }
 
 .blogroll-list li {

@@ -13,7 +13,6 @@
         <a href="/">{{ site.title }}</a>
       </p>
       <h1 class="post-title">Following {{ blogroll|length }} blog{{ 's' if blogroll|length != 1 }}</h1>
-      <p class="blogroll-page-subtitle">Sorted by latest activity</p>
       <ul class="blogroll-list">
         {% for item in blogroll %}
           <li>{% include "blogroll_item.html" %}</li>
