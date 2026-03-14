@@ -81,7 +81,7 @@
               <p class="draft-label text-center">Draft</p>
             {% endif %}
             <div class="entry-body{% if thumb %} has-thumb{% endif %}">
-              <div class="p-summary post-body">{{ post.body | strip_first_image | truncatewords(30) | markdown }}</div>
+              <div class="p-summary post-body">{{ post.body | strip_first_image | truncatewords(40) | markdown }}</div>
               {% if thumb %}<img class="entry-thumb" src="{{ thumb }}" alt="" loading="lazy">{% endif %}
             </div>
             <a class="article-link u-url" href="/{{ post.slug }}" aria-label="Post: {{ post.title or post.body | truncatewords(10) }}"></a>
