@@ -502,6 +502,13 @@ input.email-input:-webkit-autofill {
   -webkit-text-fill-color: var(--text-bright);
 }
 
+@media (prefers-color-scheme: dark) {
+  input.email-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #1e2730 inset;
+    -webkit-text-fill-color: #eee;
+  }
+}
+
 .btn--outline {
   padding: var(--space-2) var(--space-6);
   border: 1px solid var(--divider);
