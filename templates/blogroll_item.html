@@ -1,22 +1,24 @@
 <div class="blogroll-item">
   {% if item.feed_icon_url %}
-    <img class="blogroll-icon" src="{{ item.feed_icon_url }}" width="20" height="20" alt="">
+    <img class="blogroll-icon" src="{{ item.feed_icon_url }}" width="36" height="36" alt="">
   {% else %}
-    <span class="blogroll-icon blogroll-icon-fallback">{{ item.name[0] }}</span>
+    <span class="blogroll-icon blogroll-icon-fallback" style="background-color: {{ item.name | avatar_color }}">{{ item.name[0] }}</span>
   {% endif %}
-  <span class="blogroll-item-content">
-    <a class="blogroll-item-name" href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a>
+  <div class="blogroll-item-content">
+    <div class="blogroll-item-header">
+      <a class="blogroll-item-name" href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a>
+      {% if item.last_updated %}
+        <span class="blogroll-item-time">{{ item.last_updated|timeago_short }}</span>
+      {% endif %}
+    </div>
     {% if item.latest_post_title %}
-      <span class="blogroll-item-meta">
-        {% if item.latest_post_url %}
-          <a class="blogroll-item-post" href="{{ item.latest_post_url }}" target="_blank" rel="noopener">{{ item.latest_post_title }}</a>
-        {% else %}
-          <span class="blogroll-item-post">{{ item.latest_post_title }}</span>
-        {% endif %}
-        {% if item.last_updated %}
-          <span class="blogroll-item-time">{{ item.last_updated|timeago }}</span>
-        {% endif %}
-      </span>
+      {% if item.latest_post_url %}
+        <a class="blogroll-item-post" href="{{ item.latest_post_url }}" target="_blank" rel="noopener">{{ item.latest_post_title | unescape }}</a>
+      {% else %}
+        <span class="blogroll-item-post">{{ item.latest_post_title | unescape }}</span>
+      {% endif %}
+    {% else %}
+      <span class="blogroll-item-post blogroll-item-empty">No recent posts</span>
     {% endif %}
-  </span>
+  </div>
 </div>

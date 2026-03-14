@@ -300,9 +300,8 @@ def test_sidebar_renders_feed_metadata(client):
 
     response = client.get("/", headers=HOST)
     assert response.status_code == 200
-    assert b"Cool Blog" in response.data
-    assert b"A Great Post" in response.data
-    assert b"favicon.ico" in response.data
+    assert b"blogroll-stacked" in response.data
+    assert b"favicon.ico" in response.data  # feed icon as avatar
 
 
 def test_sidebar_renders_initial_fallback(client):
@@ -318,7 +317,7 @@ def test_sidebar_renders_initial_fallback(client):
 
     response = client.get("/", headers=HOST)
     assert response.status_code == 200
-    assert b"blogroll-icon-fallback" in response.data
+    assert b"blogroll-avatar" in response.data
     assert b">N<" in response.data
 
 
@@ -347,7 +346,12 @@ def test_sidebar_links_latest_post(client):
         )
         db.commit()
 
+    # Home page shows stacked avatars, not post details
     response = client.get("/", headers=HOST)
+    assert response.status_code == 200
+    assert b"Following" in response.data
+    # Blogroll page shows full details
+    response = client.get("/blogroll", headers=HOST)
     assert response.status_code == 200
     assert b"https://linked.example.com/great-article" in response.data
     assert b"Great Article" in response.data
@@ -362,10 +366,10 @@ def test_sidebar_limits_to_five(client):
 
     response = client.get("/", headers=HOST)
     assert response.status_code == 200
-    assert b"Blog 0" in response.data
-    assert b"Blog 5" in response.data
-    assert b"Blog 6" not in response.data
-    assert b"See all (8)" in response.data
+    # Shows first 5 avatars, not all 8
+    assert response.data.count(b'blogroll-avatar"') == 5
+    assert b"Following" in response.data
+    assert b"<strong>8</strong>" in response.data
 
 
 def test_blogroll_page_public(client):

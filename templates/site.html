@@ -101,17 +101,18 @@
   </main>
   <footer class="site-footer">
     {% if blogroll %}
-    <section class="site-blogroll">
-      <h3>Blogroll</h3>
-      <ul class="blogroll-list">
-        {% for item in blogroll[:6] %}
-          <li>{% include "blogroll_item.html" %}</li>
+    <a href="/blogroll" class="blogroll-stacked">
+      <span class="blogroll-avatars">
+        {% for item in blogroll[:5] %}
+          {% if item.feed_icon_url %}
+            <img class="blogroll-avatar" src="{{ item.feed_icon_url }}" alt="{{ item.name[0] }}">
+          {% else %}
+            <span class="blogroll-avatar" style="background-color: {{ item.name | avatar_color }}">{{ item.name[0] }}</span>
+          {% endif %}
         {% endfor %}
-      </ul>
-      {% if blogroll|length > 6 %}
-        <a class="blogroll-see-all" href="/blogroll">See all ({{ blogroll|length }})</a>
-      {% endif %}
-    </section>
+      </span>
+      <span class="blogroll-following">Following <strong>{{ blogroll|length }}</strong> blog{{ 's' if blogroll|length != 1 }}</span>
+    </a>
     {% endif %}
     <div class="site-footer-meta">
       {% if site.license == 'all-rights-reserved' %}

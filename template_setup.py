@@ -1,3 +1,4 @@
+import html
 import re
 from datetime import datetime, timezone
 
@@ -44,6 +45,54 @@ def init_templates(app):
             return f"{months} month{'s' if months != 1 else ''} ago"
         years = days // 365
         return f"{years} year{'s' if years != 1 else ''} ago"
+
+    @app.template_filter("timeago_short")
+    def timeago_short_filter(dt):
+        if dt is None:
+            return ""
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        delta = datetime.now(timezone.utc) - dt
+        seconds = int(delta.total_seconds())
+        if seconds < 60:
+            return "now"
+        minutes = seconds // 60
+        if minutes < 60:
+            return f"{minutes}m"
+        hours = minutes // 60
+        if hours < 24:
+            return f"{hours}h"
+        days = hours // 24
+        if days < 14:
+            return f"{days}d"
+        weeks = days // 7
+        if weeks < 9:
+            return f"{weeks}w"
+        months = days // 30
+        if months < 12:
+            return f"{months}mo"
+        years = days // 365
+        return f"{years}y"
+
+    @app.template_filter("avatar_color")
+    def avatar_color_filter(name):
+        colors = [
+            "#7c5cbf",
+            "#e67e22",
+            "#e74c3c",
+            "#3498db",
+            "#1abc9c",
+            "#9b59b6",
+            "#2ecc71",
+            "#e84393",
+        ]
+        return colors[sum(ord(c) for c in name) % len(colors)]
+
+    @app.template_filter("unescape")
+    def unescape_filter(text):
+        if not text:
+            return text
+        return html.unescape(text)
 
     @app.template_filter("nl2br")
     def nl2br_filter(text):

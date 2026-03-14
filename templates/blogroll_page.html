@@ -6,18 +6,20 @@
 {% endblock %}
 {% block body %}
   {% include "admin_banner.html" %}
-  {% include "site_header.html" %}
-  <main class="site-home">
-    <section class="site-stream">
-    <article>
-      <h2>Blogroll</h2>
+  <main>
+    <div class="site-content">
+      <p class="post-byline mt-8">
+        {% if site.avatar %}<img class="post-byline-avatar" src="{{ site.avatar }}" alt="avatar">{% endif %}
+        <a href="/">{{ site.title }}</a>
+      </p>
+      <h1 class="post-title">Following {{ blogroll|length }} blog{{ 's' if blogroll|length != 1 }}</h1>
+      <p class="blogroll-page-subtitle">Sorted by latest activity</p>
       <ul class="blogroll-list">
         {% for item in blogroll %}
           <li>{% include "blogroll_item.html" %}</li>
         {% endfor %}
       </ul>
-    </article>
-    </section>
+    </div>
   </main>
   {% include "site_footer.html" %}
 {% endblock %}
