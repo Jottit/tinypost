@@ -559,15 +559,25 @@ nav a:hover {
 .site-intro {
   display: flex;
   flex-direction: column;
+  gap: var(--space-4);
+}
+
+.site-intro-header {
+  display: flex;
   align-items: center;
-  text-align: center;
-  gap: var(--space-3);
+  gap: var(--space-5);
+}
+
+.site-intro-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
 }
 
 .site-intro-avatar,
 .site-intro-avatar-placeholder {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
@@ -622,7 +632,7 @@ nav a:hover {
 }
 
 .site-intro-bio {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   color: var(--site-text-muted);
   margin-bottom: var(--space-1);
 }
@@ -638,13 +648,8 @@ nav a:hover {
 }
 
 .site-intro-about {
-  font-size: var(--text-sm);
   color: var(--site-text-muted);
   text-decoration: none;
-}
-
-.site-intro-about::before {
-  content: "– ";
 }
 
 .site-intro-about:hover {
@@ -662,6 +667,7 @@ nav a:hover {
 .site-intro-links {
   font-size: var(--text-sm);
   color: var(--site-text-muted);
+  margin: 0;
 }
 
 .site-intro-links a,
@@ -732,8 +738,7 @@ nav a:hover {
 }
 
 .site-intro-subscribe {
-  max-width: 275px;
-  margin: 0 auto;
+  max-width: 320px;
 }
 
 .site-intro-subscribe .pill-input {
@@ -762,11 +767,9 @@ nav a:hover {
 .blogroll-stacked {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-4);
+  gap: var(--space-2);
   text-decoration: none;
   color: var(--site-text-muted);
-  padding: var(--space-6) 0;
 }
 
 .blogroll-stacked:hover .blogroll-following {
@@ -778,17 +781,17 @@ nav a:hover {
 }
 
 .blogroll-avatar {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: var(--weight-bold);
   color: #fff;
   border: 2px solid var(--site-bg);
-  margin-left: -10px;
+  margin-left: -8px;
 }
 
 img.blogroll-avatar {
@@ -803,11 +806,6 @@ img.blogroll-avatar {
 
 .blogroll-following {
   font-size: var(--text-sm);
-}
-
-.blogroll-following strong {
-  color: var(--site-text-bright);
-  font-weight: var(--weight-medium);
 }
 
 /* ── Blogroll page ───────────────────── */

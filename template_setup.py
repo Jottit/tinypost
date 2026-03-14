@@ -1,6 +1,7 @@
 import html
 import re
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 import markdown
 from markupsafe import Markup
@@ -93,6 +94,31 @@ def init_templates(app):
         if not text:
             return text
         return html.unescape(text)
+
+    @app.template_filter("autolink_label")
+    def autolink_label_filter(label):
+        if not label:
+            return label
+        if label.startswith(("http://", "https://")):
+            host = urlparse(label).hostname or label
+            return host.removeprefix("www.")
+        return label
+
+    _url_re = re.compile(r"(https?://[^\s<>\"')\]]+)")
+
+    @app.template_filter("autolink")
+    def autolink_filter(text):
+        if not text:
+            return text
+        escaped = Markup.escape(text)
+
+        def replace_url(m):
+            url = m.group(1)
+            host = urlparse(str(url)).hostname or url
+            label = host.removeprefix("www.")
+            return f'<a href="{url}" target="_blank" rel="noopener">{label}</a>'
+
+        return Markup(_url_re.sub(replace_url, str(escaped)))
 
     @app.template_filter("nl2br")
     def nl2br_filter(text):

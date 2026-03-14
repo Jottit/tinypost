@@ -369,7 +369,7 @@ def test_sidebar_limits_to_five(client):
     # Shows first 5 avatars, not all 8
     assert response.data.count(b'blogroll-avatar"') == 5
     assert b"Following" in response.data
-    assert b"<strong>8</strong>" in response.data
+    assert b"Following 8" in response.data
 
 
 def test_blogroll_page_public(client):

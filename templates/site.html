@@ -22,31 +22,50 @@
   {% include "admin_banner.html" %}
   <main class="site-home">
     <section class="site-intro h-card">
-      {% if site.avatar %}
-        <img class="u-photo site-intro-avatar" src="{{ site.avatar }}" alt="avatar">
-      {% elif is_owner %}
-        <a href="/-/settings/blog" class="site-intro-avatar-placeholder">
-          {% include "_avatar_placeholder.html" %}
-          <span class="site-intro-avatar-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-          </span>
-        </a>
-      {% endif %}
-      <div class="site-intro-text">
-        <h2 class="site-intro-title p-name">{{ site.title }}</h2>
-        {% if site.bio %}
-          <p class="site-intro-bio p-note">{{ site.bio }}</p>
+      <div class="site-intro-header">
+        {% if site.avatar %}
+          <img class="u-photo site-intro-avatar" src="{{ site.avatar }}" alt="avatar">
         {% elif is_owner %}
-          <a href="/-/settings/blog" class="site-intro-add-bio">Add bio</a>
+          <a href="/-/settings/blog" class="site-intro-avatar-placeholder">
+            {% include "_avatar_placeholder.html" %}
+            <span class="site-intro-avatar-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+            </span>
+          </a>
         {% endif %}
-        {% set links = site.links or [] %}
+        <div class="site-intro-text">
+          <h2 class="site-intro-title p-name">{{ site.title }}</h2>
+          {% if site.bio %}
+            <p class="site-intro-bio p-note">{{ site.bio | autolink }}</p>
+          {% elif is_owner %}
+            <a href="/-/settings/blog" class="site-intro-add-bio">Add bio</a>
+          {% endif %}
+        </div>
+      </div>
+      {% set links = site.links or [] %}
+      {% if links or blogroll %}
+      <div class="site-intro-meta">
         {% if links %}
-          <p class="site-intro-links">{% for link in links %}<a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ link.label }}</a>{% if not loop.last %}&ensp;{% endif %}{% endfor %}</p>
+          <p class="site-intro-links">{% for link in links %}<a class="u-url" rel="me" href="{{ link.url }}" target="_blank">{{ (link.label or link.url) | autolink_label }}</a>{% if not loop.last %}&ensp;{% endif %}{% endfor %}{% if site.about %}&ensp;<a class="site-intro-about" href="/about">About</a>{% endif %}</p>
+        {% elif site.about %}
+          <p class="site-intro-links"><a class="site-intro-about" href="/about">About</a></p>
         {% endif %}
-        {% if site.about %}
-          <a class="site-intro-about" href="/about">About me</a>
+        {% if blogroll %}
+        <a href="/blogroll" class="blogroll-stacked">
+          <span class="blogroll-avatars">
+            {% for item in blogroll[:5] %}
+              {% if item.feed_icon_url %}
+                <img class="blogroll-avatar" src="{{ item.feed_icon_url }}" alt="{{ item.name[0] }}">
+              {% else %}
+                <span class="blogroll-avatar" style="background-color: {{ item.name | avatar_color }}">{{ item.name[0] }}</span>
+              {% endif %}
+            {% endfor %}
+          </span>
+          <span class="blogroll-following">Following {{ blogroll|length }} blog{{ 's' if blogroll|length != 1 }}</span>
+        </a>
         {% endif %}
       </div>
+      {% endif %}
       {% if posts %}<form action="/subscribe" method="post" class="site-intro-subscribe">
         <div class="pill-input">
           <input type="email" name="email" placeholder="Subscribe by email" required>
@@ -100,20 +119,6 @@
 
   </main>
   <footer class="site-footer">
-    {% if blogroll %}
-    <a href="/blogroll" class="blogroll-stacked">
-      <span class="blogroll-avatars">
-        {% for item in blogroll[:5] %}
-          {% if item.feed_icon_url %}
-            <img class="blogroll-avatar" src="{{ item.feed_icon_url }}" alt="{{ item.name[0] }}">
-          {% else %}
-            <span class="blogroll-avatar" style="background-color: {{ item.name | avatar_color }}">{{ item.name[0] }}</span>
-          {% endif %}
-        {% endfor %}
-      </span>
-      <span class="blogroll-following">Following <strong>{{ blogroll|length }}</strong> blog{{ 's' if blogroll|length != 1 }}</span>
-    </a>
-    {% endif %}
     <div class="site-footer-meta">
       {% if site.license == 'all-rights-reserved' %}
         <div class="license">&copy; {{ now.year }} {{ site.title }}</div>
