@@ -655,6 +655,13 @@ nav a:hover {
   color: var(--site-text-bright);
 }
 
+.site-intro-subscribe-btn {
+  margin-top: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .site-footer {
   max-width: var(--site-measure);
   margin: 0 auto;
