@@ -89,6 +89,20 @@ def init_templates(app):
         ]
         return colors[sum(ord(c) for c in name) % len(colors)]
 
+    @app.template_filter("initials")
+    def initials_filter(name):
+        if not name:
+            return ""
+        if name.startswith(("http://", "https://")):
+            from urllib.parse import urlparse
+
+            name = urlparse(name).hostname or name
+            name = name.removeprefix("www.")
+        words = name.split()
+        if len(words) >= 2:
+            return (words[0][0] + words[1][0]).upper()
+        return name[0].upper()
+
     @app.template_filter("unescape")
     def unescape_filter(text):
         if not text:

@@ -18,25 +18,44 @@ def blogroll():
     )
 
 
-@app.route("/-/blogroll", methods=["GET", "POST"])
-def blogroll_edit():
+@app.route("/-/blogroll")
+def blogroll_edit_redirect():
+    return redirect("/-/following", code=301)
+
+
+@app.route("/-/following")
+def following():
     site = require_owner()
+    items = get_blogroll(site["id"])
+    return render_template("blogroll.html", site=site, is_owner=True, blogroll=items)
 
-    if request.method == "GET":
+
+@app.route("/-/following/add", methods=["POST"])
+def following_add():
+    site = require_owner()
+    url = request.form.get("url", "").strip()
+    if url and not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    if url:
         items = get_blogroll(site["id"])
-        return render_template("blogroll.html", site=site, is_owner=True, blogroll=items)
+        existing_urls = {item["url"] for item in items}
+        if url not in existing_urls:
+            new_items = [{"name": item["name"], "url": item["url"]} for item in items]
+            new_items.append({"name": url, "url": url})
+            update_blogroll(site["id"], new_items)
+            flash("Following updated.")
+    return redirect("/-/following")
 
-    items = []
-    i = 0
-    while f"blogroll[{i}][name]" in request.form:
-        name = request.form.get(f"blogroll[{i}][name]", "").strip()
-        url = request.form.get(f"blogroll[{i}][url]", "").strip()
-        if name and url:
-            items.append({"name": name, "url": url})
-        i += 1
 
-    update_blogroll(site["id"], items)
-    if request.headers.get("X-Auto-Save"):
-        return "", 204
-    flash("Following updated.")
-    return redirect("/-/blogroll")
+@app.route("/-/following/remove", methods=["POST"])
+def following_remove():
+    site = require_owner()
+    url = request.form.get("url", "").strip()
+    if url:
+        items = get_blogroll(site["id"])
+        new_items = [
+            {"name": item["name"], "url": item["url"]} for item in items if item["url"] != url
+        ]
+        update_blogroll(site["id"], new_items)
+        flash("Following updated.")
+    return redirect("/-/following")

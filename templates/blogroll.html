@@ -8,47 +8,38 @@
       {% for message in get_flashed_messages() %}
         <p class="panel-notice success">{{ message }}</p>
       {% endfor %}
-      <p class="text-muted">Blogs and sites you recommend.</p>
-      <form method="POST" action="/-/blogroll" class="auto-save" id="blogroll-form">
-        {% set br = blogroll or [] %}
-        <div class="blogroll-editor">
+      {% set br = blogroll or [] %}
+      {% if br %}
+        <div class="following-list">
           {% for item in br %}
-            <div class="blogroll-row">
-              <input type="text" name="blogroll[{{ loop.index0 }}][name]" value="{{ item.name or '' }}" placeholder="Name" class="input--sm">
-              <input type="url" name="blogroll[{{ loop.index0 }}][url]" value="{{ item.url or '' }}" placeholder="https://..." class="input--sm">
-              <button type="button" class="blogroll-remove" onclick="removeBlogrollItem(this)" aria-label="Remove">&times;</button>
+            <div class="following-entry">
+              <div class="following-entry-info">
+                {% if item.feed_icon_url %}
+                  <img class="following-avatar" src="{{ item.feed_icon_url }}" width="40" height="40" alt="">
+                {% else %}
+                  {% set display_name = item.feed_title or item.name %}
+                  <span class="following-avatar following-avatar-fallback" style="background-color: {{ display_name | avatar_color }}">{{ display_name | initials }}</span>
+                {% endif %}
+                <div class="following-entry-text">
+                  <span class="following-entry-name">{{ item.feed_title or item.name }}</span>
+                  {% if item.latest_post_title %}
+                    <span class="following-entry-post">{{ item.latest_post_title | unescape }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <form method="POST" action="/-/following/remove">
+                <input type="hidden" name="url" value="{{ item.url }}">
+                <button type="submit" class="following-remove" aria-label="Remove">&times;</button>
+              </form>
             </div>
           {% endfor %}
         </div>
-        <button type="button" class="btn mt-2" onclick="addBlogrollItem()">Add site</button>
+      {% endif %}
+      <form method="POST" action="/-/following/add" class="following-add-form">
+        <input type="text" name="url" placeholder="https://..." required>
+        <button type="submit" class="btn--outline">Add</button>
       </form>
+      <p class="following-hint">We'll fetch the site name automatically</p>
     </div>
   </div>
-  <script src="/static/auto-save.js"></script>
-  <script>
-    function reindexBlogroll() {
-      var rows = document.querySelectorAll('.blogroll-row');
-      rows.forEach(function(row, i) {
-        row.querySelector('input[type="text"]').name = 'blogroll[' + i + '][name]';
-        row.querySelector('input[type="url"]').name = 'blogroll[' + i + '][url]';
-      });
-    }
-
-    function removeBlogrollItem(btn) {
-      btn.parentElement.remove();
-      reindexBlogroll();
-      autoSaveNow(document.getElementById('blogroll-form'));
-    }
-
-    function addBlogrollItem() {
-      var container = document.querySelector('.blogroll-editor');
-      var idx = container.querySelectorAll('.blogroll-row').length;
-      var row = document.createElement('div');
-      row.className = 'blogroll-row';
-      row.innerHTML = '<input type="text" name="blogroll[' + idx + '][name]" placeholder="Name" class="input--sm">' +
-        '<input type="url" name="blogroll[' + idx + '][url]" placeholder="https://..." class="input--sm">' +
-        '<button type="button" class="blogroll-remove" onclick="removeBlogrollItem(this)" aria-label="Remove">&times;</button>';
-      container.appendChild(row);
-    }
-  </script>
 {% endblock %}
