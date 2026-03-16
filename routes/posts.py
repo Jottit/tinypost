@@ -125,7 +125,7 @@ def send_post(slug):
         unsubscribe_url = f"{base_url}/unsubscribe/{sub['token']}"
         send_email(
             to=sub["email"],
-            from_addr=f"Tinypost <noreply@{app.config['BASE_DOMAIN']}>",
+            from_addr=f"{site['title']} <noreply@{app.config['BASE_DOMAIN']}>",
             subject=post["title"] or site["title"],
             text=(
                 f"{post['title'] or ''}\n\n"
