@@ -5,6 +5,9 @@
     <a href="/-/settings" class="panel-back">&larr; Settings</a>
     <h1 class="panel-title">Links</h1>
     <div class="panel panel--narrow">
+      {% for message in get_flashed_messages() %}
+        <p class="panel-notice success">{{ message }}</p>
+      {% endfor %}
       <p class="text-muted">Links to the rest of your home on the web.</p>
       {% set links = site.links or [] %}
       {% if links %}
