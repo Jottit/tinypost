@@ -386,7 +386,7 @@ def test_blogroll_page_public(client):
     response = client.get("/blogroll", headers=HOST)
     assert response.status_code == 200
     assert b"Public Blog" in response.data
-    assert b"Blogroll" in response.data
+    assert b"Following" in response.data
 
 
 @patch("feed_fetcher.fetch_feed")

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Blogroll — {{ site.title }}{% endblock %}
+{% block title %}Following — {{ site.title }}{% endblock %}
 {% block body %}
   <div class="panel-page">
     <a href="/-/settings" class="panel-back">&larr; Settings</a>
-    <h1 class="panel-title">Blogroll</h1>
+    <h1 class="panel-title">Following</h1>
     <div class="panel panel--narrow">
       {% for message in get_flashed_messages() %}
         <p class="panel-notice success">{{ message }}</p>

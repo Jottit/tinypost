@@ -34,7 +34,7 @@ def test_blogroll_get(client):
     login(client, user["id"])
     response = client.get("/-/blogroll", headers=HOST)
     assert response.status_code == 200
-    assert b"Blogroll" in response.data
+    assert b"Following" in response.data
 
 
 def test_blogroll_post_saves_items(client):
