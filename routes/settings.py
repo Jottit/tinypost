@@ -117,27 +117,47 @@ def settings_subdomain():
     return redirect("/-/settings/subdomain")
 
 
-@app.route("/-/settings/social", methods=["GET", "POST"])
+@app.route("/-/settings/social")
 def settings_social():
+    return redirect("/-/settings/links", code=301)
+
+
+@app.route("/-/settings/links")
+def settings_links():
     site = require_owner()
+    return render_template("settings_social.html", site=site, is_owner=True)
 
-    if request.method == "GET":
-        return render_template("settings_social.html", site=site, is_owner=True)
 
-    links = []
-    i = 0
-    while f"social_links[{i}][label]" in request.form:
-        label = request.form.get(f"social_links[{i}][label]", "").strip()
-        url = request.form.get(f"social_links[{i}][url]", "").strip()
-        if label and url:
-            links.append({"label": label, "url": url})
-        i += 1
+@app.route("/-/settings/links/add", methods=["POST"])
+def settings_links_add():
+    site = require_owner()
+    url = request.form.get("url", "").strip()
+    label = request.form.get("label", "").strip()
 
+    if not url:
+        return redirect("/-/settings/links")
+
+    if url and not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    links = list(site.get("links") or [])
+    links.append({"label": label, "url": url})
     update_user_links(site["id"], links)
-    if request.headers.get("X-Auto-Save"):
-        return "", 204
-    flash("Links updated.")
-    return redirect("/-/settings")
+    flash("Link added.")
+    return redirect("/-/settings/links")
+
+
+@app.route("/-/settings/links/remove", methods=["POST"])
+def settings_links_remove():
+    site = require_owner()
+    index = request.form.get("index", type=int)
+
+    links = list(site.get("links") or [])
+    if index is not None and 0 <= index < len(links):
+        links.pop(index)
+    update_user_links(site["id"], links)
+    flash("Link removed.")
+    return redirect("/-/settings/links")
 
 
 @app.route("/-/settings/theme", methods=["GET", "POST"])
