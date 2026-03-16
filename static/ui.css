@@ -229,6 +229,13 @@ body:has(.public-page) {
   text-decoration: none;
 }
 
+.form-help {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+  margin-bottom: 0;
+}
+
 .form-narrow {
   width: 100%;
   max-width: 340px;

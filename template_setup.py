@@ -118,7 +118,12 @@ def init_templates(app):
             return host.removeprefix("www.")
         return label
 
-    _url_re = re.compile(r"(https?://[^\s<>\"')\]]+)")
+    _url_re = re.compile(
+        r"(https?://[^\s<>\"')\]]+)"
+        r"|"
+        r"(?<![/@\w])(\b[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\."
+        r"(?:com|org|net|io|co|dev|blog|me|info|xyz)\b(?:/[^\s<>\"')\]]*)?)"
+    )
 
     @app.template_filter("autolink")
     def autolink_filter(text):
@@ -127,9 +132,15 @@ def init_templates(app):
         escaped = Markup.escape(text)
 
         def replace_url(m):
-            url = m.group(1)
-            host = urlparse(str(url)).hostname or url
-            label = host.removeprefix("www.")
+            full_url = m.group(1)
+            bare_domain = m.group(2)
+            if full_url:
+                url = full_url
+                host = urlparse(str(url)).hostname or url
+                label = host.removeprefix("www.")
+            else:
+                url = f"https://{bare_domain}"
+                label = bare_domain
             return f'<a href="{url}" target="_blank" rel="noopener">{label}</a>'
 
         return Markup(_url_re.sub(replace_url, str(escaped)))

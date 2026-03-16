@@ -718,10 +718,15 @@ nav a:hover {
   margin: 0;
 }
 
-.site-intro-links a,
-.site-intro-bio a {
+.site-intro-links a {
   color: var(--site-text-muted);
   text-decoration: none;
+}
+
+.site-intro-bio a {
+  color: var(--site-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .site-intro-links a::before {
