@@ -701,8 +701,8 @@ nav a:hover {
 }
 
 .site-footer-subscribe .pill-input button {
-  color: var(--site-bg);
-  background: var(--site-text-bright);
+  color: #fff;
+  background: var(--site-accent);
   font-size: var(--text-xs);
 }
 
@@ -724,7 +724,7 @@ nav a:hover {
 }
 
 .site-intro-bio a {
-  color: var(--site-text-muted);
+  color: var(--site-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
