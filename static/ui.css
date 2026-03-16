@@ -1167,43 +1167,6 @@ input[type="checkbox"]:checked {
   margin-bottom: var(--space-2);
 }
 
-.social-links-editor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-  margin-bottom: var(--space-3);
-}
-
-.social-link-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-2);
-  align-items: start;
-}
-
-.social-link-row input[type="text"],
-.social-link-row input[type="url"] {
-  width: 100%;
-  grid-column: 1;
-}
-
-.social-link-remove {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  align-self: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: var(--text-xl);
-  color: var(--text-muted);
-  padding: 0 var(--space-1);
-  line-height: 1;
-}
-
-.social-link-remove:hover {
-  color: var(--error);
-}
 
 .subscribers-table {
   width: 100%;
@@ -1337,6 +1300,15 @@ input[type="checkbox"]:checked {
 
 .following-add-form .btn--outline {
   flex-shrink: 0;
+}
+
+.following-add-form--stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.following-add-form--stacked .btn--outline {
+  align-self: flex-start;
 }
 
 .following-hint {
@@ -1697,8 +1669,9 @@ a.settings-row:hover {
 }
 
 .accent-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(8, auto);
+  justify-content: start;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
@@ -1788,5 +1761,15 @@ a.settings-row:hover {
 
   .theme-grid {
     gap: var(--space-3);
+  }
+
+  .accent-grid {
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+  }
+
+  .accent-swatch-circle {
+    width: 44px;
+    height: 44px;
   }
 }
