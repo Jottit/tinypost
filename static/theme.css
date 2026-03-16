@@ -664,6 +664,9 @@ nav a:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  background: var(--site-accent);
+  color: #fff;
+  border-color: var(--site-accent);
 }
 
 .site-footer {
@@ -698,8 +701,8 @@ nav a:hover {
 }
 
 .site-footer-subscribe .pill-input button {
-  color: #fff;
-  background: var(--site-accent);
+  color: var(--site-bg);
+  background: var(--site-text-bright);
   font-size: var(--text-xs);
 }
 

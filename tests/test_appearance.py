@@ -31,13 +31,13 @@ def test_appearance_save_updates_preset(client):
     login(client, user)
     response = client.post(
         "/-/settings/theme",
-        data={"preset": "cool"},
+        data={"preset": "dark"},
         headers={"Host": "myblog.tinypost.localhost:8000"},
     )
     assert response.status_code == 302
     with app.app_context():
         updated = get_user_by_subdomain("myblog")
-    assert updated["theme"] == "cool"
+    assert updated["theme"] == "dark"
 
 
 def test_appearance_applies_to_homepage(client):
@@ -46,10 +46,52 @@ def test_appearance_applies_to_homepage(client):
     login(client, user)
     client.post(
         "/-/settings/theme",
-        data={"preset": "warm"},
+        data={"preset": "dark"},
         headers={"Host": "myblog.tinypost.localhost:8000"},
     )
     response = client.get("/", headers={"Host": "myblog.tinypost.localhost:8000"})
     assert response.status_code == 200
-    assert b"--site-bg: #f1dfcf" in response.data
-    assert b"--site-accent: #ca7a34" in response.data
+    assert b"--site-bg: #07131c" in response.data
+    assert b"--site-accent: #86b3ff" in response.data
+
+
+def test_accent_color_saves(client):
+    with app.app_context():
+        user = create_user("owner@example.com", "myblog")
+    login(client, user)
+    client.post(
+        "/-/settings/theme",
+        data={"preset": "light", "accent_color": "#c05838"},
+        headers={"Host": "myblog.tinypost.localhost:8000"},
+    )
+    with app.app_context():
+        updated = get_user_by_subdomain("myblog")
+    assert updated["accent_color"] == "#c05838"
+
+
+def test_accent_color_applies_to_homepage(client):
+    with app.app_context():
+        user = create_user("owner@example.com", "myblog")
+    login(client, user)
+    client.post(
+        "/-/settings/theme",
+        data={"preset": "light", "accent_color": "#c05838"},
+        headers={"Host": "myblog.tinypost.localhost:8000"},
+    )
+    response = client.get("/", headers={"Host": "myblog.tinypost.localhost:8000"})
+    assert response.status_code == 200
+    assert b"--site-accent: #c05838" in response.data
+
+
+def test_invalid_accent_color_ignored(client):
+    with app.app_context():
+        user = create_user("owner@example.com", "myblog")
+    login(client, user)
+    client.post(
+        "/-/settings/theme",
+        data={"preset": "light", "accent_color": "notahex"},
+        headers={"Host": "myblog.tinypost.localhost:8000"},
+    )
+    with app.app_context():
+        updated = get_user_by_subdomain("myblog")
+    assert updated["accent_color"] is None

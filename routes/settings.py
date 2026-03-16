@@ -1,4 +1,5 @@
 import io
+import re
 import secrets
 import zipfile
 
@@ -6,7 +7,7 @@ import dns.resolver
 from flask import Response, flash, redirect, render_template, request, session
 
 from app import app
-from appearance import APPEARANCE_PRESETS, DEFAULT_APPEARANCE, get_appearance_preset
+from appearance import ACCENT_COLORS, APPEARANCE_PRESETS, DEFAULT_APPEARANCE, get_appearance_preset
 from config import ALLOWED_IMAGE_TYPES, CUSTOM_DOMAIN_IPV4, CUSTOM_DOMAIN_IPV6
 from db import (
     delete_account,
@@ -143,6 +144,7 @@ def settings_social():
 def settings_appearance():
     site = require_owner()
     current_preset = get_appearance_preset(site)
+    current_accent = site.get("accent_color") or APPEARANCE_PRESETS[current_preset]["accent"]
 
     if request.method == "GET":
         return render_template(
@@ -151,13 +153,19 @@ def settings_appearance():
             is_owner=True,
             presets=APPEARANCE_PRESETS,
             current_preset=current_preset,
+            accent_colors=ACCENT_COLORS,
+            current_accent=current_accent,
         )
 
     preset = request.form.get("preset", "").strip()
     if preset not in APPEARANCE_PRESETS:
         preset = DEFAULT_APPEARANCE
 
-    update_user_theme(site["id"], preset)
+    accent_color = request.form.get("accent_color", "").strip()
+    if accent_color and not re.match(r"^#[0-9a-fA-F]{6}$", accent_color):
+        accent_color = None
+
+    update_user_theme(site["id"], preset, accent_color or None)
     if request.headers.get("X-Auto-Save"):
         return "", 204
     flash("Theme updated.")

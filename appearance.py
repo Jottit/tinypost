@@ -19,27 +19,18 @@ APPEARANCE_PRESETS = {
         "code_bg": "#0d1b26",
         "accent": "#86b3ff",
     },
-    "cool": {
-        "label": "Cool",
-        "bg": "#dde6ea",
-        "text": "#32434f",
-        "text_bright": "#1b2831",
-        "text_muted": "#75848f",
-        "divider": "#ccd6dc",
-        "code_bg": "#d3dce1",
-        "accent": "#476f88",
-    },
-    "warm": {
-        "label": "Warm",
-        "bg": "#f1dfcf",
-        "text": "#4b382d",
-        "text_bright": "#2c1d14",
-        "text_muted": "#927b6d",
-        "divider": "#e3cfbe",
-        "code_bg": "#e7d4c3",
-        "accent": "#ca7a34",
-    },
 }
+
+ACCENT_COLORS = [
+    "#28915a",
+    "#3878b2",
+    "#c05838",
+    "#b45478",
+    "#7868ae",
+    "#28867a",
+    "#b07528",
+    "#63707e",
+]
 
 DEFAULT_APPEARANCE = "light"
 
@@ -50,4 +41,7 @@ def get_appearance_preset(site):
 
 
 def get_appearance_vars(site):
-    return APPEARANCE_PRESETS[get_appearance_preset(site)]
+    preset = dict(APPEARANCE_PRESETS[get_appearance_preset(site)])
+    if site.get("accent_color"):
+        preset["accent"] = site["accent_color"]
+    return preset

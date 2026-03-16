@@ -15,6 +15,7 @@ CREATE TABLE users (
     license TEXT,
     links JSONB DEFAULT '[]',
     theme TEXT,
+    accent_color TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

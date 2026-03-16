@@ -1628,6 +1628,8 @@ a.settings-row:hover {
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   transition: border-color var(--speed-fast), box-shadow var(--speed-fast);
 }
@@ -1656,22 +1658,22 @@ a.settings-row:hover {
 }
 
 .theme-card-title {
-  width: 60%;
-  height: 8px;
-  border-radius: 4px;
+  width: 50%;
+  height: 6px;
+  border-radius: 3px;
   background: var(--preview-text);
 }
 
 .theme-card-line {
-  width: 100%;
-  height: 5px;
-  border-radius: 3px;
+  width: 70%;
+  height: 4px;
+  border-radius: 2px;
   background: var(--preview-muted);
   opacity: 0.4;
 }
 
 .theme-card-line--short {
-  width: 70%;
+  width: 50%;
 }
 
 .theme-card-label {
@@ -1739,14 +1741,31 @@ a.settings-row:hover {
 }
 
 .accent-custom-input {
+  -webkit-appearance: none;
+  appearance: none;
   width: 36px;
   height: 36px;
   border: 1px solid var(--divider);
-  border-radius: var(--radius-md);
-  padding: 2px;
+  border-radius: var(--radius-full);
+  padding: 0;
   cursor: pointer;
   background: none;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.accent-custom-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.accent-custom-input::-webkit-color-swatch {
+  border: none;
+  border-radius: var(--radius-full);
+}
+
+.accent-custom-input::-moz-color-swatch {
+  border: none;
+  border-radius: var(--radius-full);
 }
 
 .accent-custom-label {

@@ -6,17 +6,65 @@
     <h1 class="panel-title">Appearance</h1>
     <div class="panel panel--narrow">
       <form method="POST" action="/-/settings/theme" class="settings-form auto-save">
-        <div class="appearance-grid">
+        <p class="accent-section-label">Theme</p>
+        <div class="theme-grid">
           {% for value, preset in presets.items() %}
-            <label class="appearance-option">
+            <label class="theme-card {% if current_preset == value %}theme-card--selected{% endif %}">
               <input type="radio" name="preset" value="{{ value }}" {% if current_preset == value %}checked{% endif %}>
-              <span class="appearance-swatch" style="--appearance-bg: {{ preset.bg }}; --appearance-text: {{ preset.text_bright }}; --appearance-accent: {{ preset.accent }};"></span>
-              <span class="appearance-label">{{ preset.label }}</span>
+              <div class="theme-card-preview" style="--preview-bg: {{ preset.bg }}; --preview-text: {{ preset.text_bright }}; --preview-muted: {{ preset.text_muted }}; --preview-accent: {{ preset.accent }};">
+                <div class="theme-card-avatar"></div>
+                <div class="theme-card-title"></div>
+                <div class="theme-card-line"></div>
+                <div class="theme-card-line theme-card-line--short"></div>
+              </div>
+              <span class="theme-card-label">{{ preset.label }}</span>
             </label>
           {% endfor %}
         </div>
+
+        <p class="accent-section-label">Accent color</p>
+        <div class="accent-grid">
+          {% for color in accent_colors %}
+            <label class="accent-swatch">
+              <input type="radio" name="accent_color" value="{{ color }}" {% if current_accent == color %}checked{% endif %}>
+              <span class="accent-swatch-circle" style="--swatch-color: {{ color }};"></span>
+            </label>
+          {% endfor %}
+        </div>
+        <label class="accent-custom">
+          <input type="color" value="{{ current_accent }}" class="accent-custom-input">
+          <span class="accent-custom-label">Custom color</span>
+        </label>
       </form>
     </div>
   </div>
   <script src="/static/auto-save.js"></script>
+  <script>
+    (function() {
+      document.querySelectorAll('input[name="preset"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+          document.querySelectorAll('.theme-card').forEach(function(card) {
+            card.classList.remove('theme-card--selected');
+          });
+          radio.closest('.theme-card').classList.add('theme-card--selected');
+        });
+      });
+
+      var colorInput = document.querySelector('.accent-custom-input');
+      var radios = document.querySelectorAll('input[name="accent_color"]');
+      colorInput.addEventListener('input', function() {
+        radios.forEach(function(r) { r.checked = false; });
+        var form = colorInput.closest('form');
+        var hidden = form.querySelector('input[name="accent_color"][type="hidden"]');
+        if (!hidden) {
+          hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'accent_color';
+          form.appendChild(hidden);
+        }
+        hidden.value = colorInput.value;
+        form.dispatchEvent(new Event('change'));
+      });
+    })();
+  </script>
 {% endblock %}

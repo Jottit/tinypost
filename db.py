@@ -185,11 +185,11 @@ def update_user_avatar(user_id, avatar_url):
     return user
 
 
-def update_user_theme(user_id, theme):
+def update_user_theme(user_id, theme, accent_color=None):
     db = get_db()
     user = db.execute(
-        "UPDATE users SET theme = %s, updated_at = NOW() WHERE id = %s RETURNING *",
-        (theme, user_id),
+        "UPDATE users SET theme = %s, accent_color = %s, updated_at = NOW() WHERE id = %s RETURNING *",
+        (theme, accent_color, user_id),
     ).fetchone()
     db.commit()
     return user

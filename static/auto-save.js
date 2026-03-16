@@ -43,7 +43,7 @@
     });
 
     form.addEventListener('change', function(e) {
-      if (e.target.matches('select, input[type="checkbox"]')) {
+      if (e.target.matches('select, input[type="checkbox"], input[type="radio"]')) {
         save(form);
       }
     });
