@@ -1740,13 +1740,13 @@ a.settings-row:hover {
   cursor: pointer;
 }
 
-.accent-custom-input {
+.accent-custom-picker {
   -webkit-appearance: none;
   appearance: none;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--divider);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   padding: 0;
   cursor: pointer;
   background: none;
@@ -1754,18 +1754,18 @@ a.settings-row:hover {
   overflow: hidden;
 }
 
-.accent-custom-input::-webkit-color-swatch-wrapper {
+.accent-custom-picker::-webkit-color-swatch-wrapper {
   padding: 0;
 }
 
-.accent-custom-input::-webkit-color-swatch {
+.accent-custom-picker::-webkit-color-swatch {
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
 }
 
-.accent-custom-input::-moz-color-swatch {
+.accent-custom-picker::-moz-color-swatch {
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
 }
 
 .accent-custom-label {

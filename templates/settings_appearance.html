@@ -32,7 +32,7 @@
           {% endfor %}
         </div>
         <label class="accent-custom">
-          <input type="color" value="{{ current_accent }}" class="accent-custom-input">
+          <input type="color" value="{{ current_accent }}" class="accent-custom-picker">
           <span class="accent-custom-label">Custom color</span>
         </label>
       </form>
@@ -50,11 +50,18 @@
         });
       });
 
-      var colorInput = document.querySelector('.accent-custom-input');
+      var picker = document.querySelector('.accent-custom-picker');
       var radios = document.querySelectorAll('input[name="accent_color"]');
-      colorInput.addEventListener('input', function() {
+      var form = picker.closest('form');
+
+      radios.forEach(function(r) {
+        r.addEventListener('change', function() {
+          picker.value = r.value;
+        });
+      });
+
+      picker.addEventListener('input', function() {
         radios.forEach(function(r) { r.checked = false; });
-        var form = colorInput.closest('form');
         var hidden = form.querySelector('input[name="accent_color"][type="hidden"]');
         if (!hidden) {
           hidden = document.createElement('input');
@@ -62,7 +69,7 @@
           hidden.name = 'accent_color';
           form.appendChild(hidden);
         }
-        hidden.value = colorInput.value;
+        hidden.value = picker.value;
         form.dispatchEvent(new Event('change'));
       });
     })();
