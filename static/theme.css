@@ -711,6 +711,11 @@ nav a:hover {
   font-size: var(--text-xs);
 }
 
+.site-footer-subscribe input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--site-bg) inset;
+  -webkit-text-fill-color: var(--site-text);
+}
+
 
 .site-intro-links {
   font-size: var(--text-sm);
