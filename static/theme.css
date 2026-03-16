@@ -996,6 +996,11 @@ a.blogroll-item-post:hover {
   .site-intro-bio {
     font-size: var(--text-sm);
   }
+
+  .site-intro-meta {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
 }
 
 /* ── Empty state ────────────────────── */
