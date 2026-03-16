@@ -27,14 +27,19 @@
         <span class="settings-row-value">{{ user.email }}</span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
-      <a href="/-/settings/subdomain" class="settings-row">
-        <span class="settings-row-label">Subdomain</span>
-        <span class="settings-row-value">{{ site.subdomain }}.tinypost.blog</span>
-        <span class="settings-chevron">&rsaquo;</span>
-      </a>
       <a href="/-/settings/social" class="settings-row">
         <span class="settings-row-label">Links</span>
         <span class="settings-row-value">{% if site.links %}{{ site.links | length }}{% endif %}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/blogroll" class="settings-row">
+        <span class="settings-row-label">Blogroll</span>
+        <span class="settings-row-value"></span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
+      <a href="/-/settings/subdomain" class="settings-row">
+        <span class="settings-row-label">Subdomain</span>
+        <span class="settings-row-value">{{ site.subdomain }}.tinypost.blog</span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
       <a href="/-/settings/theme" class="settings-row">
@@ -45,11 +50,6 @@
       <a href="/-/settings/domain" class="settings-row">
         <span class="settings-row-label">Custom domain</span>
         <span class="settings-row-value">{% if site.custom_domain %}{{ site.custom_domain }}{% endif %}</span>
-        <span class="settings-chevron">&rsaquo;</span>
-      </a>
-      <a href="/-/blogroll" class="settings-row">
-        <span class="settings-row-label">Blogroll</span>
-        <span class="settings-row-value"></span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
       <a href="/-/settings/export" class="settings-row">
