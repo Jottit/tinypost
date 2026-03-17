@@ -14,20 +14,20 @@ def login(client, user_id):
         sess["user_id"] = user_id
 
 
-def test_delete_account_requires_auth(client):
+def test_delete_site_requires_auth(client):
     with app.app_context():
         create_user("owner@example.com", "myblog")
-    response = client.get("/-/settings/delete-account", headers=HOST)
+    response = client.get("/-/settings/delete-site", headers=HOST)
     assert response.status_code == 302
     assert "/signin" in response.headers["Location"]
 
 
-def test_delete_account_rejects_wrong_confirmation(client):
+def test_delete_site_rejects_wrong_confirmation(client):
     with app.app_context():
         user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.post(
-        "/-/settings/delete-account",
+        "/-/settings/delete-site",
         data={"confirmation": "nope"},
         headers=HOST,
     )
@@ -35,13 +35,13 @@ def test_delete_account_rejects_wrong_confirmation(client):
     assert b"Type" in response.data
 
 
-def test_delete_account_success(client):
+def test_delete_site_success(client):
     with app.app_context():
         user = create_user("owner@example.com", "myblog")
         create_post(user["id"], "hello", "Hello", "World")
     login(client, user["id"])
     response = client.post(
-        "/-/settings/delete-account",
+        "/-/settings/delete-site",
         data={"confirmation": "delete"},
         headers=HOST,
     )
@@ -61,7 +61,7 @@ def test_deleted_site_returns_404(client):
         create_post(user["id"], "hello", "Hello", "World")
     login(client, user["id"])
     client.post(
-        "/-/settings/delete-account",
+        "/-/settings/delete-site",
         data={"confirmation": "delete"},
         headers=HOST,
     )
@@ -75,7 +75,7 @@ def test_deleted_post_returns_404(client):
         create_post(user["id"], "hello", "Hello", "World")
     login(client, user["id"])
     client.post(
-        "/-/settings/delete-account",
+        "/-/settings/delete-site",
         data={"confirmation": "delete"},
         headers=HOST,
     )

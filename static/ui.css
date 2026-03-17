@@ -1025,6 +1025,7 @@ p.panel-notice {
 
 /* ── Export / danger zones ───────────── */
 .export-zone {
+  width: 100%;
   max-width: var(--measure-narrow);
   margin: var(--space-8) auto 0;
   border: 1px solid var(--divider);
@@ -1082,6 +1083,16 @@ p.panel-notice {
 .btn--danger:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.delete-site-link {
+  font-size: var(--text-sm);
+  color: color-mix(in srgb, #c0392b, var(--text-muted) 40%);
+  text-decoration: none;
+}
+
+.delete-site-link:hover {
+  text-decoration: underline;
 }
 
 /* ── Alerts ─────────────────────────── */

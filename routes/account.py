@@ -6,9 +6,7 @@ from db import (
     create_personal_token,
     get_personal_token,
     get_user_by_email,
-    get_user_by_id,
     revoke_personal_token,
-    update_user,
     update_user_email,
 )
 from routes import require_owner
@@ -26,19 +24,10 @@ def render_account(site, user, **kwargs):
     )
 
 
-@app.route("/-/account", methods=["GET", "POST"])
+@app.route("/-/account")
 def account():
     site = require_owner()
-
-    if request.method == "GET":
-        return render_account(site, site)
-
-    name = request.form.get("name", "").strip() or None
-    update_user(site["id"], name, site["email"])
-    if request.headers.get("X-Auto-Save"):
-        return "", 204
-    user = get_user_by_id(site["id"])
-    return render_account(site, user, success="Account updated.")
+    return render_account(site, site)
 
 
 @app.route("/-/account/email", methods=["GET", "POST"])

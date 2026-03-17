@@ -355,12 +355,12 @@ def test_domain_verify_no_domain_set(client):
     assert "/-/settings" in response.headers["Location"]
 
 
-# ── Delete account GET ──────────────────────────
+# ── Delete site GET ──────────────────────────
 
 
-def test_delete_account_get(client):
+def test_delete_site_get(client):
     _setup(client)
-    response = client.get("/-/settings/delete-account", headers=HOST)
+    response = client.get("/-/settings/delete-site", headers=HOST)
     assert response.status_code == 200
     assert b"delete" in response.data.lower()
 

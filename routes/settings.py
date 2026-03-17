@@ -333,16 +333,16 @@ def settings_domain_remove():
     return redirect("/-/settings/domain")
 
 
-@app.route("/-/settings/delete-account", methods=["GET", "POST"])
-def settings_delete_account():
+@app.route("/-/settings/delete-site", methods=["GET", "POST"])
+def settings_delete_site():
     site = require_owner()
 
     if request.method == "GET":
-        return render_template("delete_account.html", site=site, is_owner=True)
+        return render_template("delete_site.html", site=site, is_owner=True)
 
     if request.form.get("confirmation") != "delete":
         return render_template(
-            "delete_account.html",
+            "delete_site.html",
             site=site,
             is_owner=True,
             error="Type 'delete' to confirm.",

@@ -30,21 +30,6 @@ def test_account_shows_email_as_text_with_update_link(client):
     assert b'name="email"' not in response.data
 
 
-def test_account_post_only_updates_name(client):
-    with app.app_context():
-        user = create_user("owner@example.com", "myblog")
-    login(client, user["id"])
-    client.post(
-        "/-/account",
-        data={"name": "Alice"},
-        headers=HOST,
-    )
-    with app.app_context():
-        updated = get_user_by_id(user["id"])
-    assert updated["name"] == "Alice"
-    assert updated["email"] == "owner@example.com"
-
-
 @patch("routes.account.send_passcode")
 def test_account_update_email_with_passcode(mock_send, client):
     with app.app_context():
@@ -110,7 +95,5 @@ def test_account_page_has_token_section(client):
         user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/account", headers=HOST)
-    assert b"name" in response.data
     assert b"email" in response.data
     assert b"API token" in response.data
-    assert b"/-/settings/delete-account" in response.data

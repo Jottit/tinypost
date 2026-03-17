@@ -50,10 +50,15 @@
         </select>
       </form>
     </div>
-    <div class="danger-zone">
+    <div class="export-zone">
+      <h3>Export</h3>
+      <p>Download all your posts and images as a ZIP file.</p>
+      <a href="/-/settings/export" class="btn btn--outline">Download export</a>
+    </div>
+    <div class="export-zone">
       <h3>Delete site</h3>
       <p>Permanently delete {{ site.title }} and all its posts and images.</p>
-      <a href="/-/settings/delete-site" class="btn btn--danger">Delete site</a>
+      <a href="/-/settings/delete-site" class="delete-site-link">Delete site</a>
     </div>
   </div>
   <script src="/static/auto-save.js"></script>

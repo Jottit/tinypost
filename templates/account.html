@@ -11,11 +11,7 @@
       {% if success %}
         <p class="success">{{ success }}</p>
       {% endif %}
-      <form method="POST" action="/-/account" class="settings-form auto-save">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" value="{{ user.name or '' }}">
-      </form>
-      <div class="mt-6">
+      <div>
         <label>Email</label>
         {{ user.email }} · <a href="/-/account/email">Change email</a>
       </div>
@@ -41,11 +37,6 @@
         </form>
       {% endif %}
       </div>
-    </div>
-    <div class="danger-zone">
-      <h3>Delete account</h3>
-      <p>Permanently delete your account, your site, and all your posts and images.</p>
-      <a href="/-/settings/delete-account" class="btn btn--danger">Delete account</a>
     </div>
   </div>
   <script src="/static/auto-save.js"></script>

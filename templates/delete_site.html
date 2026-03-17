@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Delete account — {{ site.title }}{% endblock %}
+{% block title %}Delete site — {{ site.title }}{% endblock %}
 {% block body %}
   <div class="panel-page">
-    <a href="/-/account" class="panel-back">&larr; Account</a>
-    <h1 class="panel-title">Delete account</h1>
+    <a href="/-/settings/blog" class="panel-back">&larr; Blog settings</a>
+    <h1 class="panel-title">Delete site</h1>
     <div class="panel panel--narrow">
-      <p>This will permanently delete your account, all your posts, and images. This cannot be undone.</p>
+      <p>This will permanently delete your site, all your posts, and images. This cannot be undone.</p>
       {% if error %}
         <p class="error">{{ error }}</p>
       {% endif %}
-      <form method="POST" action="/-/settings/delete-account" class="settings-form">
+      <form method="POST" action="/-/settings/delete-site" class="settings-form">
         <label for="confirmation">Type <strong class="error">delete</strong> to confirm</label>
         <input type="text" id="confirmation" name="confirmation" autocomplete="off">
         <div class="actions mt-6">
-          <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete account</button>
-          <a href="/-/account" class="btn btn--outline">Cancel</a>
+          <button type="submit" class="btn--danger" id="confirm-btn" disabled>Delete site</button>
+          <a href="/-/settings/blog" class="btn btn--outline">Cancel</a>
         </div>
       </form>
     </div>
