@@ -6,7 +6,7 @@ from db import (
     create_user,
     get_user_by_subdomain,
     set_custom_domain,
-    set_user_paid,
+    set_user_plan,
     verify_custom_domain,
 )
 
@@ -17,7 +17,7 @@ def _setup_site(paid=False):
     with app.app_context():
         user = create_user("owner@example.com", "myblog")
         if paid:
-            user = set_user_paid(user["id"], "cus_test")
+            user = set_user_plan(user["id"], "yearly", "cus_test")
     return user
 
 

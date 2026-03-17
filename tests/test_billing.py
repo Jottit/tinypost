@@ -2,7 +2,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 from app import app
-from db import create_user, get_user_by_id, set_user_paid
+from db import create_user, get_user_by_id, set_user_plan
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
 
@@ -18,23 +18,29 @@ def test_domain_page_shows_upgrade_for_free_user(client):
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.get("/-/settings/domain", headers={"Host": SITE_HOST})
-    assert b"Yearly" in response.data
-    assert b"Monthly" in response.data
-    assert b"$48 / year" in response.data
-    assert b"$5 / month" in response.data
-    assert b"2 months free" in response.data
-    assert b"Continue with yearly" in response.data
+    assert b"Custom domains are a paid feature." in response.data
+    assert b"Upgrade" in response.data
 
 
 def test_domain_page_shows_form_for_paid_user(client):
     user = _setup_site()
     with app.app_context():
-        set_user_paid(user["id"], "cus_123")
+        set_user_plan(user["id"], "yearly", "cus_123")
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.get("/-/settings/domain", headers={"Host": SITE_HOST})
-    assert b"Continue with yearly" not in response.data
+    assert b"paid feature" not in response.data
     assert b'placeholder="yourname.com"' in response.data
+
+
+def test_subscription_page_free_user(client):
+    user = _setup_site()
+    with client.session_transaction() as sess:
+        sess["user_id"] = user["id"]
+    response = client.get("/-/settings/subscription", headers={"Host": SITE_HOST})
+    assert b"Free" in response.data
+    assert b"Continue with yearly" in response.data
+    assert b"$48 / year" in response.data
 
 
 def test_checkout_redirects_to_stripe(client):
@@ -98,7 +104,7 @@ def test_webhook_checkout_completed(client):
         "type": "checkout.session.completed",
         "data": {
             "object": {
-                "metadata": {"user_id": str(user["id"])},
+                "metadata": {"user_id": str(user["id"]), "plan": "year"},
                 "customer": "cus_abc123",
             }
         },
@@ -117,14 +123,14 @@ def test_webhook_checkout_completed(client):
     assert response.status_code == 200
     with app.app_context():
         updated = get_user_by_id(user["id"])
-    assert updated["plan"] == "paid"
+    assert updated["plan"] != "free"
     assert updated["stripe_customer_id"] == "cus_abc123"
 
 
 def test_webhook_subscription_deleted(client):
     user = _setup_site()
     with app.app_context():
-        set_user_paid(user["id"], "cus_abc123")
+        set_user_plan(user["id"], "yearly", "cus_abc123")
 
     event = {
         "type": "customer.subscription.deleted",
@@ -155,7 +161,7 @@ def test_webhook_subscription_deleted(client):
 def test_webhook_invoice_paid(client):
     user = _setup_site()
     with app.app_context():
-        set_user_paid(user["id"], "cus_abc123")
+        set_user_plan(user["id"], "yearly", "cus_abc123")
 
     event = {
         "type": "invoice.paid",

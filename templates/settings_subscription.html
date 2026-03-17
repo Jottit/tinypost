@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Subscription — {{ site.title }}{% endblock %}
+{% block body %}
+  <div class="panel-page">
+    <a href="/-/settings" class="panel-back">&larr; Settings</a>
+    <h1 class="panel-title">Subscription</h1>
+    {% if site.plan == 'free' %}
+      <div class="panel panel--narrow">
+        <p class="text-muted subscription-label">Current plan</p>
+        <p><strong>Free</strong></p>
+        <hr class="domain-divider">
+        <p class="text-muted">Upgrade to use your own domain and support Tinypost.</p>
+      </div>
+      <form method="POST" action="/-/billing/checkout" class="panel panel--narrow upgrade-form">
+        <label class="plan-card plan-card--selected">
+          <input type="radio" name="interval" value="year" checked>
+          <span class="plan-card-radio"></span>
+          <span class="plan-card-text">
+            <span class="plan-card-name">Yearly <span class="upgrade-badge">2 months free</span></span>
+            <span class="plan-card-price">$48 / year</span>
+          </span>
+        </label>
+        <label class="plan-card">
+          <input type="radio" name="interval" value="month">
+          <span class="plan-card-radio"></span>
+          <span class="plan-card-text">
+            <span class="plan-card-name">Monthly</span>
+            <span class="plan-card-price">$5 / month</span>
+          </span>
+        </label>
+        <label class="plan-card">
+          <input type="radio" name="interval" value="lifetime">
+          <span class="plan-card-radio"></span>
+          <span class="plan-card-text">
+            <span class="plan-card-name">Lifetime</span>
+            <span class="plan-card-price">$150 one-time</span>
+          </span>
+        </label>
+        <button type="submit" class="btn btn--lg btn--full">Continue with yearly</button>
+        <p class="text-muted upgrade-footnote">You can cancel anytime</p>
+      </form>
+      <script>
+        document.querySelectorAll('.plan-card input').forEach(function(radio) {
+          radio.addEventListener('change', function() {
+            document.querySelectorAll('.plan-card').forEach(function(c) {
+              c.classList.toggle('plan-card--selected', c.querySelector('input').checked);
+            });
+            var labels = {year: 'yearly', month: 'monthly', lifetime: 'lifetime'};
+            document.querySelector('.btn--full').textContent =
+              'Continue with ' + labels[radio.value];
+          });
+        });
+      </script>
+    {% else %}
+      <div class="panel panel--narrow">
+        <div class="subscription-plan-header">
+          <div>
+            <p class="text-muted subscription-label">Current plan</p>
+            <p><strong>{{ subscription_interval }}</strong></p>
+          </div>
+          {% if site.plan_cancels_at %}
+            <span class="domain-badge-pending">Cancels {{ site.plan_cancels_at.strftime('%-d %B %Y') }}</span>
+          {% else %}
+            <span class="domain-badge-active">Active</span>
+          {% endif %}
+        </div>
+        {% if subscription_interval == 'Lifetime' %}
+          <hr class="domain-divider">
+          <p class="text-muted">Paid once, yours forever.</p>
+        {% else %}
+          <hr class="domain-divider">
+          <div class="subscription-details-row">
+            <div>
+              <p class="text-muted subscription-label">Next billing date</p>
+              {% if site.plan_expires_at %}
+                <p><strong>{{ site.plan_expires_at.strftime('%-d %B %Y') }}</strong></p>
+              {% endif %}
+            </div>
+            <div class="text-right">
+              <p class="text-muted subscription-label">Amount</p>
+              <p><strong>{{ subscription_amount }}</strong></p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      {% if subscription_interval != 'Lifetime' %}
+        <div class="panel panel--narrow">
+          <div class="subscription-plan-header">
+            <div>
+              <p class="text-muted subscription-label">Payment method</p>
+              <p><strong>{{ card_brand }} ending {{ card_last4 }}</strong></p>
+            </div>
+            <a href="{{ portal_url }}" class="btn btn--outline btn--sm">Update</a>
+          </div>
+          <hr class="domain-divider">
+          <p class="text-center"><a href="{{ portal_url }}" class="text-muted">Cancel subscription</a></p>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endblock %}

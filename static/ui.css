@@ -977,8 +977,50 @@ p.panel-notice {
 .upgrade-footnote {
   text-align: center;
   font-size: var(--text-sm);
-  margin-top: var(--space-4);
+  margin-top: var(--space-1);
   margin-bottom: 0;
+}
+
+.panel--narrow-width {
+  max-width: var(--measure-narrow);
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+
+.subscription-label {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-1);
+}
+
+.subscription-plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.subscription-details-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.upgrade-gate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upgrade-gate-link {
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
 }
 
 /* ── Export / danger zones ───────────── */

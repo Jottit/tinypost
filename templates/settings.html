@@ -52,6 +52,11 @@
         <span class="settings-row-value">{% if site.custom_domain %}{{ site.custom_domain }}{% endif %}</span>
         <span class="settings-chevron">&rsaquo;</span>
       </a>
+      <a href="/-/settings/subscription" class="settings-row">
+        <span class="settings-row-label">Subscription</span>
+        <span class="settings-row-value">{% if site.plan != 'free' %}Active{% endif %}</span>
+        <span class="settings-chevron">&rsaquo;</span>
+      </a>
       <a href="/-/settings/export" class="settings-row">
         <span class="settings-row-label">Export</span>
         <span class="settings-row-value"></span>

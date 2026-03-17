@@ -86,7 +86,7 @@ def get_user_by_subdomain(subdomain):
 def get_user_by_custom_domain(domain):
     return query(
         "SELECT * FROM users WHERE custom_domain = %s AND domain_verified_at IS NOT NULL"
-        " AND plan = 'paid'",
+        " AND plan != 'free'",
         (domain,),
         one=True,
     )
@@ -527,13 +527,19 @@ def revoke_personal_token(user_id):
     db.commit()
 
 
-def set_user_paid(user_id, stripe_customer_id):
+def set_user_plan(user_id, plan, stripe_customer_id=None):
     db = get_db()
-    user = db.execute(
-        "UPDATE users SET plan = 'paid', stripe_customer_id = %s,"
-        " updated_at = NOW() WHERE id = %s RETURNING *",
-        (stripe_customer_id, user_id),
-    ).fetchone()
+    if stripe_customer_id is not None:
+        user = db.execute(
+            "UPDATE users SET plan = %s, stripe_customer_id = %s,"
+            " updated_at = NOW() WHERE id = %s RETURNING *",
+            (plan, stripe_customer_id, user_id),
+        ).fetchone()
+    else:
+        user = db.execute(
+            "UPDATE users SET plan = %s," " updated_at = NOW() WHERE id = %s RETURNING *",
+            (plan, user_id),
+        ).fetchone()
     db.commit()
     return user
 
@@ -554,6 +560,16 @@ def update_plan_expires_at(user_id, expires_at):
     user = db.execute(
         "UPDATE users SET plan_expires_at = %s," " updated_at = NOW() WHERE id = %s RETURNING *",
         (expires_at, user_id),
+    ).fetchone()
+    db.commit()
+    return user
+
+
+def update_plan_cancels_at(user_id, cancels_at):
+    db = get_db()
+    user = db.execute(
+        "UPDATE users SET plan_cancels_at = %s," " updated_at = NOW() WHERE id = %s RETURNING *",
+        (cancels_at, user_id),
     ).fetchone()
     db.commit()
     return user

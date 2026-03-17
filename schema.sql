@@ -16,6 +16,10 @@ CREATE TABLE users (
     links JSONB DEFAULT '[]',
     theme TEXT,
     accent_color TEXT,
+    plan VARCHAR NOT NULL DEFAULT 'free',  -- 'free' | 'monthly' | 'yearly' | 'lifetime'
+    plan_expires_at TIMESTAMPTZ,
+    plan_cancels_at TIMESTAMPTZ,
+    stripe_customer_id VARCHAR,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

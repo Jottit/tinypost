@@ -12,38 +12,11 @@
       {% if domain_error %}
         <p class="panel-notice error">{{ domain_error }}</p>
       {% endif %}
-      {% if site.plan != 'paid' %}
-        <form method="POST" action="/-/billing/checkout" class="upgrade-form">
-          <label class="plan-card plan-card--selected">
-            <input type="radio" name="interval" value="year" checked>
-            <span class="plan-card-radio"></span>
-            <span class="plan-card-text">
-              <span class="plan-card-name">Yearly <span class="upgrade-badge">2 months free</span></span>
-              <span class="plan-card-price">$48 / year</span>
-            </span>
-          </label>
-          <label class="plan-card">
-            <input type="radio" name="interval" value="month">
-            <span class="plan-card-radio"></span>
-            <span class="plan-card-text">
-              <span class="plan-card-name">Monthly</span>
-              <span class="plan-card-price">$5 / month</span>
-            </span>
-          </label>
-          <button type="submit" class="btn btn--lg btn--full">Continue with yearly</button>
-          <p class="text-muted upgrade-footnote">Cancel anytime</p>
-        </form>
-        <script>
-          document.querySelectorAll('.plan-card input').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-              document.querySelectorAll('.plan-card').forEach(function(c) {
-                c.classList.toggle('plan-card--selected', c.querySelector('input').checked);
-              });
-              document.querySelector('.btn--full').textContent =
-                'Continue with ' + (radio.value === 'year' ? 'yearly' : 'monthly');
-            });
-          });
-        </script>
+      {% if site.plan == 'free' %}
+        <div class="upgrade-gate-row">
+          <span class="text-muted">Custom domains are a paid feature.</span>
+          <a href="/-/settings/subscription" class="upgrade-gate-link">Upgrade &rarr;</a>
+        </div>
       {% else %}
         {% if site.custom_domain and site.domain_verified_at %}
           <div class="domain-active-row">
