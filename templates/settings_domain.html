@@ -6,6 +6,12 @@
     <h1 class="panel-title">Custom domain</h1>
     <p class="panel-subtitle">Point your domain to Tinypost, then add it here.</p>
     <div class="panel panel--narrow">
+      {% for message in get_flashed_messages() %}
+        <p class="panel-notice success">{{ message }}</p>
+      {% endfor %}
+      {% if domain_error %}
+        <p class="panel-notice error">{{ domain_error }}</p>
+      {% endif %}
       {% if site.plan != 'paid' %}
         <form method="POST" action="/-/billing/checkout" class="upgrade-form">
           <label class="plan-card plan-card--selected">
@@ -39,13 +45,12 @@
           });
         </script>
       {% else %}
-        {% if domain_error %}
-          <p class="error">{{ domain_error }}</p>
-        {% endif %}
         {% if site.custom_domain and site.domain_verified_at %}
-          <div class="domain-status">
-            <span class="domain-verified">{{ site.custom_domain }}</span>
-            <form method="POST" action="/-/settings/domain/remove" class="inline">
+          <div class="domain-active-row">
+            <span class="domain-active-icon">&#x2705;</span>
+            <strong>{{ site.custom_domain }}</strong>
+            <span class="domain-badge-active">Active</span>
+            <form method="POST" action="/-/settings/domain/remove" class="inline domain-active-remove">
               <button type="submit" class="domain-remove">Remove</button>
             </form>
           </div>

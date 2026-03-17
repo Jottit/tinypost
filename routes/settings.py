@@ -323,7 +323,7 @@ def settings_domain_verify():
 
     verify_custom_domain(site["id"])
     flash("Domain verified.")
-    return redirect("/-/settings")
+    return redirect("/-/settings/domain")
 
 
 @app.route("/-/settings/domain/remove", methods=["POST"])
