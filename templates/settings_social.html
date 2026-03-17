@@ -16,9 +16,9 @@
             <div class="following-entry">
               <div class="following-entry-info">
                 <div class="following-entry-text">
-                  <span class="following-entry-name">{{ link.label or link.url | replace("https://", "") | replace("http://", "") }}</span>
+                  <span class="following-entry-name">{{ (link.label or link.url) | autolink_label }}</span>
                   {% if link.label %}
-                    <span class="following-entry-post">{{ link.url | replace("https://", "") | replace("http://", "") }}</span>
+                    <span class="following-entry-post">{{ link.url | autolink_label }}</span>
                   {% endif %}
                 </div>
               </div>

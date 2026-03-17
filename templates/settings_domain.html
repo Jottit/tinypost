@@ -4,46 +4,127 @@
   <div class="panel-page">
     <a href="/-/settings" class="panel-back">&larr; Settings</a>
     <h1 class="panel-title">Custom domain</h1>
+    <p class="panel-subtitle">Point your domain to Tinypost, then add it here.</p>
     <div class="panel panel--narrow">
-      {% if domain_error %}
-        <p class="error">{{ domain_error }}</p>
-      {% endif %}
-      {% if site.custom_domain and site.domain_verified_at %}
-        <div class="domain-status">
-          <span class="domain-verified">{{ site.custom_domain }}</span>
-          <form method="POST" action="/-/settings/domain/remove" class="inline">
-            <button type="submit" class="domain-remove">Remove</button>
-          </form>
-        </div>
-      {% elif site.custom_domain %}
-        <div class="domain-status">
-          <p><strong>{{ site.custom_domain }}</strong> — not yet verified</p>
-          <div class="domain-instructions">
-            <p>Add these DNS records to verify ownership:</p>
-            <p><strong>TXT</strong> record for <code>_tinypost.{{ site.custom_domain }}</code>:</p>
-            <pre><code>tinypost-site-verification={{ site.domain_verification_token }}</code></pre>
-            {% if custom_domain_ipv4 %}
-              <p><strong>A</strong> record pointing to <code>{{ custom_domain_ipv4 }}</code></p>
-            {% endif %}
-            {% if custom_domain_ipv6 %}
-              <p><strong>AAAA</strong> record pointing to <code>{{ custom_domain_ipv6 }}</code></p>
-            {% endif %}
-            <p><strong>CNAME</strong> record for <code>www</code> pointing to <code>{{ site.custom_domain }}</code></p>
+      {% if site.plan != 'paid' %}
+        <form method="POST" action="/-/billing/checkout" class="upgrade-form">
+          <label class="plan-card plan-card--selected">
+            <input type="radio" name="interval" value="year" checked>
+            <span class="plan-card-radio"></span>
+            <span class="plan-card-text">
+              <span class="plan-card-name">Yearly <span class="upgrade-badge">2 months free</span></span>
+              <span class="plan-card-price">$48 / year</span>
+            </span>
+          </label>
+          <label class="plan-card">
+            <input type="radio" name="interval" value="month">
+            <span class="plan-card-radio"></span>
+            <span class="plan-card-text">
+              <span class="plan-card-name">Monthly</span>
+              <span class="plan-card-price">$5 / month</span>
+            </span>
+          </label>
+          <button type="submit" class="btn btn--lg btn--full">Continue with yearly</button>
+          <p class="text-muted upgrade-footnote">Cancel anytime</p>
+        </form>
+        <script>
+          document.querySelectorAll('.plan-card input').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+              document.querySelectorAll('.plan-card').forEach(function(c) {
+                c.classList.toggle('plan-card--selected', c.querySelector('input').checked);
+              });
+              document.querySelector('.btn--full').textContent =
+                'Continue with ' + (radio.value === 'year' ? 'yearly' : 'monthly');
+            });
+          });
+        </script>
+      {% else %}
+        {% if domain_error %}
+          <p class="error">{{ domain_error }}</p>
+        {% endif %}
+        {% if site.custom_domain and site.domain_verified_at %}
+          <div class="domain-status">
+            <span class="domain-verified">{{ site.custom_domain }}</span>
+            <form method="POST" action="/-/settings/domain/remove" class="inline">
+              <button type="submit" class="domain-remove">Remove</button>
+            </form>
+          </div>
+        {% elif site.custom_domain %}
+          <div class="domain-pending-header">
+            <strong>{{ site.custom_domain }}</strong>
+            <span class="domain-badge-pending">Pending</span>
+          </div>
+          <hr class="domain-divider">
+          <p class="text-muted">Add these DNS records at your registrar:</p>
+          <div class="dns-record">
+            <div class="dns-record-header">
+              <span class="dns-record-type">TXT</span>
+              <span class="dns-record-host">_tinypost.{{ site.custom_domain }}</span>
+            </div>
+            <div class="dns-record-value-row">
+              <code class="dns-record-value">tinypost-site-verification={{ site.domain_verification_token }}</code>
+              <button type="button" class="btn--outline btn--sm dns-copy" data-value="tinypost-site-verification={{ site.domain_verification_token }}">Copy</button>
+            </div>
+          </div>
+          {% if custom_domain_ipv4 %}
+            <div class="dns-record">
+              <div class="dns-record-header">
+                <span class="dns-record-type">A</span>
+                <span class="dns-record-host">@</span>
+              </div>
+              <div class="dns-record-value-row">
+                <code class="dns-record-value">{{ custom_domain_ipv4 }}</code>
+                <button type="button" class="btn--outline btn--sm dns-copy" data-value="{{ custom_domain_ipv4 }}">Copy</button>
+              </div>
+            </div>
+          {% endif %}
+          {% if custom_domain_ipv6 %}
+            <div class="dns-record">
+              <div class="dns-record-header">
+                <span class="dns-record-type">AAAA</span>
+                <span class="dns-record-host">@</span>
+              </div>
+              <div class="dns-record-value-row">
+                <code class="dns-record-value">{{ custom_domain_ipv6 }}</code>
+                <button type="button" class="btn--outline btn--sm dns-copy" data-value="{{ custom_domain_ipv6 }}">Copy</button>
+              </div>
+            </div>
+          {% endif %}
+          <div class="dns-record">
+            <div class="dns-record-header">
+              <span class="dns-record-type">CNAME</span>
+              <span class="dns-record-host">www</span>
+            </div>
+            <div class="dns-record-value-row">
+              <code class="dns-record-value">{{ site.custom_domain }}</code>
+              <button type="button" class="btn--outline btn--sm dns-copy" data-value="{{ site.custom_domain }}">Copy</button>
+            </div>
           </div>
           <div class="domain-actions">
             <form method="POST" action="/-/settings/domain/verify" class="inline">
               <button type="submit" class="btn">Verify</button>
             </form>
             <form method="POST" action="/-/settings/domain/remove" class="inline">
-              <button type="submit" class="domain-remove">Remove</button>
+              <button type="submit" class="domain-remove">Remove domain</button>
             </form>
           </div>
-        </div>
-      {% else %}
-        <form method="POST" action="/-/settings/domain" class="domain-form">
-          <input type="text" name="domain" placeholder="example.com">
-          <button type="submit" class="btn mt-4">Add domain</button>
-        </form>
+          <script>
+            document.querySelectorAll('.dns-copy').forEach(function(btn) {
+              btn.addEventListener('click', function() {
+                navigator.clipboard.writeText(btn.dataset.value);
+                btn.textContent = 'Copied';
+                setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+              });
+            });
+          </script>
+        {% else %}
+          <form method="POST" action="/-/settings/domain" class="domain-form">
+            <label class="domain-label" for="domain">Your domain</label>
+            <input type="text" name="domain" id="domain" placeholder="yourname.com">
+            <button type="submit" class="btn btn--lg btn--full mt-4">Add domain</button>
+          </form>
+          <p class="text-muted upgrade-footnote">DNS changes can take up to 24 hours. We'll email you when your domain is live.</p>
+        {% endif %}
       {% endif %}
     </div>
   </div>

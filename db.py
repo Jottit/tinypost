@@ -524,3 +524,43 @@ def revoke_personal_token(user_id):
         (user_id,),
     )
     db.commit()
+
+
+def set_user_paid(user_id, stripe_customer_id):
+    db = get_db()
+    user = db.execute(
+        "UPDATE users SET plan = 'paid', stripe_customer_id = %s,"
+        " updated_at = NOW() WHERE id = %s RETURNING *",
+        (stripe_customer_id, user_id),
+    ).fetchone()
+    db.commit()
+    return user
+
+
+def set_user_free(user_id):
+    db = get_db()
+    user = db.execute(
+        "UPDATE users SET plan = 'free', plan_expires_at = NULL,"
+        " updated_at = NOW() WHERE id = %s RETURNING *",
+        (user_id,),
+    ).fetchone()
+    db.commit()
+    return user
+
+
+def update_plan_expires_at(user_id, expires_at):
+    db = get_db()
+    user = db.execute(
+        "UPDATE users SET plan_expires_at = %s," " updated_at = NOW() WHERE id = %s RETURNING *",
+        (expires_at, user_id),
+    ).fetchone()
+    db.commit()
+    return user
+
+
+def get_user_by_stripe_customer_id(customer_id):
+    return query(
+        "SELECT * FROM users WHERE stripe_customer_id = %s",
+        (customer_id,),
+        one=True,
+    )

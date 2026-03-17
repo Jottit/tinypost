@@ -89,7 +89,7 @@ def test_social_links_in_settings(client):
     login(client, user)
     response = client.get("/-/settings/links", headers={"Host": "myblog.tinypost.localhost:8000"})
     html = response.data.decode()
-    assert "github.com/test" in html
+    assert "github.com" in html
     assert "GitHub" in html
 
 

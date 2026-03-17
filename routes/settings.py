@@ -137,7 +137,7 @@ def settings_links_add():
     if not url:
         return redirect("/-/settings/links")
 
-    if url and not url.startswith(("http://", "https://")):
+    if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
     links = list(site.get("links") or [])
@@ -155,8 +155,8 @@ def settings_links_remove():
     links = list(site.get("links") or [])
     if index is not None and 0 <= index < len(links):
         links.pop(index)
-    update_user_links(site["id"], links)
-    flash("Link removed.")
+        update_user_links(site["id"], links)
+        flash("Link removed.")
     return redirect("/-/settings/links")
 
 

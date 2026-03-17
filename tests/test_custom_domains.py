@@ -6,15 +6,18 @@ from db import (
     create_user,
     get_user_by_subdomain,
     set_custom_domain,
+    set_user_paid,
     verify_custom_domain,
 )
 
 SITE_HOST = "myblog.tinypost.localhost:8000"
 
 
-def _setup_site():
+def _setup_site(paid=False):
     with app.app_context():
         user = create_user("owner@example.com", "myblog")
+        if paid:
+            user = set_user_paid(user["id"], "cus_test")
     return user
 
 
@@ -35,7 +38,7 @@ def test_add_domain_generates_token(client):
 
 
 def test_add_domain_shown_in_settings(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     client.post(
@@ -45,11 +48,11 @@ def test_add_domain_shown_in_settings(client):
     )
     response = client.get("/-/settings/domain", headers={"Host": SITE_HOST})
     assert b"example.com" in response.data
-    assert b"not yet verified" in response.data
+    assert b"Pending" in response.data
 
 
 def test_add_domain_invalid_format(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
@@ -61,7 +64,7 @@ def test_add_domain_invalid_format(client):
 
 
 def test_add_domain_rejects_protocol_prefix(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with client.session_transaction() as sess:
         sess["user_id"] = user["id"]
     response = client.post(
@@ -73,7 +76,7 @@ def test_add_domain_rejects_protocol_prefix(client):
 
 
 def test_add_domain_already_claimed(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         create_user("other@example.com", "other")
         other = get_user_by_subdomain("other")
@@ -110,7 +113,7 @@ def test_verify_with_correct_txt_record(client):
 
 
 def test_verify_with_missing_txt_record(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "mytoken123")
     with client.session_transaction() as sess:
