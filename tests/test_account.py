@@ -11,23 +11,13 @@ def login(client, user_id):
         sess["user_id"] = user_id
 
 
-def test_account_requires_auth(client):
-    with app.app_context():
-        create_user("owner@example.com", "myblog")
-    response = client.get("/-/account", headers=HOST)
-    assert response.status_code == 302
-    assert "/signin" in response.headers["Location"]
-
-
-def test_account_shows_email_as_text_with_update_link(client):
+def test_account_redirects_to_email(client):
     with app.app_context():
         user = create_user("owner@example.com", "myblog")
     login(client, user["id"])
     response = client.get("/-/account", headers=HOST)
-    assert response.status_code == 200
-    assert b"owner@example.com" in response.data
-    assert b"/-/account/email" in response.data
-    assert b'name="email"' not in response.data
+    assert response.status_code == 302
+    assert "/-/account/email" in response.headers["Location"]
 
 
 @patch("routes.account.send_passcode")
@@ -88,12 +78,3 @@ def test_account_email_required(client):
     )
     assert response.status_code == 200
     assert b"Email is required" in response.data
-
-
-def test_account_page_has_token_section(client):
-    with app.app_context():
-        user = create_user("owner@example.com", "myblog")
-    login(client, user["id"])
-    response = client.get("/-/account", headers=HOST)
-    assert b"email" in response.data
-    assert b"API token" in response.data

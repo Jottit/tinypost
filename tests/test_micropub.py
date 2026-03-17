@@ -326,24 +326,3 @@ class TestPersonalToken:
             token2 = create_personal_token(user["id"])
             assert token1 != token2
             assert get_personal_token(user["id"])["token"] == token2
-
-    def test_account_token_route(self, client):
-        user = make_site(client)
-        with client.session_transaction() as sess:
-            sess["user_id"] = user["id"]
-        resp = client.post("/-/account/token", base_url=BASE)
-        assert resp.status_code == 200
-        assert b"Token created" in resp.data
-        with app.app_context():
-            assert get_personal_token(user["id"]) is not None
-
-    def test_account_token_revoke_route(self, client):
-        user = make_site(client)
-        with app.app_context():
-            create_personal_token(user["id"])
-        with client.session_transaction() as sess:
-            sess["user_id"] = user["id"]
-        resp = client.post("/-/account/token/revoke", base_url=BASE, follow_redirects=True)
-        assert resp.status_code == 200
-        with app.app_context():
-            assert get_personal_token(user["id"]) is None

@@ -3,31 +3,15 @@ from flask import redirect, render_template, request, session
 from app import app, limiter
 from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
 from db import (
-    create_personal_token,
-    get_personal_token,
     get_user_by_email,
-    revoke_personal_token,
     update_user_email,
 )
 from routes import require_owner
 
 
-def render_account(site, user, **kwargs):
-    token = get_personal_token(site["id"])
-    return render_template(
-        "account.html",
-        site=site,
-        user=user,
-        is_owner=True,
-        personal_token=token,
-        **kwargs,
-    )
-
-
 @app.route("/-/account")
 def account():
-    site = require_owner()
-    return render_account(site, site)
+    return redirect("/-/account/email")
 
 
 @app.route("/-/account/email", methods=["GET", "POST"])
@@ -70,24 +54,10 @@ def account_email_verify():
 
     update_user_email(site["id"], change["email"])
     session.pop("email_change", None)
-    return redirect("/-/account")
+    return redirect("/-/settings")
 
 
 @app.route("/-/settings/export-import")
 def settings_export_import():
     require_owner()
     return redirect("/-/settings/export")
-
-
-@app.route("/-/account/token", methods=["POST"])
-def account_token():
-    site = require_owner()
-    token = create_personal_token(site["id"])
-    return render_account(site, site, new_token=token)
-
-
-@app.route("/-/account/token/revoke", methods=["POST"])
-def account_token_revoke():
-    site = require_owner()
-    revoke_personal_token(site["id"])
-    return redirect("/-/account")
