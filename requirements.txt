@@ -13,3 +13,4 @@ pytest
 ruff
 black
 sentry-sdk[flask]
+stripe
