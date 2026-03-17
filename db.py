@@ -85,7 +85,8 @@ def get_user_by_subdomain(subdomain):
 
 def get_user_by_custom_domain(domain):
     return query(
-        "SELECT * FROM users WHERE custom_domain = %s AND domain_verified_at IS NOT NULL",
+        "SELECT * FROM users WHERE custom_domain = %s AND domain_verified_at IS NOT NULL"
+        " AND plan = 'paid'",
         (domain,),
         one=True,
     )

@@ -144,7 +144,7 @@ def test_remove_domain(client):
 
 
 def test_tls_ask_returns_200_for_verified_domain(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "tok")
         verify_custom_domain(user["id"])
@@ -190,7 +190,7 @@ def test_tls_ask_returns_403_for_unknown_subdomain(client):
 
 
 def test_tls_ask_returns_403_for_wrong_token(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "tok")
         verify_custom_domain(user["id"])
@@ -200,7 +200,7 @@ def test_tls_ask_returns_403_for_wrong_token(client):
 
 
 def test_custom_domain_routes_to_correct_site(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         create_post(user["id"], "hello", "Hello World", "Body text")
         set_custom_domain(user["id"], "example.com", "tok")
@@ -211,7 +211,7 @@ def test_custom_domain_routes_to_correct_site(client):
 
 
 def test_subdomain_redirects_unauthenticated_to_custom_domain(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "tok")
         verify_custom_domain(user["id"])
@@ -221,7 +221,7 @@ def test_subdomain_redirects_unauthenticated_to_custom_domain(client):
 
 
 def test_subdomain_no_redirect_for_authenticated_owner(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "tok")
         verify_custom_domain(user["id"])
@@ -232,7 +232,7 @@ def test_subdomain_no_redirect_for_authenticated_owner(client):
 
 
 def test_tls_ask_returns_200_for_www_custom_domain(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "tok")
         verify_custom_domain(user["id"])
@@ -242,7 +242,7 @@ def test_tls_ask_returns_200_for_www_custom_domain(client):
 
 
 def test_www_custom_domain_redirects_to_bare(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         set_custom_domain(user["id"], "example.com", "tok")
         verify_custom_domain(user["id"])
@@ -253,7 +253,7 @@ def test_www_custom_domain_redirects_to_bare(client):
 
 
 def test_drafts_hidden_on_custom_domain(client):
-    user = _setup_site()
+    user = _setup_site(paid=True)
     with app.app_context():
         create_post(user["id"], "my-draft", "My Draft", "Secret", is_draft=True)
         create_post(user["id"], "published", "Published", "Public")
