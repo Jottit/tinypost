@@ -2,7 +2,7 @@
 
 Tinypost is a radically simple blogging platform. You sign up, you get a blog at yourname.tinypost.blog, and you start writing. That's it.
 
-Originally co-created with [Aaron Swartz](https://en.wikipedia.org/wiki/Aaron_Swartz) in 2007. Now being rebuilt as open infrastructure for web publishing.
+Grew out of Jottit, which Simon Carstensen co-created with [Aaron Swartz](https://en.wikipedia.org/wiki/Aaron_Swartz) in 2007 and revived in 2026. Tinypost takes that same idea — make publishing on the web effortless — and applies it to blogging.
 
 ## Status
 
