@@ -487,7 +487,7 @@ def exchange_auth_code(code, token):
     return row
 
 
-def replace_passcode(user_id, purpose, passcode_hash):
+def replace_passcode(user_id, email, purpose, passcode_hash):
     db = get_db()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     db.execute(
@@ -495,9 +495,9 @@ def replace_passcode(user_id, purpose, passcode_hash):
         (user_id, purpose),
     )
     db.execute(
-        "INSERT INTO passcodes (user_id, purpose, passcode_hash, expires_at)"
-        " VALUES (%s, %s, %s, %s)",
-        (user_id, purpose, passcode_hash, expires_at),
+        "INSERT INTO passcodes (user_id, email, purpose, passcode_hash, expires_at)"
+        " VALUES (%s, %s, %s, %s, %s)",
+        (user_id, email, purpose, passcode_hash, expires_at),
     )
     db.commit()
 

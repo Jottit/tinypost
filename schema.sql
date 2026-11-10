@@ -87,7 +87,8 @@ CREATE TABLE indieauth_codes (
 
 CREATE TABLE passcodes (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
     purpose TEXT NOT NULL,  -- 'indieauth'
     passcode_hash TEXT NOT NULL,
     attempts INTEGER NOT NULL DEFAULT 0,

@@ -118,7 +118,7 @@ def indieauth_authorize_post():
 
     if action == "send_passcode":
         passcode = generate_passcode()
-        replace_passcode(site["id"], PASSCODE_PURPOSE, hash_passcode(passcode))
+        replace_passcode(site["id"], site["email"], PASSCODE_PURPOSE, hash_passcode(passcode))
         send_passcode(site["email"], passcode)
         return _consent_template(site, "verify_passcode", params)
 
