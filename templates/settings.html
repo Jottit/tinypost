@@ -58,6 +58,7 @@
         <span class="settings-chevron">&rsaquo;</span>
       </a>
       <form method="POST" action="/signout" class="settings-row-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="settings-row settings-row--last settings-row-button">
           <span class="settings-row-label">Sign out</span>
         </button>

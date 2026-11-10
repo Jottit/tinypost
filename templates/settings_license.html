@@ -6,6 +6,7 @@
     <h1 class="panel-title">License</h1>
     <div class="panel panel--narrow">
       <form method="POST" action="/-/settings/license" class="settings-form auto-save">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="license">License</label>
         <select id="license" name="license">
           <option value="">No license</option>

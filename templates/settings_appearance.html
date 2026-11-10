@@ -6,6 +6,7 @@
     <h1 class="panel-title">Appearance</h1>
     <div class="panel panel--narrow">
       <form method="POST" action="/-/settings/theme" class="settings-form auto-save">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <p class="accent-section-label">Theme</p>
         <div class="theme-grid">
           {% for value, preset in presets.items() %}

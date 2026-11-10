@@ -14,7 +14,8 @@ export function uploadImage(jot, file) {
   var data = new FormData();
   data.append('file', file);
 
-  fetch('/-/upload', { method: 'POST', body: data })
+  var token = document.querySelector('meta[name="csrf-token"]').content;
+  fetch('/-/upload', { method: 'POST', body: data, headers: { 'X-CSRF-Token': token } })
     .then(function(res) { return res.json(); })
     .then(function(json) {
       if (json.url) {

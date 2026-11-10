@@ -21,6 +21,7 @@
               <a href="#" onclick="document.getElementById('avatar-input').click(); return false;">{{ "Update" if site.avatar else "Upload" }}</a>
               {% if site.avatar %}
                 <form method="POST" action="/-/settings/avatar/delete">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <button type="submit" class="avatar-remove">Remove</button>
                 </form>
               {% endif %}
@@ -29,10 +30,12 @@
           </div>
         </div>
         <form id="avatar-form" method="POST" action="/-/settings/avatar" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" hidden onchange="this.form.submit()">
         </form>
       </div>
       <form method="POST" action="/-/settings/blog" class="settings-form auto-save">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="title">Site title</label>
         <input type="text" id="title" name="title" value="{{ site.title or '' }}">
         <label for="bio" class="mt-6">Bio</label>

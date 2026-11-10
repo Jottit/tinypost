@@ -19,6 +19,7 @@
       {% endfor %}
       <hr class="admin-dropdown-divider">
       <form method="POST" action="/signout">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit">Sign out</button>
       </form>
       <span class="admin-dropdown-email">{{ user_email }}</span>

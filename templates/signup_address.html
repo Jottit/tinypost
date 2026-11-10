@@ -6,6 +6,7 @@
     <p class="subtitle" id="status"></p>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup/address" method="post" class="email-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="address-input">
         <input type="text" name="subdomain" class="email-input" placeholder="yourname" value="{{ suggested or subdomain or '' }}" required autofocus>
         <span class="address-suffix">.tinypost.blog</span>

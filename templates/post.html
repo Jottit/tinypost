@@ -27,6 +27,7 @@
       {% else %}
         <p class="send-banner-text">This post hasn't been emailed to your {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }} yet.</p>
         <form method="POST" action="/-/send/{{ post.slug }}" onsubmit="return confirm('Send to {{ subscriber_count }} subscriber{{ 's' if subscriber_count != 1 }}? This can\'t be undone.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn btn--primary">Send</button>
         </form>
       {% endif %}
@@ -53,6 +54,7 @@
           <button class="btn btn--pill btn--pin{% if post.is_pinned %} btn--pill-active{% endif %}" data-pin-url="/-/pin/{{ post.slug }}" data-pinned="{{ 'true' if post.is_pinned else 'false' }}">{{ 'Pinned' if post.is_pinned else 'Pin' }}</button>
           <div class="post-actions-right">
             <form method="POST" action="/-/delete/{{ post.slug }}" onsubmit="return confirm('Delete this post?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn--pill">Delete</button>
             </form>
             <a href="/-/edit/{{ post.slug }}" class="btn btn--pill btn--dark">Edit</a>
@@ -70,7 +72,7 @@
       var btn = this;
       fetch(btn.dataset.pinUrl, {
         method: 'POST',
-        headers: {'X-Requested-With': 'XMLHttpRequest'}
+        headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content}
       }).then(function(r) { return r.json(); }).then(function(data) {
         btn.dataset.pinned = data.is_pinned;
         btn.textContent = data.is_pinned ? 'Pinned' : 'Pin';

@@ -5,6 +5,7 @@
     <h1 class="title">Add a profile photo</h1>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/-/welcome/photo" method="post" enctype="multipart/form-data" class="email-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label class="welcome-photo-upload">
         <span class="welcome-photo-placeholder">
           <svg class="welcome-photo-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>

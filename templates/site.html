@@ -114,6 +114,7 @@
     {% if posts %}<div id="subscribe" class="site-footer-subscribe">
       <p class="site-footer-subscribe-text">Get future posts by email (or <a href="/feed.xml">RSS</a>)</p>
       <form action="/subscribe" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="pill-input">
         <input type="email" name="email" placeholder="Subscribe by email" required>
         <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
