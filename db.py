@@ -491,8 +491,9 @@ def replace_passcode(user_id, email, purpose, passcode_hash):
     db = get_db()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     db.execute(
-        "DELETE FROM passcodes WHERE user_id = %s AND purpose = %s",
-        (user_id, purpose),
+        "DELETE FROM passcodes WHERE email = %s AND purpose = %s"
+        " AND user_id IS NOT DISTINCT FROM %s",
+        (email, purpose, user_id),
     )
     db.execute(
         "INSERT INTO passcodes (user_id, email, purpose, passcode_hash, expires_at)"
