@@ -1,6 +1,6 @@
 """add passcodes table
 
-Revision ID: a33dfcd594bc
+Revision ID: j6k7l8m9n0o1
 Revises: i5j6k7l8m9n0
 Create Date: 2026-11-10 21:45:00.000000
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a33dfcd594bc"
+revision: str = "j6k7l8m9n0o1"
 down_revision: Union[str, Sequence[str], None] = "i5j6k7l8m9n0"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -30,9 +30,9 @@ def upgrade() -> None:
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
-    op.create_index("idx_passcodes_email_purpose", "passcodes", ["email", "purpose"])
+    op.create_index("idx_passcodes_user_id_purpose", "passcodes", ["user_id", "purpose"])
 
 
 def downgrade() -> None:
-    op.drop_index("idx_passcodes_email_purpose", table_name="passcodes")
+    op.drop_index("idx_passcodes_user_id_purpose", table_name="passcodes")
     op.drop_table("passcodes")

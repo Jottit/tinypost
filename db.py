@@ -584,7 +584,7 @@ def get_user_by_stripe_customer_id(customer_id):
     )
 
 
-def create_passcode(email, purpose, passcode_hash, user_id=None):
+def replace_passcode(user_id, email, purpose, passcode_hash):
     db = get_db()
     db.execute(
         "DELETE FROM passcodes WHERE email = %s AND purpose = %s"

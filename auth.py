@@ -5,7 +5,7 @@ import string
 
 from flask import current_app
 
-from db import count_passcode_attempt, create_passcode, delete_passcode
+from db import count_passcode_attempt, delete_passcode, replace_passcode
 from mailer import send_email
 
 
@@ -26,7 +26,7 @@ MAX_PASSCODE_ATTEMPTS = 5
 
 def issue_passcode(email, purpose, user_id=None):
     passcode = generate_passcode()
-    create_passcode(email, purpose, hash_passcode(passcode), user_id)
+    replace_passcode(user_id, email, purpose, hash_passcode(passcode))
     return passcode
 
 
