@@ -269,6 +269,7 @@ def update_user(user_id, name, email):
 def delete_account(user_id):
     db = get_db()
     db.execute("DELETE FROM indieauth_codes WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM passcodes WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM blogroll WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM subscribers WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM posts WHERE user_id = %s", (user_id,))
@@ -581,3 +582,38 @@ def get_user_by_stripe_customer_id(customer_id):
         (customer_id,),
         one=True,
     )
+
+
+def create_passcode(email, purpose, passcode_hash, user_id=None):
+    db = get_db()
+    db.execute(
+        "DELETE FROM passcodes WHERE email = %s AND purpose = %s"
+        " AND user_id IS NOT DISTINCT FROM %s",
+        (email, purpose, user_id),
+    )
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    db.execute(
+        "INSERT INTO passcodes (user_id, email, purpose, passcode_hash, expires_at)"
+        " VALUES (%s, %s, %s, %s, %s)",
+        (user_id, email, purpose, passcode_hash, expires_at),
+    )
+    db.commit()
+
+
+def count_passcode_attempt(email, purpose, user_id, max_attempts):
+    db = get_db()
+    row = db.execute(
+        "UPDATE passcodes SET attempts = attempts + 1"
+        " WHERE email = %s AND purpose = %s AND user_id IS NOT DISTINCT FROM %s"
+        " AND expires_at > NOW() AND attempts < %s RETURNING *",
+        (email, purpose, user_id, max_attempts),
+    ).fetchone()
+    db.commit()
+    return row
+
+
+def delete_passcode(passcode_id):
+    db = get_db()
+    row = db.execute("DELETE FROM passcodes WHERE id = %s RETURNING id", (passcode_id,)).fetchone()
+    db.commit()
+    return row

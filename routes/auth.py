@@ -3,8 +3,8 @@ import re
 from flask import redirect, render_template, request, session
 
 from app import app, limiter
-from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
-from db import create_user, get_user_by_email, get_user_by_id, subdomain_taken
+from auth import check_passcode, issue_passcode, send_passcode
+from db import create_user, get_user_by_email, subdomain_taken
 from utils import is_valid_subdomain, subdomain_url
 
 
@@ -40,8 +40,8 @@ def signup_email_send():
             error="That email is already registered. Try signing in instead.",
         )
 
-    passcode = generate_passcode()
-    session["signup"] = {"email": email, "passcode": hash_passcode(passcode)}
+    passcode = issue_passcode(email, "signup")
+    session["signup"] = {"email": email}
     send_passcode(email, passcode)
     return render_template("signup_verify.html", email=email)
 
@@ -54,7 +54,7 @@ def signup_verify():
         return redirect("/signup")
 
     code = request.form["passcode"]
-    if not verify_passcode(code, signup["passcode"]):
+    if not check_passcode(signup["email"], "signup", code):
         return render_template("signup_verify.html", email=signup["email"], error="Wrong passcode.")
 
     session["signup"] = {**signup, "verified": True}
@@ -116,8 +116,8 @@ def signin_post():
     user = get_user_by_email(email)
     if not user:
         return render_template("signin.html", error="No account with that email.")
-    passcode = generate_passcode()
-    session["signin"] = {"email": email, "user_id": user["id"], "passcode": hash_passcode(passcode)}
+    passcode = issue_passcode(email, "signin", user["id"])
+    session["signin"] = {"email": email}
     send_passcode(email, passcode)
     return render_template("signin_verify.html", email=email)
 
@@ -128,12 +128,15 @@ def signin_verify():
     signin = session.get("signin")
     if not signin:
         return redirect("/signin")
+    user = get_user_by_email(signin["email"])
+    if not user:
+        session.pop("signin")
+        return redirect("/signin")
     code = request.form["passcode"]
-    if not verify_passcode(code, signin["passcode"]):
+    if not check_passcode(signin["email"], "signin", code, user["id"]):
         return render_template("signin_verify.html", email=signin["email"], error="Wrong passcode.")
     session.pop("signin")
-    session["user_id"] = signin["user_id"]
-    user = get_user_by_id(signin["user_id"])
+    session["user_id"] = user["id"]
     return redirect(subdomain_url(user))
 
 

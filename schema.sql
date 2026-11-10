@@ -85,7 +85,19 @@ CREATE TABLE indieauth_codes (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE passcodes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    purpose TEXT NOT NULL,
+    passcode_hash TEXT NOT NULL,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE INDEX idx_posts_user_id ON posts (user_id);
 CREATE INDEX idx_subscribers_user_id ON subscribers (user_id);
 CREATE INDEX idx_blogroll_user_id ON blogroll (user_id);
 CREATE INDEX idx_indieauth_codes_user_id ON indieauth_codes (user_id);
+CREATE INDEX idx_passcodes_email_purpose ON passcodes (email, purpose);

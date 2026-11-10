@@ -4,6 +4,7 @@ from unittest.mock import patch
 from app import app
 from auth import hash_passcode
 from db import (
+    create_passcode,
     create_post,
     create_user,
     get_post_by_slug,
@@ -46,22 +47,20 @@ def test_signup_email_send(mock_send, client):
 
 
 def test_signup_verify_success(client):
+    with app.app_context():
+        create_passcode("u@example.com", "signup", hash_passcode("123456"))
     with client.session_transaction() as sess:
-        sess["signup"] = {
-            "email": "u@example.com",
-            "passcode": hash_passcode("123456"),
-        }
+        sess["signup"] = {"email": "u@example.com"}
     response = client.post("/signup/verify", data={"passcode": "123456"})
     assert response.status_code == 200
     assert b"name" in response.data.lower()
 
 
 def test_signup_verify_wrong_code(client):
+    with app.app_context():
+        create_passcode("u@example.com", "signup", hash_passcode("123456"))
     with client.session_transaction() as sess:
-        sess["signup"] = {
-            "email": "u@example.com",
-            "passcode": hash_passcode("123456"),
-        }
+        sess["signup"] = {"email": "u@example.com"}
     response = client.post("/signup/verify", data={"passcode": "000000"})
     assert response.status_code == 200
     assert b"Wrong passcode" in response.data
@@ -71,7 +70,6 @@ def test_signup_name(client):
     with client.session_transaction() as sess:
         sess["signup"] = {
             "email": "u@example.com",
-            "passcode": hash_passcode("123456"),
             "verified": True,
         }
     response = client.post("/signup/name", data={"name": "Test User"})
@@ -89,7 +87,6 @@ def test_signup_address_creates_user(client):
         sess["signup"] = {
             "name": "Test",
             "email": "u@example.com",
-            "passcode": hash_passcode("123456"),
             "verified": True,
         }
     response = client.post("/signup/address", data={"subdomain": "fresh"})
@@ -103,7 +100,6 @@ def test_signup_address_rejects_invalid(client):
         sess["signup"] = {
             "name": "Test",
             "email": "u@example.com",
-            "passcode": "x",
             "verified": True,
         }
     response = client.post("/signup/address", data={"subdomain": "---"})
@@ -137,12 +133,9 @@ def test_signin_post_unknown_email(client):
 def test_signin_verify_success(client):
     with app.app_context():
         user = create_user("owner@example.com", "myblog")
+        create_passcode("owner@example.com", "signin", hash_passcode("123456"), user["id"])
     with client.session_transaction() as sess:
-        sess["signin"] = {
-            "email": "owner@example.com",
-            "user_id": user["id"],
-            "passcode": hash_passcode("123456"),
-        }
+        sess["signin"] = {"email": "owner@example.com"}
     response = client.post("/signin/verify", data={"passcode": "123456"})
     assert response.status_code == 302
     with client.session_transaction() as sess:
@@ -150,12 +143,11 @@ def test_signin_verify_success(client):
 
 
 def test_signin_verify_wrong_code(client):
+    with app.app_context():
+        user = create_user("u@example.com", "myblog")
+        create_passcode("u@example.com", "signin", hash_passcode("123456"), user["id"])
     with client.session_transaction() as sess:
-        sess["signin"] = {
-            "email": "u@example.com",
-            "user_id": 1,
-            "passcode": hash_passcode("123456"),
-        }
+        sess["signin"] = {"email": "u@example.com"}
     response = client.post("/signin/verify", data={"passcode": "000000"})
     assert response.status_code == 200
     assert b"Wrong passcode" in response.data

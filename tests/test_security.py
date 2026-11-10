@@ -41,7 +41,6 @@ def test_signup_rejects_invalid_subdomain(mock_send, client):
         sess["signup"] = {
             "name": "Test",
             "email": "u@example.com",
-            "passcode": "x",
             "verified": True,
         }
     response = client.post("/signup/address", data={"subdomain": "---"})

@@ -1,7 +1,7 @@
 from flask import redirect, render_template, request, session
 
 from app import app, limiter
-from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
+from auth import check_passcode, issue_passcode, send_passcode
 from db import (
     get_user_by_email,
     update_user_email,
@@ -31,8 +31,8 @@ def account_email():
             "account_email.html", site=site, error="That email is already in use."
         )
 
-    passcode = generate_passcode()
-    session["email_change"] = {"email": email, "passcode": hash_passcode(passcode)}
+    passcode = issue_passcode(email, "email_change", site["id"])
+    session["email_change"] = {"email": email}
     send_passcode(email, passcode)
     return render_template("account_email_verify.html", site=site, email=email)
 
@@ -47,7 +47,7 @@ def account_email_verify():
         return redirect("/-/account/email")
 
     passcode = request.form.get("passcode", "").strip()
-    if not verify_passcode(passcode, change["passcode"]):
+    if not check_passcode(change["email"], "email_change", passcode, site["id"]):
         return render_template(
             "account_email_verify.html", site=site, email=change["email"], error="Invalid passcode."
         )
