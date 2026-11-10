@@ -1,5 +1,8 @@
 import re
 
+import markdown
+import nh3
+
 RESERVED_SUBDOMAINS = {
     "www",
     "mail",
@@ -90,3 +93,41 @@ def get_current_site():
     if host != base:
         return get_user_by_custom_domain(host)
     return None
+
+
+ALLOWED_TAGS = {
+    "p",
+    "br",
+    "hr",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "a",
+    "img",
+    "em",
+    "strong",
+    "code",
+    "pre",
+    "blockquote",
+    "ul",
+    "ol",
+    "li",
+    "del",
+    "sup",
+    "sub",
+}
+ALLOWED_ATTRIBUTES = {"a": {"href", "title"}, "img": {"src", "alt", "title"}}
+ALLOWED_URL_SCHEMES = {"http", "https", "mailto"}
+
+
+def render_markdown(text):
+    return nh3.clean(
+        markdown.markdown(text or ""),
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        url_schemes=ALLOWED_URL_SCHEMES,
+        link_rel="noopener noreferrer",
+    )

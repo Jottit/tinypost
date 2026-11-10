@@ -2,12 +2,11 @@ import xml.etree.ElementTree as ET
 from datetime import timezone
 from email.utils import format_datetime
 
-import markdown as md
 from flask import Response, abort, jsonify
 
 from app import app
 from db import get_blogroll, get_posts_for_user, has_blogroll
-from utils import get_current_site, site_url
+from utils import get_current_site, render_markdown, site_url
 
 CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 SOURCE_NS = "http://source.scripting.com/"
@@ -71,7 +70,7 @@ def feed():
         ET.SubElement(item, "guid").text = permalink
         pub_date = (p["published_at"] or p["created_at"]).replace(tzinfo=timezone.utc)
         ET.SubElement(item, "pubDate").text = format_datetime(pub_date)
-        html = md.markdown(p["body"])
+        html = render_markdown(p["body"])
         ET.SubElement(item, "description").text = html
         ET.SubElement(item, f"{{{CONTENT_NS}}}encoded").text = html
         ET.SubElement(item, f"{{{SOURCE_NS}}}markdown").text = p["body"]
@@ -97,7 +96,7 @@ def feed_json():
                 "id": permalink,
                 "url": permalink,
                 "title": p["title"] or "",
-                "content_html": md.markdown(p["body"]),
+                "content_html": render_markdown(p["body"]),
                 "content_text": p["body"],
                 "date_published": (p["published_at"] or p["created_at"])
                 .replace(tzinfo=timezone.utc)

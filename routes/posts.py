@@ -1,4 +1,3 @@
-import markdown as md
 from flask import abort, jsonify, redirect, render_template, request, session
 
 from app import app
@@ -14,7 +13,7 @@ from db import (
 )
 from mailer import send_email
 from routes import require_owner
-from utils import RESERVED_SLUGS, get_current_site, site_url, slugify
+from utils import RESERVED_SLUGS, get_current_site, render_markdown, site_url, slugify
 
 
 @app.route("/-/edit", methods=["GET", "POST"])
@@ -119,7 +118,7 @@ def send_post(slug):
     mark_post_sent(post["id"])
 
     base_url = site_url(site)
-    body_html = md.markdown(post["body"])
+    body_html = render_markdown(post["body"])
     post_url = f"{base_url}/{slug}"
     for sub in subscribers:
         unsubscribe_url = f"{base_url}/unsubscribe/{sub['token']}"
