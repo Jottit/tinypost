@@ -269,6 +269,7 @@ def update_user(user_id, name, email):
 def delete_account(user_id):
     db = get_db()
     db.execute("DELETE FROM indieauth_codes WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM passcodes WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM blogroll WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM subscribers WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM posts WHERE user_id = %s", (user_id,))
@@ -484,6 +485,46 @@ def exchange_auth_code(code, token):
     ).fetchone()
     db.commit()
     return row
+
+
+def replace_passcode(user_id, purpose, passcode_hash):
+    db = get_db()
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    db.execute(
+        "DELETE FROM passcodes WHERE user_id = %s AND purpose = %s",
+        (user_id, purpose),
+    )
+    db.execute(
+        "INSERT INTO passcodes (user_id, purpose, passcode_hash, expires_at)"
+        " VALUES (%s, %s, %s, %s)",
+        (user_id, purpose, passcode_hash, expires_at),
+    )
+    db.commit()
+
+
+def get_passcode(user_id, purpose):
+    return query(
+        "SELECT * FROM passcodes WHERE user_id = %s AND purpose = %s AND expires_at > NOW()",
+        (user_id, purpose),
+        one=True,
+    )
+
+
+def increment_passcode_attempts(passcode_id):
+    db = get_db()
+    row = db.execute(
+        "UPDATE passcodes SET attempts = attempts + 1 WHERE id = %s RETURNING attempts",
+        (passcode_id,),
+    ).fetchone()
+    db.commit()
+    return row["attempts"] if row else None
+
+
+def delete_passcode(passcode_id):
+    db = get_db()
+    row = db.execute("DELETE FROM passcodes WHERE id = %s RETURNING id", (passcode_id,)).fetchone()
+    db.commit()
+    return row is not None
 
 
 def get_token(token):
