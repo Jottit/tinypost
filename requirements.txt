@@ -14,3 +14,4 @@ ruff
 black
 sentry-sdk[flask]
 stripe
+nh3
