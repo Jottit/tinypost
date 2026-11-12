@@ -7,11 +7,21 @@ from flask import abort, jsonify, redirect, render_template, request, session
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from app import app, limiter
-from auth import generate_passcode, send_passcode
-from db import create_auth_code, exchange_auth_code, get_auth_code, get_user_by_id
+from auth import generate_passcode, hash_passcode, send_passcode
+from db import (
+    check_passcode,
+    create_auth_code,
+    exchange_auth_code,
+    get_auth_code,
+    get_user_by_id,
+    replace_passcode,
+)
 from utils import get_current_site, mask_email, site_url
 
 _serializer = URLSafeTimedSerializer(app.secret_key, salt="indieauth-passcode")
+
+PASSCODE_PURPOSE = "indieauth"
+MAX_PASSCODE_ATTEMPTS = 5
 
 
 def _indieauth_params():
@@ -106,30 +116,35 @@ def indieauth_authorize_post():
 
     if action == "send_passcode":
         passcode = generate_passcode()
-        token = _serializer.dumps({"passcode": passcode, "user_id": site["id"]})
+        replace_passcode(site["id"], site["email"], PASSCODE_PURPOSE, hash_passcode(passcode))
         send_passcode(site["email"], passcode)
-        return _consent_template(site, "verify_passcode", params, passcode_token=token)
+        return _consent_template(site, "verify_passcode", params)
 
     if action == "verify_passcode":
         passcode = request.form.get("passcode", "")
-        token = request.form.get("passcode_token", "")
-        try:
-            data = _serializer.loads(token, max_age=600)
-        except (BadSignature, SignatureExpired):
+        result = check_passcode(
+            site["id"],
+            site["email"],
+            PASSCODE_PURPOSE,
+            hash_passcode(passcode),
+            MAX_PASSCODE_ATTEMPTS,
+        )
+        if result == "missing":
             return _consent_template(
                 site,
                 "send_passcode",
                 params,
                 error="Code expired. Try again.",
             )
-        if data["user_id"] != site["id"] or data["passcode"] != passcode:
+        if result == "locked":
             return _consent_template(
                 site,
-                "verify_passcode",
+                "send_passcode",
                 params,
-                passcode_token=token,
-                error="Wrong passcode.",
+                error="Too many wrong codes. Request a new one.",
             )
+        if result == "wrong":
+            return _consent_template(site, "verify_passcode", params, error="Wrong passcode.")
         auth_token = _serializer.dumps({"user_id": site["id"], "authenticated": True})
         session["user_id"] = site["id"]
         return _consent_template(site, "approve", params, auth_token=auth_token)
