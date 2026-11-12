@@ -7,7 +7,7 @@ import markdown
 from markupsafe import Markup
 
 from appearance import get_appearance_vars
-from utils import site_url, subdomain_url
+from utils import render_markdown, site_url, subdomain_url
 
 
 def init_templates(app):
@@ -17,7 +17,7 @@ def init_templates(app):
 
     @app.template_filter("markdown")
     def markdown_filter(text):
-        return Markup(markdown.markdown(text))
+        return Markup(render_markdown(text))
 
     @app.template_filter("timeago")
     def timeago_filter(dt):
@@ -151,7 +151,7 @@ def init_templates(app):
 
     @app.template_filter("comment_markdown")
     def comment_markdown_filter(text):
-        html = markdown.markdown(text)
+        html = render_markdown(text)
         html = re.sub(r"<h[1-6][^>]*>|</h[1-6]>", "", html)
         html = re.sub(r"<img[^>]*/?>", "", html)
         return Markup(html)
