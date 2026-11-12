@@ -5,6 +5,7 @@ import string
 
 from flask import current_app
 
+from db import replace_passcode
 from mailer import send_email
 
 
@@ -18,6 +19,15 @@ def hash_passcode(passcode):
 
 def verify_passcode(passcode, hashed):
     return hmac.compare_digest(hashlib.sha256(passcode.encode()).hexdigest(), hashed)
+
+
+MAX_PASSCODE_ATTEMPTS = 5
+
+
+def issue_passcode(email, purpose, user_id=None):
+    passcode = generate_passcode()
+    replace_passcode(user_id, email, purpose, hash_passcode(passcode))
+    return passcode
 
 
 def send_passcode(email, passcode):

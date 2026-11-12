@@ -25,7 +25,6 @@ def test_signup_rejects_taken_subdomain(client):
         sess["signup"] = {
             "name": "Test",
             "email": "new@example.com",
-            "passcode": "x",
             "verified": True,
         }
     response = client.post("/signup/address", data={"subdomain": "taken"})

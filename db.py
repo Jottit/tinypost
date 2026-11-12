@@ -1,3 +1,4 @@
+import hmac
 import os
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -269,6 +270,7 @@ def update_user(user_id, name, email):
 def delete_account(user_id):
     db = get_db()
     db.execute("DELETE FROM indieauth_codes WHERE user_id = %s", (user_id,))
+    db.execute("DELETE FROM passcodes WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM blogroll WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM subscribers WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM posts WHERE user_id = %s", (user_id,))
@@ -581,3 +583,43 @@ def get_user_by_stripe_customer_id(customer_id):
         (customer_id,),
         one=True,
     )
+
+
+def replace_passcode(user_id, email, purpose, passcode_hash):
+    db = get_db()
+    db.execute(
+        "DELETE FROM passcodes WHERE purpose = %s AND user_id = %s AND email <> %s",
+        (purpose, user_id, email),
+    )
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    db.execute(
+        "INSERT INTO passcodes (user_id, email, purpose, passcode_hash, expires_at)"
+        " VALUES (%s, %s, %s, %s, %s)"
+        " ON CONFLICT (purpose, email) DO UPDATE SET user_id = EXCLUDED.user_id,"
+        " passcode_hash = EXCLUDED.passcode_hash, attempts = 0,"
+        " expires_at = EXCLUDED.expires_at, created_at = NOW()",
+        (user_id, email, purpose, passcode_hash, expires_at),
+    )
+    db.commit()
+
+
+def check_passcode(user_id, email, purpose, passcode_hash, max_attempts):
+    db = get_db()
+    row = db.execute(
+        "SELECT * FROM passcodes WHERE purpose = %s AND email = %s"
+        " AND user_id IS NOT DISTINCT FROM %s AND expires_at > NOW() FOR UPDATE",
+        (purpose, email, user_id),
+    ).fetchone()
+    if not row:
+        result = "missing"
+    elif hmac.compare_digest(row["passcode_hash"], passcode_hash):
+        db.execute("DELETE FROM passcodes WHERE id = %s", (row["id"],))
+        result = "ok"
+    elif row["attempts"] + 1 >= max_attempts:
+        db.execute("DELETE FROM passcodes WHERE id = %s", (row["id"],))
+        result = "locked"
+    else:
+        db.execute("UPDATE passcodes SET attempts = attempts + 1 WHERE id = %s", (row["id"],))
+        result = "wrong"
+    db.commit()
+    return result
