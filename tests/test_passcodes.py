@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from app import app
 from auth import hash_passcode
-from db import create_user, get_db, get_user_by_id
+from db import create_user, get_db, get_user_by_id, update_user_email
 
 HOST = {"Host": "myblog.tinypost.localhost:8000"}
 
@@ -24,6 +24,40 @@ def _start_signin(client):
     with patch("routes.auth.send_passcode") as mock_send:
         response = client.post("/signin", data={"email": "owner@example.com"})
     return mock_send.call_args[0][1], response
+
+
+def _start_signup(client):
+    with patch("routes.auth.send_passcode") as mock_send:
+        client.post("/signup/email/send", data={"email": "u@example.com"})
+    return mock_send.call_args[0][1]
+
+
+def _signup_verified(client):
+    with client.session_transaction() as sess:
+        return bool(sess.get("signup", {}).get("verified"))
+
+
+def _start_email_change(client):
+    with app.app_context():
+        user = create_user("owner@example.com", "myblog")
+    with client.session_transaction() as sess:
+        sess["user_id"] = user["id"]
+    with patch("routes.account.send_passcode") as mock_send:
+        client.post("/-/account/email", data={"email": "new@example.com"}, headers=HOST)
+    return user, mock_send.call_args[0][1]
+
+
+def _verify_email_change(client, passcode):
+    return client.post("/-/account/email/verify", data={"passcode": passcode}, headers=HOST)
+
+
+def _email_of(user):
+    with app.app_context():
+        return get_user_by_id(user["id"])["email"]
+
+
+def _wrong(passcode):
+    return "000000" if passcode != "000000" else "111111"
 
 
 def _signed_in(client, user):
@@ -135,13 +169,67 @@ def test_signin_new_code_replaces_old(client):
     assert _signed_in(client, user)
 
 
-@patch("routes.auth.send_passcode")
-def test_signup_expired_code(mock_send, client):
-    client.post("/signup/email/send", data={"email": "u@example.com"})
-    passcode = mock_send.call_args[0][1]
+def test_signup_correct_code(client):
+    passcode = _start_signup(client)
+    client.post("/signup/verify", data={"passcode": passcode})
+    assert _signup_verified(client)
+
+
+def test_signup_expired_code(client):
+    passcode = _start_signup(client)
     _expire_passcodes()
     response = client.post("/signup/verify", data={"passcode": passcode})
     assert b"Wrong passcode" in response.data
+    assert not _signup_verified(client)
+
+
+def test_signup_locked_after_five_wrong_attempts(client):
+    passcode = _start_signup(client)
+    for _ in range(5):
+        client.post("/signup/verify", data={"passcode": _wrong(passcode)})
+    response = client.post("/signup/verify", data={"passcode": passcode})
+    assert b"Wrong passcode" in response.data
+    assert not _signup_verified(client)
+
+
+def test_signup_code_cannot_be_reused(client):
+    passcode = _start_signup(client)
+    client.post("/signup/verify", data={"passcode": passcode})
+    with client.session_transaction() as sess:
+        sess["signup"] = {"email": "u@example.com"}
+    response = client.post("/signup/verify", data={"passcode": passcode})
+    assert b"Wrong passcode" in response.data
+    assert not _signup_verified(client)
+
+
+def test_email_change_expired_code(client):
+    user, passcode = _start_email_change(client)
+    _expire_passcodes()
+    response = _verify_email_change(client, passcode)
+    assert b"Invalid passcode" in response.data
+    assert _email_of(user) == "owner@example.com"
+
+
+def test_email_change_locked_after_five_wrong_attempts(client):
+    user, passcode = _start_email_change(client)
+    for _ in range(5):
+        _verify_email_change(client, _wrong(passcode))
+    response = _verify_email_change(client, passcode)
+    assert b"Invalid passcode" in response.data
+    assert _email_of(user) == "owner@example.com"
+
+
+def test_email_change_code_cannot_be_reused(client):
+    user, passcode = _start_email_change(client)
+    _verify_email_change(client, passcode)
+    assert _email_of(user) == "new@example.com"
+    with app.app_context():
+        update_user_email(user["id"], "owner@example.com")
+    with client.session_transaction() as sess:
+        sess["email_change"] = {"email": "new@example.com"}
+    response = _verify_email_change(client, passcode)
+    assert b"Invalid passcode" in response.data
+    assert _email_of(user) == "owner@example.com"
 
 
 @patch("routes.account.send_passcode")
