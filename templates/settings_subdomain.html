@@ -9,6 +9,7 @@
         <p class="error">{{ error }}</p>
       {% endif %}
       <form method="POST" action="/-/settings/subdomain" class="settings-form auto-save">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="subdomain">Subdomain</label>
         <div class="pill-input">
           <input type="text" id="subdomain" name="subdomain" value="{{ site.subdomain }}">

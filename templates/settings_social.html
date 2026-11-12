@@ -23,6 +23,7 @@
                 </div>
               </div>
               <form method="POST" action="/-/settings/links/remove">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="index" value="{{ loop.index0 }}">
                 <button type="submit" class="following-remove" aria-label="Remove">&times;</button>
               </form>
@@ -31,6 +32,7 @@
         </div>
       {% endif %}
       <form method="POST" action="/-/settings/links/add" class="following-add-form following-add-form--stacked mt-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="text" name="label" placeholder="Label">
         <input type="text" name="url" placeholder="https://..." required>
         <button type="submit" class="btn--outline">Add</button>

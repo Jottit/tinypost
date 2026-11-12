@@ -12,6 +12,7 @@
         <p class="text-muted">Upgrade to use your own domain and support Tinypost.</p>
       </div>
       <form method="POST" action="/-/billing/checkout" class="panel panel--narrow upgrade-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label class="plan-card plan-card--selected">
           <input type="radio" name="interval" value="year" checked>
           <span class="plan-card-radio"></span>

@@ -28,6 +28,7 @@
                 </div>
               </div>
               <form method="POST" action="/-/following/remove">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="url" value="{{ item.url }}">
                 <button type="submit" class="following-remove" aria-label="Remove">&times;</button>
               </form>
@@ -36,6 +37,7 @@
         </div>
       {% endif %}
       <form method="POST" action="/-/following/add" class="following-add-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="text" name="url" placeholder="https://..." required>
         <button type="submit" class="btn--outline">Add</button>
       </form>

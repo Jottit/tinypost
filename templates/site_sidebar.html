@@ -22,6 +22,7 @@
   <div class="sidebar-section">
     <h3>Subscribe by email</h3>
     <form action="/subscribe" method="post" class="subscribe-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="pill-input">
         <input type="email" name="email" placeholder="Your email" required>
         <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">

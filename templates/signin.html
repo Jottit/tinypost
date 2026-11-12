@@ -8,6 +8,7 @@
       <p class="error">{{ error }}</p>
     {% endif %}
     <form action="/signin" method="post" class="email-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="email" name="email" class="email-input" placeholder="" required autofocus>
       <button type="submit" class="btn btn--outline btn--lg">Send passcode</button>
     </form>

@@ -24,6 +24,7 @@
             <strong>{{ site.custom_domain }}</strong>
             <span class="domain-badge-active">Active</span>
             <form method="POST" action="/-/settings/domain/remove" class="inline domain-active-remove">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="domain-remove">Remove</button>
             </form>
           </div>
@@ -80,9 +81,11 @@
           </div>
           <div class="domain-actions">
             <form method="POST" action="/-/settings/domain/verify" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn">Verify</button>
             </form>
             <form method="POST" action="/-/settings/domain/remove" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="domain-remove">Remove domain</button>
             </form>
           </div>
@@ -97,6 +100,7 @@
           </script>
         {% else %}
           <form method="POST" action="/-/settings/domain" class="domain-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label class="domain-label" for="domain">Your domain</label>
             <input type="text" name="domain" id="domain" placeholder="yourname.com">
             <button type="submit" class="btn btn--lg btn--full mt-4">Add domain</button>

@@ -4,8 +4,11 @@ import psycopg
 import pytest
 from alembic import command
 from alembic.config import Config
+from flask.testing import FlaskClient
+from werkzeug.datastructures import Headers
 
 from app import app
+from csrf import UNSAFE_METHODS
 
 TEST_DB = "tinypost_test"
 
@@ -41,6 +44,19 @@ def clean_tables():
     conn.close()
 
 
+class CSRFClient(FlaskClient):
+    """Sends the session's CSRF token with every unsafe request unless the test sets one."""
+
+    def open(self, *args, **kwargs):
+        if kwargs.get("method", "GET").upper() in UNSAFE_METHODS:
+            headers = Headers(kwargs.get("headers"))
+            if "X-CSRF-Token" not in headers:
+                with self.session_transaction() as sess:
+                    headers["X-CSRF-Token"] = sess.setdefault("csrf_token", "test-csrf-token")
+            kwargs["headers"] = headers
+        return super().open(*args, **kwargs)
+
+
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
@@ -49,6 +65,7 @@ def client():
     from app import limiter
 
     limiter.enabled = False
+    app.test_client_class = CSRFClient
     with app.test_client() as client:
         yield client
 

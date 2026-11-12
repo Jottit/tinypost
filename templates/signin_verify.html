@@ -7,6 +7,7 @@
       <p class="error">{{ error }}</p>
     {% endif %}
     <form action="/signin/verify" method="post" class="passcode-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="passcode" id="passcode-value">
       <div class="passcode-inputs">
         <input type="text" inputmode="numeric" maxlength="1" required autofocus>

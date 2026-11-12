@@ -5,6 +5,7 @@
     <h1 class="title">What's your email?</h1>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form action="/signup/email/send" method="post" class="email-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="email" name="email" class="email-input" placeholder="" required autofocus>
       <button type="submit" class="btn btn--outline btn--lg">Next</button>
     </form>

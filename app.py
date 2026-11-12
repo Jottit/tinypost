@@ -8,6 +8,7 @@ if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(dsn=os.environ["SENTRY_DSN"])
 
 from cli import init_cli
+from csrf import init_csrf
 from db import close_db
 from template_setup import init_templates
 
@@ -38,6 +39,7 @@ limiter = Limiter(
 
 init_templates(app)
 init_cli(app)
+init_csrf(app)
 
 
 from routes import *  # noqa: F401,F403
