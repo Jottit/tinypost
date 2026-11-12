@@ -1,11 +1,14 @@
 import base64
 import hashlib
 import re
+import threading
 import zlib
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 
 from app import app
-from db import create_user, get_db
+from auth import hash_passcode
+from db import check_passcode, create_user, get_db, replace_passcode, update_user_email
 
 
 def extract_hidden(html, name):
@@ -472,3 +475,88 @@ class TestPasscodeServerSide:
         if first != second:
             assert b"auth_token" not in self._verify(client, challenge, first).data
         assert b"auth_token" in self._verify(client, challenge, second).data
+
+    @patch("routes.indieauth.send_passcode")
+    def test_email_change_invalidates_old_code(self, mock_send, client):
+        user = make_site(client)
+        _, challenge = pkce_pair()
+        _, first = self._send(client, mock_send, challenge)
+        with app.app_context():
+            update_user_email(user["id"], "new@example.com")
+        assert b"auth_token" not in self._verify(client, challenge, first).data
+        _, second = self._send(client, mock_send, challenge)
+        with app.app_context():
+            assert passcode_rows() == [("new@example.com", hash_passcode(second))]
+        assert b"auth_token" in self._verify(client, challenge, second).data
+
+
+def passcode_rows():
+    rows = get_db().execute("SELECT email, passcode_hash FROM passcodes").fetchall()
+    return [(r["email"], r["passcode_hash"]) for r in rows]
+
+
+def run_concurrently(count, fn):
+    barrier = threading.Barrier(count)
+
+    def worker(i):
+        with app.app_context():
+            barrier.wait()
+            return fn(i)
+
+    with ThreadPoolExecutor(max_workers=count) as pool:
+        return list(pool.map(worker, range(count)))
+
+
+class TestPasscodeConcurrency:
+    def test_concurrent_sends_leave_one_code(self, client):
+        user = make_site(client)
+        hashes = [hash_passcode(f"{i:06d}") for i in range(10)]
+        run_concurrently(
+            10,
+            lambda i: replace_passcode(user["id"], user["email"], "indieauth", hashes[i]),
+        )
+        with app.app_context():
+            rows = passcode_rows()
+        assert len(rows) == 1
+        assert rows[0][1] in hashes
+
+    def test_concurrent_wrong_guesses_are_limited(self, client):
+        user = make_site(client)
+        with app.app_context():
+            replace_passcode(user["id"], user["email"], "indieauth", hash_passcode("123456"))
+        results = run_concurrently(
+            10,
+            lambda i: check_passcode(
+                user["id"], user["email"], "indieauth", hash_passcode("000000"), 5
+            ),
+        )
+        assert sorted(results) == ["locked"] + ["missing"] * 5 + ["wrong"] * 4
+        with app.app_context():
+            assert passcode_rows() == []
+
+    def test_concurrent_correct_code_used_once(self, client):
+        user = make_site(client)
+        with app.app_context():
+            replace_passcode(user["id"], user["email"], "indieauth", hash_passcode("123456"))
+        results = run_concurrently(
+            5,
+            lambda i: check_passcode(
+                user["id"], user["email"], "indieauth", hash_passcode("123456"), 5
+            ),
+        )
+        assert sorted(results) == ["missing"] * 4 + ["ok"]
+
+    def test_right_code_fails_after_concurrent_fifth_wrong(self, client):
+        user = make_site(client)
+        with app.app_context():
+            replace_passcode(user["id"], user["email"], "indieauth", hash_passcode("123456"))
+            for _ in range(4):
+                check_passcode(user["id"], user["email"], "indieauth", hash_passcode("000000"), 5)
+        guesses = ["000000", "123456"]
+        results = run_concurrently(
+            2,
+            lambda i: check_passcode(
+                user["id"], user["email"], "indieauth", hash_passcode(guesses[i]), 5
+            ),
+        )
+        assert results in (["locked", "missing"], ["missing", "ok"])

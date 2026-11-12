@@ -35,9 +35,11 @@ def upgrade() -> None:
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
+    op.create_index("idx_passcodes_purpose_email", "passcodes", ["purpose", "email"], unique=True)
     op.create_index("idx_passcodes_user_id_purpose", "passcodes", ["user_id", "purpose"])
 
 
 def downgrade() -> None:
     op.drop_index("idx_passcodes_user_id_purpose", table_name="passcodes")
+    op.drop_index("idx_passcodes_purpose_email", table_name="passcodes")
     op.drop_table("passcodes")

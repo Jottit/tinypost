@@ -7,15 +7,13 @@ from flask import abort, jsonify, redirect, render_template, request, session
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from app import app, limiter
-from auth import generate_passcode, hash_passcode, send_passcode, verify_passcode
+from auth import generate_passcode, hash_passcode, send_passcode
 from db import (
+    check_passcode,
     create_auth_code,
-    delete_passcode,
     exchange_auth_code,
     get_auth_code,
-    get_passcode,
     get_user_by_id,
-    increment_passcode_attempts,
     replace_passcode,
 )
 from utils import get_current_site, mask_email, site_url
@@ -124,32 +122,29 @@ def indieauth_authorize_post():
 
     if action == "verify_passcode":
         passcode = request.form.get("passcode", "")
-        row = get_passcode(site["id"], PASSCODE_PURPOSE)
-        if not row or row["attempts"] >= MAX_PASSCODE_ATTEMPTS:
+        result = check_passcode(
+            site["id"],
+            site["email"],
+            PASSCODE_PURPOSE,
+            hash_passcode(passcode),
+            MAX_PASSCODE_ATTEMPTS,
+        )
+        if result == "missing":
             return _consent_template(
                 site,
                 "send_passcode",
                 params,
                 error="Code expired. Try again.",
             )
-        if not verify_passcode(passcode, row["passcode_hash"]):
-            attempts = increment_passcode_attempts(row["id"])
-            if attempts is None or attempts >= MAX_PASSCODE_ATTEMPTS:
-                delete_passcode(row["id"])
-                return _consent_template(
-                    site,
-                    "send_passcode",
-                    params,
-                    error="Too many wrong codes. Request a new one.",
-                )
+        if result == "locked":
+            return _consent_template(
+                site,
+                "send_passcode",
+                params,
+                error="Too many wrong codes. Request a new one.",
+            )
+        if result == "wrong":
             return _consent_template(site, "verify_passcode", params, error="Wrong passcode.")
-        if not delete_passcode(row["id"]):
-            return _consent_template(
-                site,
-                "send_passcode",
-                params,
-                error="Code expired. Try again.",
-            )
         auth_token = _serializer.dumps({"user_id": site["id"], "authenticated": True})
         session["user_id"] = site["id"]
         return _consent_template(site, "approve", params, auth_token=auth_token)

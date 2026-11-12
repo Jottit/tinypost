@@ -1,3 +1,4 @@
+import hmac
 import os
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -491,41 +492,40 @@ def replace_passcode(user_id, email, purpose, passcode_hash):
     db = get_db()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     db.execute(
-        "DELETE FROM passcodes WHERE email = %s AND purpose = %s"
-        " AND user_id IS NOT DISTINCT FROM %s",
-        (email, purpose, user_id),
+        "DELETE FROM passcodes WHERE purpose = %s AND user_id = %s AND email <> %s",
+        (purpose, user_id, email),
     )
     db.execute(
         "INSERT INTO passcodes (user_id, email, purpose, passcode_hash, expires_at)"
-        " VALUES (%s, %s, %s, %s, %s)",
+        " VALUES (%s, %s, %s, %s, %s)"
+        " ON CONFLICT (purpose, email) DO UPDATE SET user_id = EXCLUDED.user_id,"
+        " passcode_hash = EXCLUDED.passcode_hash, attempts = 0,"
+        " expires_at = EXCLUDED.expires_at, created_at = NOW()",
         (user_id, email, purpose, passcode_hash, expires_at),
     )
     db.commit()
 
 
-def get_passcode(user_id, purpose):
-    return query(
-        "SELECT * FROM passcodes WHERE user_id = %s AND purpose = %s AND expires_at > NOW()",
-        (user_id, purpose),
-        one=True,
-    )
-
-
-def increment_passcode_attempts(passcode_id):
+def check_passcode(user_id, email, purpose, passcode_hash, max_attempts):
     db = get_db()
     row = db.execute(
-        "UPDATE passcodes SET attempts = attempts + 1 WHERE id = %s RETURNING attempts",
-        (passcode_id,),
+        "SELECT * FROM passcodes WHERE purpose = %s AND email = %s"
+        " AND user_id IS NOT DISTINCT FROM %s AND expires_at > NOW() FOR UPDATE",
+        (purpose, email, user_id),
     ).fetchone()
+    if not row:
+        result = "missing"
+    elif hmac.compare_digest(row["passcode_hash"], passcode_hash):
+        db.execute("DELETE FROM passcodes WHERE id = %s", (row["id"],))
+        result = "ok"
+    elif row["attempts"] + 1 >= max_attempts:
+        db.execute("DELETE FROM passcodes WHERE id = %s", (row["id"],))
+        result = "locked"
+    else:
+        db.execute("UPDATE passcodes SET attempts = attempts + 1 WHERE id = %s", (row["id"],))
+        result = "wrong"
     db.commit()
-    return row["attempts"] if row else None
-
-
-def delete_passcode(passcode_id):
-    db = get_db()
-    row = db.execute("DELETE FROM passcodes WHERE id = %s RETURNING id", (passcode_id,)).fetchone()
-    db.commit()
-    return row is not None
+    return result
 
 
 def get_token(token):
