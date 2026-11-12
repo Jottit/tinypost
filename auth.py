@@ -5,7 +5,7 @@ import string
 
 from flask import current_app
 
-from db import count_passcode_attempt, delete_passcode, replace_passcode
+from db import replace_passcode
 from mailer import send_email
 
 
@@ -28,13 +28,6 @@ def issue_passcode(email, purpose, user_id=None):
     passcode = generate_passcode()
     replace_passcode(user_id, email, purpose, hash_passcode(passcode))
     return passcode
-
-
-def check_passcode(email, purpose, passcode, user_id=None):
-    row = count_passcode_attempt(email, purpose, user_id, MAX_PASSCODE_ATTEMPTS)
-    if not row or not verify_passcode(passcode, row["passcode_hash"]):
-        return False
-    return delete_passcode(row["id"]) is not None
 
 
 def send_passcode(email, passcode):

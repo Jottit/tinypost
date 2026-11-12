@@ -3,8 +3,8 @@ import re
 from flask import redirect, render_template, request, session
 
 from app import app, limiter
-from auth import check_passcode, issue_passcode, send_passcode
-from db import create_user, get_user_by_email, subdomain_taken
+from auth import MAX_PASSCODE_ATTEMPTS, hash_passcode, issue_passcode, send_passcode
+from db import check_passcode, create_user, get_user_by_email, subdomain_taken
 from utils import is_valid_subdomain, subdomain_url
 
 
@@ -54,7 +54,10 @@ def signup_verify():
         return redirect("/signup")
 
     code = request.form["passcode"]
-    if not check_passcode(signup["email"], "signup", code):
+    result = check_passcode(
+        None, signup["email"], "signup", hash_passcode(code), MAX_PASSCODE_ATTEMPTS
+    )
+    if result != "ok":
         return render_template("signup_verify.html", email=signup["email"], error="Wrong passcode.")
 
     session["signup"] = {**signup, "verified": True}
@@ -133,7 +136,10 @@ def signin_verify():
         session.pop("signin")
         return redirect("/signin")
     code = request.form["passcode"]
-    if not check_passcode(signin["email"], "signin", code, user["id"]):
+    result = check_passcode(
+        user["id"], signin["email"], "signin", hash_passcode(code), MAX_PASSCODE_ATTEMPTS
+    )
+    if result != "ok":
         return render_template("signin_verify.html", email=signin["email"], error="Wrong passcode.")
     session.pop("signin")
     session["user_id"] = user["id"]
